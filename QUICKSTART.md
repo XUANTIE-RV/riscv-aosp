@@ -8,10 +8,9 @@ https://source.android.com/setup/build/initializing
 
 Run reproduce.sh to download aosp to current dir and compile the AOSP on riscv emulator. If repo sync is abort for network reason, just re-run the reproduce.sh script. Finally use the following cmd to start emulator:
 
+```
 cd {AOSP_RISCV_BUILD_TOP}
-
 source ./build/envsetup.sh
-
 lunch aosp_riscv64-eng
-
 emulator -selinux permissive -qemu -smp 2 -m 3800M -bios ${AOSP_RISCV_BUILD_TOP}/prebuilts/qemu-kernel/riscv64/ranchu/fw_jump.bin
+```
