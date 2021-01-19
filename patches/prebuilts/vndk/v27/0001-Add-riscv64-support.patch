@@ -1,0 +1,37 @@
+From 4f13d72977a99ce7e893c53312f98e019196823d Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sun, 17 Jan 2021 16:39:15 +0800
+Subject: [PATCH] Add riscv64 support
+
+Change-Id: I2abf88b0fb4bcd7842d7a129e620290b1b2c1a2d
+---
+ Android.bp | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/Android.bp b/Android.bp
+index f9fd83b..9fd27f4 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -10,6 +10,9 @@ prebuilt_etc {
+         android_arm: {
+             src: "arm/configs/llndk.libraries.27.txt",
+         },
++        android_riscv64: {
++            src: "arm64/configs/llndk.libraries.27.txt",
++        },
+         android_x86_64: {
+             src: "x86_64/configs/llndk.libraries.27.txt",
+         },
+@@ -28,6 +31,9 @@ prebuilt_etc {
+         android_arm: {
+             src: "arm/configs/vndksp.libraries.27.txt",
+         },
++        android_riscv64: {
++            src: "arm64/configs/vndksp.libraries.27.txt",
++        },
+         android_x86_64: {
+             src: "x86_64/configs/vndksp.libraries.27.txt",
+         },
+-- 
+2.18.4
+

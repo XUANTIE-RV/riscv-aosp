@@ -1,0 +1,35 @@
+From bb3c583731fa6a8ab84505a9103256fabf708520 Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Mon, 9 Nov 2020 15:37:48 +0800
+Subject: [PATCH] Add instrucion set check for riscv64
+
+Change-Id: I1cf95a71b4808f1ffe0fd56a8406de035c0cfc1d
+---
+ libart/src/main/java/dalvik/system/VMRuntime.java | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/libart/src/main/java/dalvik/system/VMRuntime.java b/libart/src/main/java/dalvik/system/VMRuntime.java
+index 7d70680298..a339edc73d 100644
+--- a/libart/src/main/java/dalvik/system/VMRuntime.java
++++ b/libart/src/main/java/dalvik/system/VMRuntime.java
+@@ -53,6 +53,7 @@ public final class VMRuntime {
+         ABI_TO_INSTRUCTION_SET_MAP.put("x86", "x86");
+         ABI_TO_INSTRUCTION_SET_MAP.put("x86_64", "x86_64");
+         ABI_TO_INSTRUCTION_SET_MAP.put("arm64-v8a", "arm64");
++        ABI_TO_INSTRUCTION_SET_MAP.put("riscv64", "riscv64");
+     }
+ 
+     /**
+@@ -621,7 +622,8 @@ public final class VMRuntime {
+     public static boolean is64BitInstructionSet(String instructionSet) {
+         return "arm64".equals(instructionSet) ||
+                 "x86_64".equals(instructionSet) ||
+-                "mips64".equals(instructionSet);
++                "mips64".equals(instructionSet) ||
++                "riscv64".equals(instructionSet);
+     }
+ 
+     @UnsupportedAppUsage
+-- 
+2.18.4
+

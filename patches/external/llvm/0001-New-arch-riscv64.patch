@@ -1,0 +1,110 @@
+From 3011d2b6d4571c3a1b2490f01f2d2e22e2c3c200 Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sat, 16 Jan 2021 21:21:41 +0800
+Subject: [PATCH] New arch riscv64
+
+Change-Id: Ia17e45b302a16b49748a085d9be31140459a7064
+---
+ Android.bp                                 | 18 ++++++++++++++-
+ include/llvm/Config/llvm-platform-config.h | 27 ++++++++++++++++++++++
+ utils/TableGen/Android.bp                  |  2 +-
+ 3 files changed, 45 insertions(+), 2 deletions(-)
+
+diff --git a/Android.bp b/Android.bp
+index c5740d201a9..dc72f005d7f 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -200,6 +200,17 @@ llvm_aarch64_static_libraries = [
+     "libLLVMAArch64Disassembler",
+ ]
+ 
++llvm_riscv64_static_libraries = [
++    //"libLLVMRISCV64CodeGen",
++    //"libLLVMRISCV64Info",
++    //"libLLVMRISCV64Desc",
++    //"libLLVMRISCV64AsmParser",
++    //"libLLVMRISCV64AsmPrinter",
++    //"libLLVMRISCV64Utils",
++    //"libLLVMRISCV64Disassembler",
++]
++
++
+ cc_library {
+     host_supported: true,
+     name: "libLLVM_android",
+@@ -260,7 +271,8 @@ cc_library {
+            whole_static_libs: llvm_arm_static_libraries +
+                 llvm_aarch64_static_libraries +
+                 llvm_mips_static_libraries +
+-                llvm_x86_static_libraries,
++                llvm_x86_static_libraries +
++                llvm_riscv64_static_libraries,
+             export_include_dirs: ["host/include"],
+         },
+         windows: {
+@@ -298,6 +310,10 @@ cc_library {
+             whole_static_libs: llvm_aarch64_static_libraries +
+                 llvm_arm_static_libraries,
+         },
++        android_riscv64: {
++            whole_static_libs: llvm_riscv64_static_libraries,
++        },
++
+     },
+ }
+ 
+diff --git a/include/llvm/Config/llvm-platform-config.h b/include/llvm/Config/llvm-platform-config.h
+index c9e82dabcc8..03b2a8c074e 100644
+--- a/include/llvm/Config/llvm-platform-config.h
++++ b/include/llvm/Config/llvm-platform-config.h
+@@ -115,6 +115,33 @@
+ /* LLVM name for the native target MC init function, if available */
+ #define LLVM_NATIVE_TARGETMC LLVMInitializeAArch64TargetMC
+ 
++#elif defined(__riscv) && (__riscv_xlen == 64)
++
++/* LLVM architecture name for the native architecture, if available */
++#define LLVM_NATIVE_ARCH Riscv64
++
++/* Host triple LLVM will be executed on */
++#define LLVM_HOST_TRIPLE "riscv64-none-linux-gnu"
++
++/* LLVM name for the native AsmParser init function, if available */
++#define LLVM_NATIVE_ASMPARSER LLVMInitializeRiscv64AsmParser
++
++/* LLVM name for the native AsmPrinter init function, if available */
++#define LLVM_NATIVE_ASMPRINTER LLVMInitializeRiscv64AsmPrinter
++
++/* LLVM name for the native Disassembler init function, if available */
++#define LLVM_NATIVE_DISASSEMBLER LLVMInitializeRiscv64Disassembler
++
++/* LLVM name for the native Target init function, if available */
++#define LLVM_NATIVE_TARGET LLVMInitializeRiscv64Target
++
++/* LLVM name for the native TargetInfo init function, if available */
++#define LLVM_NATIVE_TARGETINFO LLVMInitializeRiscv64TargetInfo
++
++/* LLVM name for the native target MC init function, if available */
++#define LLVM_NATIVE_TARGETMC LLVMInitializeRiscv64TargetMC
++
++
+ #else
+ 
+ #error "Unknown native architecture"
+diff --git a/utils/TableGen/Android.bp b/utils/TableGen/Android.bp
+index 3c7e9932481..d257b2f1271 100644
+--- a/utils/TableGen/Android.bp
++++ b/utils/TableGen/Android.bp
+@@ -4,8 +4,8 @@ cc_binary_host {
+     srcs: ["*.cpp"],
+ 
+     static_libs: [
+-        "libLLVMSupport",
+         "libLLVMTableGen",
++        "libLLVMSupport",
+     ],
+     clang_cflags: [
+         "-Wno-user-defined-warnings",
+-- 
+2.18.4
+

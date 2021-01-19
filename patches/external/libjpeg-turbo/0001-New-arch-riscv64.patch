@@ -1,0 +1,27 @@
+From 76bdc7fdb31dde7e803d7902eddc99d2e666a60c Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sat, 16 Jan 2021 21:18:06 +0800
+Subject: [PATCH] New arch riscv64
+
+Change-Id: I704065dbc7b39f2db90cf89e1c2f3ea61e051253
+---
+ Android.bp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/Android.bp b/Android.bp
+index e3454fd..03fde61 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -187,6 +187,9 @@ cc_defaults {
+         mips64: {
+             srcs: ["jsimd_none.c"],
+         },
++        riscv64: {
++            srcs: ["jsimd_none.c"],
++        },
+     },
+ 
+     target: {
+-- 
+2.18.4
+

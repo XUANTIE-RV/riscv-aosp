@@ -1,0 +1,32 @@
+From 9d18ec67d00cd8d63ee11a2270310d838bd947d3 Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sat, 16 Jan 2021 21:14:16 +0800
+Subject: [PATCH] Building support for riscv64
+
+Change-Id: I4ce50e39e7ff2759d53d1e9dc3f19ad5aa9339f3
+---
+ CMakeLists.txt | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index f584002..c6fe298 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -129,10 +129,10 @@ if(NOT MSVC)
+ 
+   # clang outputs some warnings for unknown flags that are not caught by check_cxx_compiler_flag
+   # adding -Werror turns such warnings into errors
+-  check_cxx_compiler_flag("-Werror" COMPILER_SUPPORT_WERROR)
+-  if(COMPILER_SUPPORT_WERROR)
+-    set(CMAKE_REQUIRED_FLAGS "-Werror")
+-  endif()
++  #check_cxx_compiler_flag("-Werror" COMPILER_SUPPORT_WERROR)
++  #if(COMPILER_SUPPORT_WERROR)
++  #  set(CMAKE_REQUIRED_FLAGS "-Werror")
++  #endif()
+   ei_add_cxx_compiler_flag("-pedantic")
+   ei_add_cxx_compiler_flag("-Wall")
+   ei_add_cxx_compiler_flag("-Wextra")
+-- 
+2.18.4
+

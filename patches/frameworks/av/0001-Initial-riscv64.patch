@@ -1,0 +1,4158 @@
+From 80851499900d3932b7e766e6c3a94f25d18a67b1 Mon Sep 17 00:00:00 2001
+From: Lifang Xia <xlf194833@alibaba-inc.com>
+Date: Mon, 22 Jun 2020 16:15:46 +0800
+Subject: [PATCH] Initial riscv64
+
+Change-Id: I912b4f257efa4bf71d5deaf6e641388aba990f6c
+---
+ apex/Android.bp                               |   1 -
+ cmds/stagefright/Android.mk                   |   7 +-
+ drm/drmserver/Android.bp                      |   2 +-
+ media/codec2/components/aom/Android.bp        |  14 -
+ media/codec2/components/base/Android.bp       |   8 +-
+ media/codec2/components/cmds/Android.bp       |   2 +-
+ media/codec2/components/hevc/Android.bp       |  25 -
+ media/codec2/components/vpx/Android.bp        |  60 --
+ media/codec2/faultinjection/Android.bp        |   2 +-
+ media/codec2/sfplugin/Android.bp              |   2 +-
+ media/codec2/sfplugin/utils/Android.bp        |   2 +-
+ media/extractors/aac/Android.bp               |   2 +-
+ media/extractors/amr/Android.bp               |   2 +-
+ media/extractors/flac/Android.bp              |   2 +-
+ media/extractors/midi/Android.bp              |   2 +-
+ media/extractors/mkv/Android.bp               |  45 -
+ media/extractors/mp3/Android.bp               |   2 +-
+ media/extractors/mp4/Android.bp               |   2 +-
+ media/extractors/mpeg2/Android.bp             |   2 +-
+ media/extractors/ogg/Android.bp               |   2 +-
+ media/extractors/wav/Android.bp               |   2 +-
+ media/libmedia/Android.bp                     |  10 +-
+ media/libmediametrics/Android.bp              |  15 +-
+ media/libmediaplayer2/Android.bp              |   4 +-
+ media/libmediaplayer2/nuplayer2/Android.bp    |   2 +-
+ media/libmediaplayerservice/Android.bp        |   2 +-
+ .../libmediaplayerservice/nuplayer/Android.bp |   2 +-
+ media/libstagefright/Android.bp               |  17 +-
+ media/libstagefright/MediaCodec.cpp           |   3 +-
+ media/libstagefright/bqhelper/Android.bp      |   2 +-
+ media/libstagefright/codecs/aacdec/Android.bp |   2 +-
+ media/libstagefright/codecs/aacenc/Android.bp |   2 +-
+ .../libstagefright/codecs/amrwbenc/Android.bp |   4 +-
+ .../codecs/amrwbenc/SampleCode/Android.bp     |   2 +-
+ media/libstagefright/codecs/avcdec/Android.bp |   2 +-
+ media/libstagefright/codecs/avcenc/Android.bp |   2 +-
+ .../libstagefright/codecs/flac/dec/Android.bp |   2 +-
+ .../libstagefright/codecs/flac/enc/Android.bp |   2 +-
+ .../libstagefright/codecs/g711/dec/Android.bp |   2 +-
+ .../libstagefright/codecs/gsm/dec/Android.bp  |   2 +-
+ .../libstagefright/codecs/hevcdec/Android.bp  |  26 -
+ .../codecs/m4v_h263/dec/Android.bp            |   4 +-
+ .../codecs/m4v_h263/enc/Android.bp            |   6 +-
+ media/libstagefright/codecs/mp3dec/Android.bp |   6 +-
+ .../libstagefright/codecs/mpeg2dec/Android.bp |   2 +-
+ .../libstagefright/codecs/on2/dec/Android.bp  |  18 -
+ media/libstagefright/codecs/on2/dec/NOTICE    | 190 -----
+ .../libstagefright/codecs/on2/dec/SoftVPX.cpp | 373 ---------
+ media/libstagefright/codecs/on2/dec/SoftVPX.h |  84 --
+ .../libstagefright/codecs/on2/dec/exports.lds |   5 -
+ .../libstagefright/codecs/on2/enc/Android.bp  |  24 -
+ .../codecs/on2/enc/MODULE_LICENSE_APACHE2     |   0
+ media/libstagefright/codecs/on2/enc/NOTICE    | 190 -----
+ .../codecs/on2/enc/SoftVP8Encoder.cpp         | 162 ----
+ .../codecs/on2/enc/SoftVP8Encoder.h           |  93 ---
+ .../codecs/on2/enc/SoftVP9Encoder.cpp         | 169 ----
+ .../codecs/on2/enc/SoftVP9Encoder.h           |  91 --
+ .../codecs/on2/enc/SoftVPXEncoder.cpp         | 789 ------------------
+ .../codecs/on2/enc/SoftVPXEncoder.h           | 251 ------
+ .../libstagefright/codecs/on2/enc/exports.lds |   5 -
+ .../libstagefright/codecs/opus/dec/Android.bp |   2 +-
+ media/libstagefright/codecs/raw/Android.bp    |   2 +-
+ .../libstagefright/codecs/xaacdec/Android.bp  |   2 +-
+ .../libstagefright/colorconversion/Android.bp |   2 +-
+ media/libstagefright/filters/Android.bp       |   6 +-
+ media/libstagefright/flac/dec/Android.bp      |   2 +-
+ media/libstagefright/foundation/Android.bp    |   2 +-
+ media/libstagefright/http/Android.bp          |   2 +-
+ media/libstagefright/httplive/Android.bp      |   2 +-
+ media/libstagefright/id3/Android.bp           |   4 +-
+ media/libstagefright/mpeg2ts/Android.bp       |   2 +-
+ media/libstagefright/omx/Android.bp           |  10 +-
+ media/libstagefright/rtsp/Android.bp          |   4 +-
+ media/libstagefright/timedtext/Android.bp     |   4 +-
+ media/libstagefright/webm/Android.bp          |   2 +-
+ media/libstagefright/xmlparser/Android.bp     |   2 +-
+ media/mediaserver/Android.bp                  |   2 +-
+ media/ndk/Android.bp                          |   2 +-
+ media/utils/MemoryLeakTrackUtil.cpp           |   2 +
+ services/audioflinger/AudioFlinger.cpp        |   1 +
+ .../audiopolicy/managerdefault/Android.mk     |   2 +-
+ services/mediacodec/Android.bp                |  21 +-
+ services/mediacodec/Android.mk                |   4 +-
+ services/mediacodec/registrant/Android.bp     |   7 -
+ .../mediaswcodec-riscv64.policy               |   0
+ services/mediadrm/Android.mk                  |   6 +-
+ services/mediaextractor/Android.bp            |  25 +-
+ services/mediaextractor/mediaextractor.rc     |  12 +-
+ .../mediaextractor-riscv64.policy             |  50 ++
+ 89 files changed, 187 insertions(+), 2752 deletions(-)
+ delete mode 100644 media/codec2/components/aom/Android.bp
+ delete mode 100644 media/codec2/components/hevc/Android.bp
+ delete mode 100644 media/codec2/components/vpx/Android.bp
+ delete mode 100644 media/extractors/mkv/Android.bp
+ delete mode 100644 media/libstagefright/codecs/hevcdec/Android.bp
+ delete mode 100644 media/libstagefright/codecs/on2/dec/Android.bp
+ delete mode 100644 media/libstagefright/codecs/on2/dec/NOTICE
+ delete mode 100644 media/libstagefright/codecs/on2/dec/SoftVPX.cpp
+ delete mode 100644 media/libstagefright/codecs/on2/dec/SoftVPX.h
+ delete mode 100644 media/libstagefright/codecs/on2/dec/exports.lds
+ delete mode 100644 media/libstagefright/codecs/on2/enc/Android.bp
+ delete mode 100644 media/libstagefright/codecs/on2/enc/MODULE_LICENSE_APACHE2
+ delete mode 100644 media/libstagefright/codecs/on2/enc/NOTICE
+ delete mode 100644 media/libstagefright/codecs/on2/enc/SoftVP8Encoder.cpp
+ delete mode 100644 media/libstagefright/codecs/on2/enc/SoftVP8Encoder.h
+ delete mode 100644 media/libstagefright/codecs/on2/enc/SoftVP9Encoder.cpp
+ delete mode 100644 media/libstagefright/codecs/on2/enc/SoftVP9Encoder.h
+ delete mode 100644 media/libstagefright/codecs/on2/enc/SoftVPXEncoder.cpp
+ delete mode 100644 media/libstagefright/codecs/on2/enc/SoftVPXEncoder.h
+ delete mode 100644 media/libstagefright/codecs/on2/enc/exports.lds
+ rename media/libstagefright/codecs/on2/dec/MODULE_LICENSE_APACHE2 => services/mediacodec/seccomp_policy/mediaswcodec-riscv64.policy (100%)
+ create mode 100644 services/mediaextractor/seccomp_policy/mediaextractor-riscv64.policy
+
+diff --git a/apex/Android.bp b/apex/Android.bp
+index 42a620bc00..bf4c490d43 100644
+--- a/apex/Android.bp
++++ b/apex/Android.bp
+@@ -24,7 +24,6 @@ apex_defaults {
+                 "libamrextractor",
+                 "libflacextractor",
+                 "libmidiextractor",
+-                "libmkvextractor",
+                 "libmp3extractor",
+                 "libmp4extractor",
+                 "libmpeg2extractor",
+diff --git a/cmds/stagefright/Android.mk b/cmds/stagefright/Android.mk
+index 6eb2e9f07b..f393140047 100644
+--- a/cmds/stagefright/Android.mk
++++ b/cmds/stagefright/Android.mk
+@@ -170,7 +170,7 @@ LOCAL_SHARED_LIBRARIES := \
+         libui \
+         libgui \
+         libcutils \
+-        libRScpp \
++        #libRScpp \
+ 
+ LOCAL_C_INCLUDES:= \
+         frameworks/av/media/libstagefright \
+@@ -178,11 +178,12 @@ LOCAL_C_INCLUDES:= \
+         frameworks/rs/cpp \
+         frameworks/rs \
+ 
+-intermediates := $(call intermediates-dir-for,STATIC_LIBRARIES,libRS,TARGET,)
++#intermediates := $(call intermediates-dir-for,STATIC_LIBRARIES,libRS,TARGET,)
+ LOCAL_C_INCLUDES += $(intermediates)
+ 
+ LOCAL_STATIC_LIBRARIES:= \
+-        libstagefright_mediafilter
++
++#        libstagefright_mediafilter
+ 
+ LOCAL_CFLAGS += -Wno-multichar -Werror -Wall
+ 
+diff --git a/drm/drmserver/Android.bp b/drm/drmserver/Android.bp
+index c25a0a172f..d31caa822c 100644
+--- a/drm/drmserver/Android.bp
++++ b/drm/drmserver/Android.bp
+@@ -40,7 +40,7 @@ cc_binary {
+         "-Werror",
+     ],
+ 
+-    compile_multilib: "32",
++    compile_multilib: "64",
+ 
+     init_rc: ["drmserver.rc"],
+ }
+diff --git a/media/codec2/components/aom/Android.bp b/media/codec2/components/aom/Android.bp
+deleted file mode 100644
+index 0fabf5cf87..0000000000
+--- a/media/codec2/components/aom/Android.bp
++++ /dev/null
+@@ -1,14 +0,0 @@
+-cc_library_shared {
+-    name: "libcodec2_soft_av1dec",
+-    defaults: [
+-        "libcodec2_soft-defaults",
+-        "libcodec2_soft_sanitize_all-defaults",
+-    ],
+-
+-    srcs: ["C2SoftAomDec.cpp"],
+-    static_libs: ["libaom"],
+-
+-    include_dirs: [
+-        "external/libaom/",
+-    ],
+-}
+diff --git a/media/codec2/components/base/Android.bp b/media/codec2/components/base/Android.bp
+index f10835f366..1c5a2c9f76 100644
+--- a/media/codec2/components/base/Android.bp
++++ b/media/codec2/components/base/Android.bp
+@@ -30,7 +30,7 @@ cc_library_shared {
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     ldflags: ["-Wl,-Bsymbolic"],
+@@ -78,7 +78,7 @@ cc_defaults {
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+ 
+@@ -91,7 +91,7 @@ cc_defaults {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+ 
+@@ -126,7 +126,7 @@ cc_library_shared {
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     ldflags: ["-Wl,-Bsymbolic"],
+diff --git a/media/codec2/components/cmds/Android.bp b/media/codec2/components/cmds/Android.bp
+index 35f689e1bd..8de4f464bd 100644
+--- a/media/codec2/components/cmds/Android.bp
++++ b/media/codec2/components/cmds/Android.bp
+@@ -27,7 +27,7 @@ cc_binary {
+     ],
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+         misc_undefined: [
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+diff --git a/media/codec2/components/hevc/Android.bp b/media/codec2/components/hevc/Android.bp
+deleted file mode 100644
+index 369bd784a9..0000000000
+--- a/media/codec2/components/hevc/Android.bp
++++ /dev/null
+@@ -1,25 +0,0 @@
+-cc_library_shared {
+-    name: "libcodec2_soft_hevcdec",
+-    defaults: [
+-        "libcodec2_soft-defaults",
+-        "libcodec2_soft_sanitize_signed-defaults",
+-    ],
+-
+-    srcs: ["C2SoftHevcDec.cpp"],
+-
+-    static_libs: ["libhevcdec"],
+-
+-}
+-
+-cc_library_shared {
+-    name: "libcodec2_soft_hevcenc",
+-    defaults: [
+-        "libcodec2_soft-defaults",
+-        "libcodec2_soft_sanitize_signed-defaults",
+-    ],
+-
+-    srcs: ["C2SoftHevcEnc.cpp"],
+-
+-    static_libs: ["libhevcenc"],
+-
+-}
+diff --git a/media/codec2/components/vpx/Android.bp b/media/codec2/components/vpx/Android.bp
+deleted file mode 100644
+index 34f5753ac3..0000000000
+--- a/media/codec2/components/vpx/Android.bp
++++ /dev/null
+@@ -1,60 +0,0 @@
+-cc_library_shared {
+-    name: "libcodec2_soft_vp9dec",
+-    defaults: [
+-        "libcodec2_soft-defaults",
+-        "libcodec2_soft_sanitize_all-defaults",
+-    ],
+-
+-    srcs: ["C2SoftVpxDec.cpp"],
+-
+-    shared_libs: ["libvpx"],
+-
+-    cflags: [
+-        "-DVP9",
+-    ],
+-}
+-
+-cc_library_shared {
+-    name: "libcodec2_soft_vp8dec",
+-    defaults: [
+-        "libcodec2_soft-defaults",
+-        "libcodec2_soft_sanitize_all-defaults",
+-    ],
+-
+-    srcs: ["C2SoftVpxDec.cpp"],
+-
+-    shared_libs: ["libvpx"],
+-}
+-
+-cc_library_shared {
+-    name: "libcodec2_soft_vp9enc",
+-    defaults: [
+-        "libcodec2_soft-defaults",
+-        "libcodec2_soft_sanitize_all-defaults",
+-    ],
+-
+-    srcs: [
+-        "C2SoftVp9Enc.cpp",
+-        "C2SoftVpxEnc.cpp",
+-    ],
+-
+-    shared_libs: ["libvpx"],
+-
+-    cflags: ["-DVP9"],
+-}
+-
+-cc_library_shared {
+-    name: "libcodec2_soft_vp8enc",
+-    defaults: [
+-        "libcodec2_soft-defaults",
+-        "libcodec2_soft_sanitize_all-defaults",
+-    ],
+-
+-    srcs: [
+-        "C2SoftVp8Enc.cpp",
+-        "C2SoftVpxEnc.cpp",
+-    ],
+-
+-    shared_libs: ["libvpx"],
+-}
+-
+diff --git a/media/codec2/faultinjection/Android.bp b/media/codec2/faultinjection/Android.bp
+index a0ad3cef82..5d500cfd2b 100644
+--- a/media/codec2/faultinjection/Android.bp
++++ b/media/codec2/faultinjection/Android.bp
+@@ -21,7 +21,7 @@ cc_library_shared {
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     ldflags: ["-Wl,-Bsymbolic"],
+diff --git a/media/codec2/sfplugin/Android.bp b/media/codec2/sfplugin/Android.bp
+index 9c84c711e2..6e3f957e9b 100644
+--- a/media/codec2/sfplugin/Android.bp
++++ b/media/codec2/sfplugin/Android.bp
+@@ -53,7 +53,7 @@ cc_library_shared {
+     ],
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+         misc_undefined: [
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+diff --git a/media/codec2/sfplugin/utils/Android.bp b/media/codec2/sfplugin/utils/Android.bp
+index 8c8f025aba..0cc5a9c23b 100644
+--- a/media/codec2/sfplugin/utils/Android.bp
++++ b/media/codec2/sfplugin/utils/Android.bp
+@@ -31,7 +31,7 @@ cc_library_shared {
+     ],
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+         misc_undefined: [
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+diff --git a/media/extractors/aac/Android.bp b/media/extractors/aac/Android.bp
+index a58167a655..2584a8ab59 100644
+--- a/media/extractors/aac/Android.bp
++++ b/media/extractors/aac/Android.bp
+@@ -30,7 +30,7 @@ cc_library_shared {
+     version_script: "exports.lds",
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+         misc_undefined: [
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+diff --git a/media/extractors/amr/Android.bp b/media/extractors/amr/Android.bp
+index 4bd933deb5..2af1a475cb 100644
+--- a/media/extractors/amr/Android.bp
++++ b/media/extractors/amr/Android.bp
+@@ -28,7 +28,7 @@ cc_library_shared {
+     version_script: "exports.lds",
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+         misc_undefined: [
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+diff --git a/media/extractors/flac/Android.bp b/media/extractors/flac/Android.bp
+index 3a3d051b70..03bae8fbc3 100644
+--- a/media/extractors/flac/Android.bp
++++ b/media/extractors/flac/Android.bp
+@@ -34,7 +34,7 @@ cc_library_shared {
+     version_script: "exports.lds",
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+         misc_undefined: [
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+diff --git a/media/extractors/midi/Android.bp b/media/extractors/midi/Android.bp
+index 7d42e703f3..7095ab0307 100644
+--- a/media/extractors/midi/Android.bp
++++ b/media/extractors/midi/Android.bp
+@@ -29,7 +29,7 @@ cc_library_shared {
+     version_script: "exports.lds",
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+         misc_undefined: [
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+diff --git a/media/extractors/mkv/Android.bp b/media/extractors/mkv/Android.bp
+deleted file mode 100644
+index 1744d3d63f..0000000000
+--- a/media/extractors/mkv/Android.bp
++++ /dev/null
+@@ -1,45 +0,0 @@
+-cc_library_shared {
+-
+-    srcs: ["MatroskaExtractor.cpp"],
+-
+-    include_dirs: [
+-        "external/flac/include",
+-        "external/libvpx/libwebm",
+-        "frameworks/av/media/libstagefright/flac/dec",
+-        "frameworks/av/media/libstagefright/include",
+-    ],
+-
+-    shared_libs: [
+-        "liblog",
+-        "libmediandk",
+-    ],
+-
+-    static_libs: [
+-        "libstagefright_flacdec",
+-        "libstagefright_foundation",
+-        "libstagefright_metadatautils",
+-        "libwebm",
+-        "libutils",
+-    ],
+-
+-    name: "libmkvextractor",
+-    relative_install_path: "extractors",
+-
+-    compile_multilib: "first",
+-
+-    cflags: [
+-        "-Werror",
+-        "-Wall",
+-        "-fvisibility=hidden",
+-    ],
+-    version_script: "exports.lds",
+-
+-    sanitize: {
+-        cfi: true,
+-        misc_undefined: [
+-            "unsigned-integer-overflow",
+-            "signed-integer-overflow",
+-        ],
+-    },
+-
+-}
+diff --git a/media/extractors/mp3/Android.bp b/media/extractors/mp3/Android.bp
+index 4e2f2480ac..d039160aed 100644
+--- a/media/extractors/mp3/Android.bp
++++ b/media/extractors/mp3/Android.bp
+@@ -34,7 +34,7 @@ cc_library_shared {
+     version_script: "exports.lds",
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+         misc_undefined: [
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+diff --git a/media/extractors/mp4/Android.bp b/media/extractors/mp4/Android.bp
+index 1b308aa7ef..905903a1cb 100644
+--- a/media/extractors/mp4/Android.bp
++++ b/media/extractors/mp4/Android.bp
+@@ -42,7 +42,7 @@ cc_library_shared {
+     defaults: ["libmp4extractor_defaults"],
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+         misc_undefined: [
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+diff --git a/media/extractors/mpeg2/Android.bp b/media/extractors/mpeg2/Android.bp
+index 0f0c72cb82..8a8852ca88 100644
+--- a/media/extractors/mpeg2/Android.bp
++++ b/media/extractors/mpeg2/Android.bp
+@@ -50,7 +50,7 @@ cc_library_shared {
+     version_script: "exports.lds",
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+         misc_undefined: [
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+diff --git a/media/extractors/ogg/Android.bp b/media/extractors/ogg/Android.bp
+index 604ec5945e..bd7f2f59e4 100644
+--- a/media/extractors/ogg/Android.bp
++++ b/media/extractors/ogg/Android.bp
+@@ -36,7 +36,7 @@ cc_library_shared {
+     version_script: "exports.lds",
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+         misc_undefined: [
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+diff --git a/media/extractors/wav/Android.bp b/media/extractors/wav/Android.bp
+index 7e89271e45..a789c38695 100644
+--- a/media/extractors/wav/Android.bp
++++ b/media/extractors/wav/Android.bp
+@@ -31,7 +31,7 @@ cc_library_shared {
+     version_script: "exports.lds",
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+         misc_undefined: [
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+diff --git a/media/libmedia/Android.bp b/media/libmedia/Android.bp
+index 1d335901c5..17bf452317 100644
+--- a/media/libmedia/Android.bp
++++ b/media/libmedia/Android.bp
+@@ -125,7 +125,7 @@ cc_library_shared {
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+ 
+@@ -186,7 +186,7 @@ cc_library_shared {
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+ 
+@@ -214,7 +214,7 @@ cc_library_static {
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+ 
+@@ -326,7 +326,7 @@ cc_library {
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+ 
+@@ -389,6 +389,6 @@ cc_library_static {
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+diff --git a/media/libmediametrics/Android.bp b/media/libmediametrics/Android.bp
+index 15ea578fdb..b8770ea294 100644
+--- a/media/libmediametrics/Android.bp
++++ b/media/libmediametrics/Android.bp
+@@ -22,13 +22,13 @@ cc_library_shared {
+         "-Wall",
+     ],
+ 
+-    sanitize: {
+-        misc_undefined: [
+-            "unsigned-integer-overflow",
+-            "signed-integer-overflow",
+-        ],
+-        cfi: true,
+-    },
++    //sanitize: {
++    //    misc_undefined: [
++    //        "unsigned-integer-overflow",
++    //        "signed-integer-overflow",
++    //    ],
++    //    cfi: false,
++    //},
+ 
+     // enumerate stable entry points, for apex use
+     stubs: {
+@@ -39,4 +39,3 @@ cc_library_shared {
+     },
+ }
+ 
+-
+diff --git a/media/libmediaplayer2/Android.bp b/media/libmediaplayer2/Android.bp
+index dca6bb694f..def39ca350 100644
+--- a/media/libmediaplayer2/Android.bp
++++ b/media/libmediaplayer2/Android.bp
+@@ -78,7 +78,7 @@ cc_library_static {
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+ 
+@@ -123,7 +123,7 @@ cc_library {
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+ }
+diff --git a/media/libmediaplayer2/nuplayer2/Android.bp b/media/libmediaplayer2/nuplayer2/Android.bp
+index 0f69b2eabe..d56a0c2a7d 100644
+--- a/media/libmediaplayer2/nuplayer2/Android.bp
++++ b/media/libmediaplayer2/nuplayer2/Android.bp
+@@ -66,7 +66,7 @@ cc_library_static {
+     name: "libstagefright_nuplayer2",
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+     },
+ 
+ }
+diff --git a/media/libmediaplayerservice/Android.bp b/media/libmediaplayerservice/Android.bp
+index 670958510c..639d95438b 100644
+--- a/media/libmediaplayerservice/Android.bp
++++ b/media/libmediaplayerservice/Android.bp
+@@ -67,7 +67,7 @@ cc_library_shared {
+     name: "libmediaplayerservice",
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+     },
+ 
+ }
+diff --git a/media/libmediaplayerservice/nuplayer/Android.bp b/media/libmediaplayerservice/nuplayer/Android.bp
+index 23a19e79cd..8348856533 100644
+--- a/media/libmediaplayerservice/nuplayer/Android.bp
++++ b/media/libmediaplayerservice/nuplayer/Android.bp
+@@ -55,7 +55,7 @@ cc_library_static {
+     name: "libstagefright_nuplayer",
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+     },
+ 
+ }
+diff --git a/media/libstagefright/Android.bp b/media/libstagefright/Android.bp
+index 917080511f..bffc6528aa 100644
+--- a/media/libstagefright/Android.bp
++++ b/media/libstagefright/Android.bp
+@@ -17,7 +17,7 @@ cc_library_static {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     shared_libs: ["libmedia"],
+@@ -36,7 +36,7 @@ cc_library_static {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     shared_libs: ["libmedia", "libmediandk"],
+@@ -69,7 +69,7 @@ cc_library_shared {
+     ],
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+         misc_undefined: [
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+@@ -104,7 +104,7 @@ cc_library_static {
+     ],
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+         misc_undefined: [
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+@@ -197,7 +197,7 @@ cc_library {
+         "libstagefright_codecbase",
+         "libstagefright_foundation",
+         "libstagefright_omx_utils",
+-        "libRScpp",
++        //"libRScpp",
+         "libhidlallocatorutils",
+         "libhidlbase",
+         "libhidlmemory",
+@@ -209,11 +209,10 @@ cc_library {
+     static_libs: [
+         "libstagefright_color_conversion",
+         "libyuv_static",
+-        "libstagefright_mediafilter",
++        //"libstagefright_mediafilter",
+         "libstagefright_webm",
+         "libstagefright_timedtext",
+         "libogg",
+-        "libwebm",
+         "libstagefright_esds",
+         "libstagefright_id3",
+         "libFLAC",
+@@ -253,7 +252,7 @@ cc_library {
+     },
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+         misc_undefined: [
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+@@ -312,7 +311,7 @@ cc_library_static {
+     },
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+         misc_undefined: [
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+diff --git a/media/libstagefright/MediaCodec.cpp b/media/libstagefright/MediaCodec.cpp
+index f579e9de6b..94fe90e5c7 100644
+--- a/media/libstagefright/MediaCodec.cpp
++++ b/media/libstagefright/MediaCodec.cpp
+@@ -875,7 +875,8 @@ sp<CodecBase> MediaCodec::GetCodecBase(const AString &name, const char *owner) {
+         // at this time only ACodec specifies a mime type.
+         return new ACodec;
+     } else if (name.startsWithIgnoreCase("android.filter.")) {
+-        return new MediaFilter;
++        //return new MediaFilter;
++        return NULL;
+     } else {
+         return NULL;
+     }
+diff --git a/media/libstagefright/bqhelper/Android.bp b/media/libstagefright/bqhelper/Android.bp
+index db67034f82..15a327513a 100644
+--- a/media/libstagefright/bqhelper/Android.bp
++++ b/media/libstagefright/bqhelper/Android.bp
+@@ -67,6 +67,6 @@ cc_library_shared {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+diff --git a/media/libstagefright/codecs/aacdec/Android.bp b/media/libstagefright/codecs/aacdec/Android.bp
+index 46b3b8fd85..878de313a1 100644
+--- a/media/libstagefright/codecs/aacdec/Android.bp
++++ b/media/libstagefright/codecs/aacdec/Android.bp
+@@ -14,7 +14,7 @@ cc_library_shared {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     static_libs: ["libFraunhoferAAC"],
+diff --git a/media/libstagefright/codecs/aacenc/Android.bp b/media/libstagefright/codecs/aacenc/Android.bp
+index bf789c401c..8eeaacdc0c 100644
+--- a/media/libstagefright/codecs/aacenc/Android.bp
++++ b/media/libstagefright/codecs/aacenc/Android.bp
+@@ -11,7 +11,7 @@ cc_library_shared {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     static_libs: ["libFraunhoferAAC"],
+diff --git a/media/libstagefright/codecs/amrwbenc/Android.bp b/media/libstagefright/codecs/amrwbenc/Android.bp
+index 084be0aaab..693b8a048a 100644
+--- a/media/libstagefright/codecs/amrwbenc/Android.bp
++++ b/media/libstagefright/codecs/amrwbenc/Android.bp
+@@ -134,7 +134,7 @@ cc_library_static {
+ 
+     cflags: ["-Werror"],
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+     },
+ 
+ }
+@@ -153,7 +153,7 @@ cc_library_shared {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     static_libs: ["libstagefright_amrwbenc"],
+diff --git a/media/libstagefright/codecs/amrwbenc/SampleCode/Android.bp b/media/libstagefright/codecs/amrwbenc/SampleCode/Android.bp
+index 9442fc4a1b..a261410e52 100644
+--- a/media/libstagefright/codecs/amrwbenc/SampleCode/Android.bp
++++ b/media/libstagefright/codecs/amrwbenc/SampleCode/Android.bp
+@@ -23,6 +23,6 @@ cc_test {
+     ],
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+     },
+ }
+diff --git a/media/libstagefright/codecs/avcdec/Android.bp b/media/libstagefright/codecs/avcdec/Android.bp
+index 0bb6bb067e..663bdc3fad 100644
+--- a/media/libstagefright/codecs/avcdec/Android.bp
++++ b/media/libstagefright/codecs/avcdec/Android.bp
+@@ -15,7 +15,7 @@ cc_library_shared {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     ldflags: ["-Wl,-Bsymbolic"],
+diff --git a/media/libstagefright/codecs/avcenc/Android.bp b/media/libstagefright/codecs/avcenc/Android.bp
+index 980261c2a1..f9ba42e00a 100644
+--- a/media/libstagefright/codecs/avcenc/Android.bp
++++ b/media/libstagefright/codecs/avcenc/Android.bp
+@@ -9,7 +9,7 @@ cc_library_shared {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     cflags: [
+diff --git a/media/libstagefright/codecs/flac/dec/Android.bp b/media/libstagefright/codecs/flac/dec/Android.bp
+index 4064751b3d..fd607d9712 100644
+--- a/media/libstagefright/codecs/flac/dec/Android.bp
++++ b/media/libstagefright/codecs/flac/dec/Android.bp
+@@ -13,7 +13,7 @@ cc_library_shared {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     shared_libs: [
+diff --git a/media/libstagefright/codecs/flac/enc/Android.bp b/media/libstagefright/codecs/flac/enc/Android.bp
+index d7d871a9d0..43943201c3 100644
+--- a/media/libstagefright/codecs/flac/enc/Android.bp
++++ b/media/libstagefright/codecs/flac/enc/Android.bp
+@@ -11,7 +11,7 @@ cc_library_shared {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     header_libs: ["libbase_headers"],
+diff --git a/media/libstagefright/codecs/g711/dec/Android.bp b/media/libstagefright/codecs/g711/dec/Android.bp
+index f5357f4781..b4c6b89f85 100644
+--- a/media/libstagefright/codecs/g711/dec/Android.bp
++++ b/media/libstagefright/codecs/g711/dec/Android.bp
+@@ -11,6 +11,6 @@ cc_library_shared {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+diff --git a/media/libstagefright/codecs/gsm/dec/Android.bp b/media/libstagefright/codecs/gsm/dec/Android.bp
+index 5672d89426..0737d88bfb 100644
+--- a/media/libstagefright/codecs/gsm/dec/Android.bp
++++ b/media/libstagefright/codecs/gsm/dec/Android.bp
+@@ -11,7 +11,7 @@ cc_library_shared {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     static_libs: ["libgsm"],
+diff --git a/media/libstagefright/codecs/hevcdec/Android.bp b/media/libstagefright/codecs/hevcdec/Android.bp
+deleted file mode 100644
+index ec436ce7d9..0000000000
+--- a/media/libstagefright/codecs/hevcdec/Android.bp
++++ /dev/null
+@@ -1,26 +0,0 @@
+-cc_library_shared {
+-    name: "libstagefright_soft_hevcdec",
+-    defaults: ["libstagefright_softomx-defaults"],
+-
+-    static_libs: ["libhevcdec"],
+-    srcs: ["SoftHEVC.cpp"],
+-
+-    cflags: [
+-        "-Wall",
+-        "-Wno-unused-variable",
+-    ],
+-
+-    version_script: "exports.lds",
+-
+-    sanitize: {
+-        misc_undefined: [
+-            "signed-integer-overflow",
+-        ],
+-        cfi: true,
+-    },
+-
+-    // We need this because the current asm generates the following link error:
+-    // requires unsupported dynamic reloc R_ARM_REL32; recompile with -fPIC
+-    // Bug: 16853291
+-    ldflags: ["-Wl,-Bsymbolic"],
+-}
+diff --git a/media/libstagefright/codecs/m4v_h263/dec/Android.bp b/media/libstagefright/codecs/m4v_h263/dec/Android.bp
+index 6b45ea20b4..44ec310af3 100644
+--- a/media/libstagefright/codecs/m4v_h263/dec/Android.bp
++++ b/media/libstagefright/codecs/m4v_h263/dec/Android.bp
+@@ -59,7 +59,7 @@ cc_library_static {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+ 
+@@ -84,6 +84,6 @@ cc_library_shared {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+diff --git a/media/libstagefright/codecs/m4v_h263/enc/Android.bp b/media/libstagefright/codecs/m4v_h263/enc/Android.bp
+index 273818700e..7dd723cf3a 100644
+--- a/media/libstagefright/codecs/m4v_h263/enc/Android.bp
++++ b/media/libstagefright/codecs/m4v_h263/enc/Android.bp
+@@ -39,7 +39,7 @@ cc_library_static {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+ 
+@@ -66,7 +66,7 @@ cc_library_shared {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+ 
+@@ -92,7 +92,7 @@ cc_test {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     static_libs: ["libstagefright_m4vh263enc"],
+diff --git a/media/libstagefright/codecs/mp3dec/Android.bp b/media/libstagefright/codecs/mp3dec/Android.bp
+index b630524ec5..3067976a71 100644
+--- a/media/libstagefright/codecs/mp3dec/Android.bp
++++ b/media/libstagefright/codecs/mp3dec/Android.bp
+@@ -58,7 +58,7 @@ cc_library_static {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     include_dirs: ["frameworks/av/media/libstagefright/include"],
+@@ -93,7 +93,7 @@ cc_library_shared {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     static_libs: ["libstagefright_mp3dec"],
+@@ -120,7 +120,7 @@ cc_test {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     static_libs: [
+diff --git a/media/libstagefright/codecs/mpeg2dec/Android.bp b/media/libstagefright/codecs/mpeg2dec/Android.bp
+index e849410b99..8c67259932 100644
+--- a/media/libstagefright/codecs/mpeg2dec/Android.bp
++++ b/media/libstagefright/codecs/mpeg2dec/Android.bp
+@@ -18,6 +18,6 @@ cc_library_shared {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+diff --git a/media/libstagefright/codecs/on2/dec/Android.bp b/media/libstagefright/codecs/on2/dec/Android.bp
+deleted file mode 100644
+index 82bb8d1da4..0000000000
+--- a/media/libstagefright/codecs/on2/dec/Android.bp
++++ /dev/null
+@@ -1,18 +0,0 @@
+-cc_library_shared {
+-    name: "libstagefright_soft_vpxdec",
+-    defaults: ["libstagefright_softomx-defaults"],
+-
+-    srcs: ["SoftVPX.cpp"],
+-
+-    shared_libs: ["libvpx"],
+-
+-    version_script: "exports.lds",
+-
+-    sanitize: {
+-        misc_undefined: [
+-            "signed-integer-overflow",
+-            "unsigned-integer-overflow",
+-        ],
+-        cfi: true,
+-    },
+-}
+diff --git a/media/libstagefright/codecs/on2/dec/NOTICE b/media/libstagefright/codecs/on2/dec/NOTICE
+deleted file mode 100644
+index c5b1efa7aa..0000000000
+--- a/media/libstagefright/codecs/on2/dec/NOTICE
++++ /dev/null
+@@ -1,190 +0,0 @@
+-
+-   Copyright (c) 2005-2008, The Android Open Source Project
+-
+-   Licensed under the Apache License, Version 2.0 (the "License");
+-   you may not use this file except in compliance with the License.
+-
+-   Unless required by applicable law or agreed to in writing, software
+-   distributed under the License is distributed on an "AS IS" BASIS,
+-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-   See the License for the specific language governing permissions and
+-   limitations under the License.
+-
+-
+-                                 Apache License
+-                           Version 2.0, January 2004
+-                        http://www.apache.org/licenses/
+-
+-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+-
+-   1. Definitions.
+-
+-      "License" shall mean the terms and conditions for use, reproduction,
+-      and distribution as defined by Sections 1 through 9 of this document.
+-
+-      "Licensor" shall mean the copyright owner or entity authorized by
+-      the copyright owner that is granting the License.
+-
+-      "Legal Entity" shall mean the union of the acting entity and all
+-      other entities that control, are controlled by, or are under common
+-      control with that entity. For the purposes of this definition,
+-      "control" means (i) the power, direct or indirect, to cause the
+-      direction or management of such entity, whether by contract or
+-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+-      outstanding shares, or (iii) beneficial ownership of such entity.
+-
+-      "You" (or "Your") shall mean an individual or Legal Entity
+-      exercising permissions granted by this License.
+-
+-      "Source" form shall mean the preferred form for making modifications,
+-      including but not limited to software source code, documentation
+-      source, and configuration files.
+-
+-      "Object" form shall mean any form resulting from mechanical
+-      transformation or translation of a Source form, including but
+-      not limited to compiled object code, generated documentation,
+-      and conversions to other media types.
+-
+-      "Work" shall mean the work of authorship, whether in Source or
+-      Object form, made available under the License, as indicated by a
+-      copyright notice that is included in or attached to the work
+-      (an example is provided in the Appendix below).
+-
+-      "Derivative Works" shall mean any work, whether in Source or Object
+-      form, that is based on (or derived from) the Work and for which the
+-      editorial revisions, annotations, elaborations, or other modifications
+-      represent, as a whole, an original work of authorship. For the purposes
+-      of this License, Derivative Works shall not include works that remain
+-      separable from, or merely link (or bind by name) to the interfaces of,
+-      the Work and Derivative Works thereof.
+-
+-      "Contribution" shall mean any work of authorship, including
+-      the original version of the Work and any modifications or additions
+-      to that Work or Derivative Works thereof, that is intentionally
+-      submitted to Licensor for inclusion in the Work by the copyright owner
+-      or by an individual or Legal Entity authorized to submit on behalf of
+-      the copyright owner. For the purposes of this definition, "submitted"
+-      means any form of electronic, verbal, or written communication sent
+-      to the Licensor or its representatives, including but not limited to
+-      communication on electronic mailing lists, source code control systems,
+-      and issue tracking systems that are managed by, or on behalf of, the
+-      Licensor for the purpose of discussing and improving the Work, but
+-      excluding communication that is conspicuously marked or otherwise
+-      designated in writing by the copyright owner as "Not a Contribution."
+-
+-      "Contributor" shall mean Licensor and any individual or Legal Entity
+-      on behalf of whom a Contribution has been received by Licensor and
+-      subsequently incorporated within the Work.
+-
+-   2. Grant of Copyright License. Subject to the terms and conditions of
+-      this License, each Contributor hereby grants to You a perpetual,
+-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+-      copyright license to reproduce, prepare Derivative Works of,
+-      publicly display, publicly perform, sublicense, and distribute the
+-      Work and such Derivative Works in Source or Object form.
+-
+-   3. Grant of Patent License. Subject to the terms and conditions of
+-      this License, each Contributor hereby grants to You a perpetual,
+-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+-      (except as stated in this section) patent license to make, have made,
+-      use, offer to sell, sell, import, and otherwise transfer the Work,
+-      where such license applies only to those patent claims licensable
+-      by such Contributor that are necessarily infringed by their
+-      Contribution(s) alone or by combination of their Contribution(s)
+-      with the Work to which such Contribution(s) was submitted. If You
+-      institute patent litigation against any entity (including a
+-      cross-claim or counterclaim in a lawsuit) alleging that the Work
+-      or a Contribution incorporated within the Work constitutes direct
+-      or contributory patent infringement, then any patent licenses
+-      granted to You under this License for that Work shall terminate
+-      as of the date such litigation is filed.
+-
+-   4. Redistribution. You may reproduce and distribute copies of the
+-      Work or Derivative Works thereof in any medium, with or without
+-      modifications, and in Source or Object form, provided that You
+-      meet the following conditions:
+-
+-      (a) You must give any other recipients of the Work or
+-          Derivative Works a copy of this License; and
+-
+-      (b) You must cause any modified files to carry prominent notices
+-          stating that You changed the files; and
+-
+-      (c) You must retain, in the Source form of any Derivative Works
+-          that You distribute, all copyright, patent, trademark, and
+-          attribution notices from the Source form of the Work,
+-          excluding those notices that do not pertain to any part of
+-          the Derivative Works; and
+-
+-      (d) If the Work includes a "NOTICE" text file as part of its
+-          distribution, then any Derivative Works that You distribute must
+-          include a readable copy of the attribution notices contained
+-          within such NOTICE file, excluding those notices that do not
+-          pertain to any part of the Derivative Works, in at least one
+-          of the following places: within a NOTICE text file distributed
+-          as part of the Derivative Works; within the Source form or
+-          documentation, if provided along with the Derivative Works; or,
+-          within a display generated by the Derivative Works, if and
+-          wherever such third-party notices normally appear. The contents
+-          of the NOTICE file are for informational purposes only and
+-          do not modify the License. You may add Your own attribution
+-          notices within Derivative Works that You distribute, alongside
+-          or as an addendum to the NOTICE text from the Work, provided
+-          that such additional attribution notices cannot be construed
+-          as modifying the License.
+-
+-      You may add Your own copyright statement to Your modifications and
+-      may provide additional or different license terms and conditions
+-      for use, reproduction, or distribution of Your modifications, or
+-      for any such Derivative Works as a whole, provided Your use,
+-      reproduction, and distribution of the Work otherwise complies with
+-      the conditions stated in this License.
+-
+-   5. Submission of Contributions. Unless You explicitly state otherwise,
+-      any Contribution intentionally submitted for inclusion in the Work
+-      by You to the Licensor shall be under the terms and conditions of
+-      this License, without any additional terms or conditions.
+-      Notwithstanding the above, nothing herein shall supersede or modify
+-      the terms of any separate license agreement you may have executed
+-      with Licensor regarding such Contributions.
+-
+-   6. Trademarks. This License does not grant permission to use the trade
+-      names, trademarks, service marks, or product names of the Licensor,
+-      except as required for reasonable and customary use in describing the
+-      origin of the Work and reproducing the content of the NOTICE file.
+-
+-   7. Disclaimer of Warranty. Unless required by applicable law or
+-      agreed to in writing, Licensor provides the Work (and each
+-      Contributor provides its Contributions) on an "AS IS" BASIS,
+-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+-      implied, including, without limitation, any warranties or conditions
+-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+-      PARTICULAR PURPOSE. You are solely responsible for determining the
+-      appropriateness of using or redistributing the Work and assume any
+-      risks associated with Your exercise of permissions under this License.
+-
+-   8. Limitation of Liability. In no event and under no legal theory,
+-      whether in tort (including negligence), contract, or otherwise,
+-      unless required by applicable law (such as deliberate and grossly
+-      negligent acts) or agreed to in writing, shall any Contributor be
+-      liable to You for damages, including any direct, indirect, special,
+-      incidental, or consequential damages of any character arising as a
+-      result of this License or out of the use or inability to use the
+-      Work (including but not limited to damages for loss of goodwill,
+-      work stoppage, computer failure or malfunction, or any and all
+-      other commercial damages or losses), even if such Contributor
+-      has been advised of the possibility of such damages.
+-
+-   9. Accepting Warranty or Additional Liability. While redistributing
+-      the Work or Derivative Works thereof, You may choose to offer,
+-      and charge a fee for, acceptance of support, warranty, indemnity,
+-      or other liability obligations and/or rights consistent with this
+-      License. However, in accepting such obligations, You may act only
+-      on Your own behalf and on Your sole responsibility, not on behalf
+-      of any other Contributor, and only if You agree to indemnify,
+-      defend, and hold each Contributor harmless for any liability
+-      incurred by, or claims asserted against, such Contributor by reason
+-      of your accepting any such warranty or additional liability.
+-
+-   END OF TERMS AND CONDITIONS
+-
+diff --git a/media/libstagefright/codecs/on2/dec/SoftVPX.cpp b/media/libstagefright/codecs/on2/dec/SoftVPX.cpp
+deleted file mode 100644
+index 0f2ff1730f..0000000000
+--- a/media/libstagefright/codecs/on2/dec/SoftVPX.cpp
++++ /dev/null
+@@ -1,373 +0,0 @@
+-/*
+- * Copyright (C) 2011 The Android Open Source Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-//#define LOG_NDEBUG 0
+-#define LOG_TAG "SoftVPX"
+-#include <utils/Log.h>
+-#include <utils/misc.h>
+-#include "OMX_VideoExt.h"
+-
+-#include "SoftVPX.h"
+-
+-#include <media/stagefright/foundation/ADebug.h>
+-#include <media/stagefright/MediaDefs.h>
+-
+-
+-namespace android {
+-
+-// Only need to declare the highest supported profile and level here.
+-static const CodecProfileLevel kVP9ProfileLevels[] = {
+-    { OMX_VIDEO_VP9Profile0, OMX_VIDEO_VP9Level5 },
+-    { OMX_VIDEO_VP9Profile2, OMX_VIDEO_VP9Level5 },
+-    { OMX_VIDEO_VP9Profile2HDR, OMX_VIDEO_VP9Level5 },
+-    { OMX_VIDEO_VP9Profile2HDR10Plus, OMX_VIDEO_VP9Level5 },
+-};
+-
+-SoftVPX::SoftVPX(
+-        const char *name,
+-        const char *componentRole,
+-        OMX_VIDEO_CODINGTYPE codingType,
+-        const OMX_CALLBACKTYPE *callbacks,
+-        OMX_PTR appData,
+-        OMX_COMPONENTTYPE **component)
+-    : SoftVideoDecoderOMXComponent(
+-            name, componentRole, codingType,
+-            codingType == OMX_VIDEO_CodingVP8 ? NULL : kVP9ProfileLevels,
+-            codingType == OMX_VIDEO_CodingVP8 ?  0 : NELEM(kVP9ProfileLevels),
+-            320 /* width */, 240 /* height */, callbacks, appData, component),
+-      mMode(codingType == OMX_VIDEO_CodingVP8 ? MODE_VP8 : MODE_VP9),
+-      mEOSStatus(INPUT_DATA_AVAILABLE),
+-      mCtx(NULL),
+-      mFrameParallelMode(false),
+-      mTimeStampIdx(0),
+-      mImg(NULL) {
+-    // arbitrary from avc/hevc as vpx does not specify a min compression ratio
+-    const size_t kMinCompressionRatio = mMode == MODE_VP8 ? 2 : 4;
+-    const char *mime = mMode == MODE_VP8 ? MEDIA_MIMETYPE_VIDEO_VP8 : MEDIA_MIMETYPE_VIDEO_VP9;
+-    const size_t kMaxOutputBufferSize = 2048 * 2048 * 3 / 2;
+-    initPorts(
+-            kNumBuffers, kMaxOutputBufferSize / kMinCompressionRatio /* inputBufferSize */,
+-            kNumBuffers, mime, kMinCompressionRatio);
+-    CHECK_EQ(initDecoder(), (status_t)OK);
+-}
+-
+-SoftVPX::~SoftVPX() {
+-    destroyDecoder();
+-}
+-
+-static int GetCPUCoreCount() {
+-    int cpuCoreCount = 1;
+-#if defined(_SC_NPROCESSORS_ONLN)
+-    cpuCoreCount = sysconf(_SC_NPROCESSORS_ONLN);
+-#else
+-    // _SC_NPROC_ONLN must be defined...
+-    cpuCoreCount = sysconf(_SC_NPROC_ONLN);
+-#endif
+-    CHECK(cpuCoreCount >= 1);
+-    ALOGV("Number of CPU cores: %d", cpuCoreCount);
+-    return cpuCoreCount;
+-}
+-
+-bool SoftVPX::supportDescribeHdrStaticInfo() {
+-    return true;
+-}
+-
+-bool SoftVPX::supportDescribeHdr10PlusInfo() {
+-    return true;
+-}
+-
+-status_t SoftVPX::initDecoder() {
+-    mCtx = new vpx_codec_ctx_t;
+-    vpx_codec_err_t vpx_err;
+-    vpx_codec_dec_cfg_t cfg;
+-    vpx_codec_flags_t flags;
+-    memset(&cfg, 0, sizeof(vpx_codec_dec_cfg_t));
+-    memset(&flags, 0, sizeof(vpx_codec_flags_t));
+-    cfg.threads = GetCPUCoreCount();
+-
+-    if (mFrameParallelMode) {
+-        flags |= VPX_CODEC_USE_FRAME_THREADING;
+-    }
+-
+-    if ((vpx_err = vpx_codec_dec_init(
+-                (vpx_codec_ctx_t *)mCtx,
+-                 mMode == MODE_VP8 ? &vpx_codec_vp8_dx_algo : &vpx_codec_vp9_dx_algo,
+-                 &cfg, flags))) {
+-        ALOGE("on2 decoder failed to initialize. (%d)", vpx_err);
+-        return UNKNOWN_ERROR;
+-    }
+-
+-    return OK;
+-}
+-
+-status_t SoftVPX::destroyDecoder() {
+-    vpx_codec_destroy((vpx_codec_ctx_t *)mCtx);
+-    delete (vpx_codec_ctx_t *)mCtx;
+-    mCtx = NULL;
+-    return OK;
+-}
+-
+-bool SoftVPX::outputBuffers(bool flushDecoder, bool display, bool eos, bool *portWillReset) {
+-    List<BufferInfo *> &outQueue = getPortQueue(1);
+-    BufferInfo *outInfo = NULL;
+-    OMX_BUFFERHEADERTYPE *outHeader = NULL;
+-    vpx_codec_iter_t iter = NULL;
+-
+-    if (flushDecoder && mFrameParallelMode) {
+-        // Flush decoder by passing NULL data ptr and 0 size.
+-        // Ideally, this should never fail.
+-        if (vpx_codec_decode((vpx_codec_ctx_t *)mCtx, NULL, 0, NULL, 0)) {
+-            ALOGE("Failed to flush on2 decoder.");
+-            return false;
+-        }
+-    }
+-
+-    if (!display) {
+-        if (!flushDecoder) {
+-            ALOGE("Invalid operation.");
+-            return false;
+-        }
+-        // Drop all the decoded frames in decoder.
+-        while ((mImg = vpx_codec_get_frame((vpx_codec_ctx_t *)mCtx, &iter))) {
+-        }
+-        return true;
+-    }
+-
+-    while (!outQueue.empty()) {
+-        if (mImg == NULL) {
+-            mImg = vpx_codec_get_frame((vpx_codec_ctx_t *)mCtx, &iter);
+-            if (mImg == NULL) {
+-                break;
+-            }
+-        }
+-        uint32_t width = mImg->d_w;
+-        uint32_t height = mImg->d_h;
+-        outInfo = *outQueue.begin();
+-        outHeader = outInfo->mHeader;
+-        CHECK(mImg->fmt == VPX_IMG_FMT_I420 || mImg->fmt == VPX_IMG_FMT_I42016);
+-        OMX_COLOR_FORMATTYPE outputColorFormat = OMX_COLOR_FormatYUV420Planar;
+-        int32_t bpp = 1;
+-        if (mImg->fmt == VPX_IMG_FMT_I42016) {
+-            outputColorFormat = OMX_COLOR_FormatYUV420Planar16;
+-            bpp = 2;
+-        }
+-        handlePortSettingsChange(portWillReset, width, height, outputColorFormat);
+-        if (*portWillReset) {
+-            return true;
+-        }
+-
+-        outHeader->nOffset = 0;
+-        outHeader->nFlags = 0;
+-        outHeader->nFilledLen = (outputBufferWidth() * outputBufferHeight() * bpp * 3) / 2;
+-        PrivInfo *privInfo = (PrivInfo *)mImg->user_priv;
+-        outHeader->nTimeStamp = privInfo->mTimeStamp;
+-        if (privInfo->mHdr10PlusInfo != nullptr) {
+-            queueOutputFrameConfig(privInfo->mHdr10PlusInfo);
+-        }
+-
+-        if (outputBufferSafe(outHeader)) {
+-            uint8_t *dst = outHeader->pBuffer;
+-            const uint8_t *srcY = (const uint8_t *)mImg->planes[VPX_PLANE_Y];
+-            const uint8_t *srcU = (const uint8_t *)mImg->planes[VPX_PLANE_U];
+-            const uint8_t *srcV = (const uint8_t *)mImg->planes[VPX_PLANE_V];
+-            size_t srcYStride = mImg->stride[VPX_PLANE_Y];
+-            size_t srcUStride = mImg->stride[VPX_PLANE_U];
+-            size_t srcVStride = mImg->stride[VPX_PLANE_V];
+-            copyYV12FrameToOutputBuffer(dst, srcY, srcU, srcV, srcYStride, srcUStride, srcVStride);
+-        } else {
+-            outHeader->nFilledLen = 0;
+-        }
+-
+-        mImg = NULL;
+-        outInfo->mOwnedByUs = false;
+-        outQueue.erase(outQueue.begin());
+-        outInfo = NULL;
+-        notifyFillBufferDone(outHeader);
+-        outHeader = NULL;
+-    }
+-
+-    if (!eos) {
+-        return true;
+-    }
+-
+-    if (!outQueue.empty()) {
+-        outInfo = *outQueue.begin();
+-        outQueue.erase(outQueue.begin());
+-        outHeader = outInfo->mHeader;
+-        outHeader->nTimeStamp = 0;
+-        outHeader->nFilledLen = 0;
+-        outHeader->nFlags = OMX_BUFFERFLAG_EOS;
+-        outInfo->mOwnedByUs = false;
+-        notifyFillBufferDone(outHeader);
+-        mEOSStatus = OUTPUT_FRAMES_FLUSHED;
+-    }
+-    return true;
+-}
+-
+-bool SoftVPX::outputBufferSafe(OMX_BUFFERHEADERTYPE *outHeader) {
+-    uint32_t width = outputBufferWidth();
+-    uint32_t height = outputBufferHeight();
+-    uint64_t nFilledLen = width;
+-    nFilledLen *= height;
+-    if (nFilledLen > UINT32_MAX / 3) {
+-        ALOGE("b/29421675, nFilledLen overflow %llu w %u h %u",
+-                (unsigned long long)nFilledLen, width, height);
+-        android_errorWriteLog(0x534e4554, "29421675");
+-        return false;
+-    } else if (outHeader->nAllocLen < outHeader->nFilledLen) {
+-        ALOGE("b/27597103, buffer too small");
+-        android_errorWriteLog(0x534e4554, "27597103");
+-        return false;
+-    }
+-
+-    return true;
+-}
+-
+-void SoftVPX::onQueueFilled(OMX_U32 /* portIndex */) {
+-    if (mOutputPortSettingsChange != NONE || mEOSStatus == OUTPUT_FRAMES_FLUSHED) {
+-        return;
+-    }
+-
+-    List<BufferInfo *> &inQueue = getPortQueue(0);
+-    List<BufferInfo *> &outQueue = getPortQueue(1);
+-    bool EOSseen = false;
+-    bool portWillReset = false;
+-
+-    while ((mEOSStatus == INPUT_EOS_SEEN || !inQueue.empty())
+-            && !outQueue.empty()) {
+-        // Output the pending frames that left from last port reset or decoder flush.
+-        if (mEOSStatus == INPUT_EOS_SEEN || mImg != NULL) {
+-            if (!outputBuffers(
+-                     mEOSStatus == INPUT_EOS_SEEN, true /* display */,
+-                     mEOSStatus == INPUT_EOS_SEEN, &portWillReset)) {
+-                ALOGE("on2 decoder failed to output frame.");
+-                notify(OMX_EventError, OMX_ErrorUndefined, 0, NULL);
+-                return;
+-            }
+-            if (portWillReset || mEOSStatus == OUTPUT_FRAMES_FLUSHED ||
+-                    mEOSStatus == INPUT_EOS_SEEN) {
+-                return;
+-            }
+-            // Continue as outQueue may be empty now.
+-            continue;
+-        }
+-
+-        BufferInfo *inInfo = *inQueue.begin();
+-        OMX_BUFFERHEADERTYPE *inHeader = inInfo->mHeader;
+-
+-        // Software VP9 Decoder does not need the Codec Specific Data (CSD)
+-        // (specified in http://www.webmproject.org/vp9/profiles/). Ignore it if
+-        // it was passed.
+-        if (inHeader->nFlags & OMX_BUFFERFLAG_CODECCONFIG) {
+-            // Only ignore CSD buffer for VP9.
+-            if (mMode == MODE_VP9) {
+-                inQueue.erase(inQueue.begin());
+-                inInfo->mOwnedByUs = false;
+-                notifyEmptyBufferDone(inHeader);
+-                continue;
+-            } else {
+-                // Tolerate the CSD buffer for VP8. This is a workaround
+-                // for b/28689536.
+-                ALOGW("WARNING: Got CSD buffer for VP8.");
+-            }
+-        }
+-
+-        mPrivInfo[mTimeStampIdx].mTimeStamp = inHeader->nTimeStamp;
+-
+-        if (inInfo->mFrameConfig) {
+-            mPrivInfo[mTimeStampIdx].mHdr10PlusInfo = dequeueInputFrameConfig();
+-        } else {
+-            mPrivInfo[mTimeStampIdx].mHdr10PlusInfo.clear();
+-        }
+-
+-        if (inHeader->nFlags & OMX_BUFFERFLAG_EOS) {
+-            mEOSStatus = INPUT_EOS_SEEN;
+-            EOSseen = true;
+-        }
+-
+-        if (inHeader->nFilledLen > 0) {
+-            vpx_codec_err_t err = vpx_codec_decode(
+-                    (vpx_codec_ctx_t *)mCtx, inHeader->pBuffer + inHeader->nOffset,
+-                    inHeader->nFilledLen, &mPrivInfo[mTimeStampIdx], 0);
+-            if (err == VPX_CODEC_OK) {
+-                inInfo->mOwnedByUs = false;
+-                inQueue.erase(inQueue.begin());
+-                inInfo = NULL;
+-                notifyEmptyBufferDone(inHeader);
+-                inHeader = NULL;
+-            } else {
+-                ALOGE("on2 decoder failed to decode frame. err: %d", err);
+-                notify(OMX_EventError, OMX_ErrorUndefined, 0, NULL);
+-                return;
+-            }
+-        }
+-
+-        mTimeStampIdx = (mTimeStampIdx + 1) % kNumBuffers;
+-
+-        if (!outputBuffers(
+-                 EOSseen /* flushDecoder */, true /* display */, EOSseen, &portWillReset)) {
+-            ALOGE("on2 decoder failed to output frame.");
+-            notify(OMX_EventError, OMX_ErrorUndefined, 0, NULL);
+-            return;
+-        }
+-        if (portWillReset) {
+-            return;
+-        }
+-    }
+-}
+-
+-void SoftVPX::onPortFlushCompleted(OMX_U32 portIndex) {
+-    if (portIndex == kInputPortIndex) {
+-        bool portWillReset = false;
+-        if (!outputBuffers(
+-                 true /* flushDecoder */, false /* display */, false /* eos */, &portWillReset)) {
+-            ALOGE("Failed to flush decoder.");
+-            notify(OMX_EventError, OMX_ErrorUndefined, 0, NULL);
+-            return;
+-        }
+-        mEOSStatus = INPUT_DATA_AVAILABLE;
+-    }
+-}
+-
+-void SoftVPX::onReset() {
+-    bool portWillReset = false;
+-    if (!outputBuffers(
+-             true /* flushDecoder */, false /* display */, false /* eos */, &portWillReset)) {
+-        ALOGW("Failed to flush decoder. Try to hard reset decoder");
+-        destroyDecoder();
+-        initDecoder();
+-    }
+-    mEOSStatus = INPUT_DATA_AVAILABLE;
+-}
+-
+-}  // namespace android
+-
+-android::SoftOMXComponent *createSoftOMXComponent(
+-        const char *name, const OMX_CALLBACKTYPE *callbacks,
+-        OMX_PTR appData, OMX_COMPONENTTYPE **component) {
+-    if (!strcmp(name, "OMX.google.vp8.decoder")) {
+-        return new android::SoftVPX(
+-                name, "video_decoder.vp8", OMX_VIDEO_CodingVP8,
+-                callbacks, appData, component);
+-    } else if (!strcmp(name, "OMX.google.vp9.decoder")) {
+-        return new android::SoftVPX(
+-                name, "video_decoder.vp9", OMX_VIDEO_CodingVP9,
+-                callbacks, appData, component);
+-    } else {
+-        CHECK(!"Unknown component");
+-    }
+-    return NULL;
+-}
+diff --git a/media/libstagefright/codecs/on2/dec/SoftVPX.h b/media/libstagefright/codecs/on2/dec/SoftVPX.h
+deleted file mode 100644
+index 0aa8e9cb12..0000000000
+--- a/media/libstagefright/codecs/on2/dec/SoftVPX.h
++++ /dev/null
+@@ -1,84 +0,0 @@
+-/*
+- * Copyright (C) 2011 The Android Open Source Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-#ifndef SOFT_VPX_H_
+-
+-#define SOFT_VPX_H_
+-
+-#include <media/stagefright/omx/SoftVideoDecoderOMXComponent.h>
+-
+-#include "vpx/vpx_decoder.h"
+-#include "vpx/vpx_codec.h"
+-#include "vpx/vp8dx.h"
+-
+-namespace android {
+-
+-struct ABuffer;
+-
+-struct SoftVPX : public SoftVideoDecoderOMXComponent {
+-    SoftVPX(const char *name,
+-            const char *componentRole,
+-            OMX_VIDEO_CODINGTYPE codingType,
+-            const OMX_CALLBACKTYPE *callbacks,
+-            OMX_PTR appData,
+-            OMX_COMPONENTTYPE **component);
+-
+-protected:
+-    virtual ~SoftVPX();
+-
+-    virtual void onQueueFilled(OMX_U32 portIndex);
+-    virtual void onPortFlushCompleted(OMX_U32 portIndex);
+-    virtual void onReset();
+-    virtual bool supportDescribeHdrStaticInfo();
+-    virtual bool supportDescribeHdr10PlusInfo();
+-
+-private:
+-    enum {
+-        kNumBuffers = 10
+-    };
+-
+-    enum {
+-        MODE_VP8,
+-        MODE_VP9
+-    } mMode;
+-
+-    enum {
+-        INPUT_DATA_AVAILABLE,  // VPX component is ready to decode data.
+-        INPUT_EOS_SEEN,        // VPX component saw EOS and is flushing On2 decoder.
+-        OUTPUT_FRAMES_FLUSHED  // VPX component finished flushing On2 decoder.
+-    } mEOSStatus;
+-
+-    void *mCtx;
+-    bool mFrameParallelMode;  // Frame parallel is only supported by VP9 decoder.
+-    struct PrivInfo {
+-        OMX_TICKS mTimeStamp;
+-        sp<ABuffer> mHdr10PlusInfo;
+-    };
+-    PrivInfo mPrivInfo[kNumBuffers];
+-    uint8_t mTimeStampIdx;
+-    vpx_image_t *mImg;
+-
+-    status_t initDecoder();
+-    status_t destroyDecoder();
+-    bool outputBuffers(bool flushDecoder, bool display, bool eos, bool *portWillReset);
+-    bool outputBufferSafe(OMX_BUFFERHEADERTYPE *outHeader);
+-
+-    DISALLOW_EVIL_CONSTRUCTORS(SoftVPX);
+-};
+-
+-}  // namespace android
+-
+-#endif  // SOFT_VPX_H_
+diff --git a/media/libstagefright/codecs/on2/dec/exports.lds b/media/libstagefright/codecs/on2/dec/exports.lds
+deleted file mode 100644
+index e24f3faa68..0000000000
+--- a/media/libstagefright/codecs/on2/dec/exports.lds
++++ /dev/null
+@@ -1,5 +0,0 @@
+-{
+-    global:
+-        _Z22createSoftOMXComponentPKcPK16OMX_CALLBACKTYPEPvPP17OMX_COMPONENTTYPE;
+-    local: *;
+-};
+diff --git a/media/libstagefright/codecs/on2/enc/Android.bp b/media/libstagefright/codecs/on2/enc/Android.bp
+deleted file mode 100644
+index cd69e0dbc8..0000000000
+--- a/media/libstagefright/codecs/on2/enc/Android.bp
++++ /dev/null
+@@ -1,24 +0,0 @@
+-cc_library_shared {
+-    name: "libstagefright_soft_vpxenc",
+-    defaults: ["libstagefright_softomx-defaults"],
+-
+-    srcs: [
+-        "SoftVPXEncoder.cpp",
+-        "SoftVP8Encoder.cpp",
+-        "SoftVP9Encoder.cpp",
+-    ],
+-
+-    cflags: ["-Wall"],
+-
+-    version_script: "exports.lds",
+-
+-    sanitize: {
+-        misc_undefined: [
+-            "signed-integer-overflow",
+-            "unsigned-integer-overflow",
+-        ],
+-        cfi: true,
+-    },
+-
+-    shared_libs: ["libvpx"],
+-}
+diff --git a/media/libstagefright/codecs/on2/enc/MODULE_LICENSE_APACHE2 b/media/libstagefright/codecs/on2/enc/MODULE_LICENSE_APACHE2
+deleted file mode 100644
+index e69de29bb2..0000000000
+diff --git a/media/libstagefright/codecs/on2/enc/NOTICE b/media/libstagefright/codecs/on2/enc/NOTICE
+deleted file mode 100644
+index faed58a153..0000000000
+--- a/media/libstagefright/codecs/on2/enc/NOTICE
++++ /dev/null
+@@ -1,190 +0,0 @@
+-
+-   Copyright (c) 2005-2013, The Android Open Source Project
+-
+-   Licensed under the Apache License, Version 2.0 (the "License");
+-   you may not use this file except in compliance with the License.
+-
+-   Unless required by applicable law or agreed to in writing, software
+-   distributed under the License is distributed on an "AS IS" BASIS,
+-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-   See the License for the specific language governing permissions and
+-   limitations under the License.
+-
+-
+-                                 Apache License
+-                           Version 2.0, January 2004
+-                        http://www.apache.org/licenses/
+-
+-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+-
+-   1. Definitions.
+-
+-      "License" shall mean the terms and conditions for use, reproduction,
+-      and distribution as defined by Sections 1 through 9 of this document.
+-
+-      "Licensor" shall mean the copyright owner or entity authorized by
+-      the copyright owner that is granting the License.
+-
+-      "Legal Entity" shall mean the union of the acting entity and all
+-      other entities that control, are controlled by, or are under common
+-      control with that entity. For the purposes of this definition,
+-      "control" means (i) the power, direct or indirect, to cause the
+-      direction or management of such entity, whether by contract or
+-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+-      outstanding shares, or (iii) beneficial ownership of such entity.
+-
+-      "You" (or "Your") shall mean an individual or Legal Entity
+-      exercising permissions granted by this License.
+-
+-      "Source" form shall mean the preferred form for making modifications,
+-      including but not limited to software source code, documentation
+-      source, and configuration files.
+-
+-      "Object" form shall mean any form resulting from mechanical
+-      transformation or translation of a Source form, including but
+-      not limited to compiled object code, generated documentation,
+-      and conversions to other media types.
+-
+-      "Work" shall mean the work of authorship, whether in Source or
+-      Object form, made available under the License, as indicated by a
+-      copyright notice that is included in or attached to the work
+-      (an example is provided in the Appendix below).
+-
+-      "Derivative Works" shall mean any work, whether in Source or Object
+-      form, that is based on (or derived from) the Work and for which the
+-      editorial revisions, annotations, elaborations, or other modifications
+-      represent, as a whole, an original work of authorship. For the purposes
+-      of this License, Derivative Works shall not include works that remain
+-      separable from, or merely link (or bind by name) to the interfaces of,
+-      the Work and Derivative Works thereof.
+-
+-      "Contribution" shall mean any work of authorship, including
+-      the original version of the Work and any modifications or additions
+-      to that Work or Derivative Works thereof, that is intentionally
+-      submitted to Licensor for inclusion in the Work by the copyright owner
+-      or by an individual or Legal Entity authorized to submit on behalf of
+-      the copyright owner. For the purposes of this definition, "submitted"
+-      means any form of electronic, verbal, or written communication sent
+-      to the Licensor or its representatives, including but not limited to
+-      communication on electronic mailing lists, source code control systems,
+-      and issue tracking systems that are managed by, or on behalf of, the
+-      Licensor for the purpose of discussing and improving the Work, but
+-      excluding communication that is conspicuously marked or otherwise
+-      designated in writing by the copyright owner as "Not a Contribution."
+-
+-      "Contributor" shall mean Licensor and any individual or Legal Entity
+-      on behalf of whom a Contribution has been received by Licensor and
+-      subsequently incorporated within the Work.
+-
+-   2. Grant of Copyright License. Subject to the terms and conditions of
+-      this License, each Contributor hereby grants to You a perpetual,
+-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+-      copyright license to reproduce, prepare Derivative Works of,
+-      publicly display, publicly perform, sublicense, and distribute the
+-      Work and such Derivative Works in Source or Object form.
+-
+-   3. Grant of Patent License. Subject to the terms and conditions of
+-      this License, each Contributor hereby grants to You a perpetual,
+-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+-      (except as stated in this section) patent license to make, have made,
+-      use, offer to sell, sell, import, and otherwise transfer the Work,
+-      where such license applies only to those patent claims licensable
+-      by such Contributor that are necessarily infringed by their
+-      Contribution(s) alone or by combination of their Contribution(s)
+-      with the Work to which such Contribution(s) was submitted. If You
+-      institute patent litigation against any entity (including a
+-      cross-claim or counterclaim in a lawsuit) alleging that the Work
+-      or a Contribution incorporated within the Work constitutes direct
+-      or contributory patent infringement, then any patent licenses
+-      granted to You under this License for that Work shall terminate
+-      as of the date such litigation is filed.
+-
+-   4. Redistribution. You may reproduce and distribute copies of the
+-      Work or Derivative Works thereof in any medium, with or without
+-      modifications, and in Source or Object form, provided that You
+-      meet the following conditions:
+-
+-      (a) You must give any other recipients of the Work or
+-          Derivative Works a copy of this License; and
+-
+-      (b) You must cause any modified files to carry prominent notices
+-          stating that You changed the files; and
+-
+-      (c) You must retain, in the Source form of any Derivative Works
+-          that You distribute, all copyright, patent, trademark, and
+-          attribution notices from the Source form of the Work,
+-          excluding those notices that do not pertain to any part of
+-          the Derivative Works; and
+-
+-      (d) If the Work includes a "NOTICE" text file as part of its
+-          distribution, then any Derivative Works that You distribute must
+-          include a readable copy of the attribution notices contained
+-          within such NOTICE file, excluding those notices that do not
+-          pertain to any part of the Derivative Works, in at least one
+-          of the following places: within a NOTICE text file distributed
+-          as part of the Derivative Works; within the Source form or
+-          documentation, if provided along with the Derivative Works; or,
+-          within a display generated by the Derivative Works, if and
+-          wherever such third-party notices normally appear. The contents
+-          of the NOTICE file are for informational purposes only and
+-          do not modify the License. You may add Your own attribution
+-          notices within Derivative Works that You distribute, alongside
+-          or as an addendum to the NOTICE text from the Work, provided
+-          that such additional attribution notices cannot be construed
+-          as modifying the License.
+-
+-      You may add Your own copyright statement to Your modifications and
+-      may provide additional or different license terms and conditions
+-      for use, reproduction, or distribution of Your modifications, or
+-      for any such Derivative Works as a whole, provided Your use,
+-      reproduction, and distribution of the Work otherwise complies with
+-      the conditions stated in this License.
+-
+-   5. Submission of Contributions. Unless You explicitly state otherwise,
+-      any Contribution intentionally submitted for inclusion in the Work
+-      by You to the Licensor shall be under the terms and conditions of
+-      this License, without any additional terms or conditions.
+-      Notwithstanding the above, nothing herein shall supersede or modify
+-      the terms of any separate license agreement you may have executed
+-      with Licensor regarding such Contributions.
+-
+-   6. Trademarks. This License does not grant permission to use the trade
+-      names, trademarks, service marks, or product names of the Licensor,
+-      except as required for reasonable and customary use in describing the
+-      origin of the Work and reproducing the content of the NOTICE file.
+-
+-   7. Disclaimer of Warranty. Unless required by applicable law or
+-      agreed to in writing, Licensor provides the Work (and each
+-      Contributor provides its Contributions) on an "AS IS" BASIS,
+-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+-      implied, including, without limitation, any warranties or conditions
+-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+-      PARTICULAR PURPOSE. You are solely responsible for determining the
+-      appropriateness of using or redistributing the Work and assume any
+-      risks associated with Your exercise of permissions under this License.
+-
+-   8. Limitation of Liability. In no event and under no legal theory,
+-      whether in tort (including negligence), contract, or otherwise,
+-      unless required by applicable law (such as deliberate and grossly
+-      negligent acts) or agreed to in writing, shall any Contributor be
+-      liable to You for damages, including any direct, indirect, special,
+-      incidental, or consequential damages of any character arising as a
+-      result of this License or out of the use or inability to use the
+-      Work (including but not limited to damages for loss of goodwill,
+-      work stoppage, computer failure or malfunction, or any and all
+-      other commercial damages or losses), even if such Contributor
+-      has been advised of the possibility of such damages.
+-
+-   9. Accepting Warranty or Additional Liability. While redistributing
+-      the Work or Derivative Works thereof, You may choose to offer,
+-      and charge a fee for, acceptance of support, warranty, indemnity,
+-      or other liability obligations and/or rights consistent with this
+-      License. However, in accepting such obligations, You may act only
+-      on Your own behalf and on Your sole responsibility, not on behalf
+-      of any other Contributor, and only if You agree to indemnify,
+-      defend, and hold each Contributor harmless for any liability
+-      incurred by, or claims asserted against, such Contributor by reason
+-      of your accepting any such warranty or additional liability.
+-
+-   END OF TERMS AND CONDITIONS
+-
+diff --git a/media/libstagefright/codecs/on2/enc/SoftVP8Encoder.cpp b/media/libstagefright/codecs/on2/enc/SoftVP8Encoder.cpp
+deleted file mode 100644
+index 04737a9ccf..0000000000
+--- a/media/libstagefright/codecs/on2/enc/SoftVP8Encoder.cpp
++++ /dev/null
+@@ -1,162 +0,0 @@
+-/*
+- * Copyright (C) 2016 The Android Open Source Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-// #define LOG_NDEBUG 0
+-#define LOG_TAG "SoftVP8Encoder"
+-#include "SoftVP8Encoder.h"
+-
+-#include <utils/Log.h>
+-#include <utils/misc.h>
+-
+-#include <media/hardware/HardwareAPI.h>
+-#include <media/hardware/MetadataBufferType.h>
+-#include <media/stagefright/foundation/ADebug.h>
+-#include <media/stagefright/MediaDefs.h>
+-
+-#ifndef INT32_MAX
+-#define INT32_MAX   2147483647
+-#endif
+-
+-namespace android {
+-
+-static const CodecProfileLevel kVp8ProfileLevels[] = {
+-    { OMX_VIDEO_VP8ProfileMain, OMX_VIDEO_VP8Level_Version0 },
+-    { OMX_VIDEO_VP8ProfileMain, OMX_VIDEO_VP8Level_Version1 },
+-    { OMX_VIDEO_VP8ProfileMain, OMX_VIDEO_VP8Level_Version2 },
+-    { OMX_VIDEO_VP8ProfileMain, OMX_VIDEO_VP8Level_Version3 },
+-};
+-
+-SoftVP8Encoder::SoftVP8Encoder(const char *name,
+-                               const OMX_CALLBACKTYPE *callbacks,
+-                               OMX_PTR appData,
+-                               OMX_COMPONENTTYPE **component)
+-    : SoftVPXEncoder(
+-            name, callbacks, appData, component, "video_encoder.vp8",
+-            OMX_VIDEO_CodingVP8, MEDIA_MIMETYPE_VIDEO_VP8, 2,
+-            kVp8ProfileLevels, NELEM(kVp8ProfileLevels)),
+-      mDCTPartitions(0),
+-      mLevel(OMX_VIDEO_VP8Level_Version0) {
+-}
+-
+-void SoftVP8Encoder::setCodecSpecificInterface() {
+-    mCodecInterface = vpx_codec_vp8_cx();
+-}
+-
+-void SoftVP8Encoder::setCodecSpecificConfiguration() {
+-    switch (mLevel) {
+-        case OMX_VIDEO_VP8Level_Version0:
+-            mCodecConfiguration->g_profile = 0;
+-            break;
+-
+-        case OMX_VIDEO_VP8Level_Version1:
+-            mCodecConfiguration->g_profile = 1;
+-            break;
+-
+-        case OMX_VIDEO_VP8Level_Version2:
+-            mCodecConfiguration->g_profile = 2;
+-            break;
+-
+-        case OMX_VIDEO_VP8Level_Version3:
+-            mCodecConfiguration->g_profile = 3;
+-            break;
+-
+-        default:
+-            mCodecConfiguration->g_profile = 0;
+-    }
+-}
+-
+-vpx_codec_err_t SoftVP8Encoder::setCodecSpecificControls() {
+-    vpx_codec_err_t codec_return = vpx_codec_control(mCodecContext,
+-                                                     VP8E_SET_TOKEN_PARTITIONS,
+-                                                     mDCTPartitions);
+-    if (codec_return != VPX_CODEC_OK) {
+-        ALOGE("Error setting dct partitions for vpx encoder.");
+-    }
+-    return codec_return;
+-}
+-
+-OMX_ERRORTYPE SoftVP8Encoder::internalGetParameter(OMX_INDEXTYPE index,
+-                                                   OMX_PTR param) {
+-    // can include extension index OMX_INDEXEXTTYPE
+-    const int32_t indexFull = index;
+-
+-    switch (indexFull) {
+-        case OMX_IndexParamVideoVp8:
+-            return internalGetVp8Params(
+-                (OMX_VIDEO_PARAM_VP8TYPE *)param);
+-
+-        default:
+-            return SoftVPXEncoder::internalGetParameter(index, param);
+-    }
+-}
+-
+-OMX_ERRORTYPE SoftVP8Encoder::internalSetParameter(OMX_INDEXTYPE index,
+-                                                   const OMX_PTR param) {
+-    // can include extension index OMX_INDEXEXTTYPE
+-    const int32_t indexFull = index;
+-
+-    switch (indexFull) {
+-        case OMX_IndexParamVideoVp8:
+-            return internalSetVp8Params(
+-                (const OMX_VIDEO_PARAM_VP8TYPE *)param);
+-
+-        default:
+-            return SoftVPXEncoder::internalSetParameter(index, param);
+-    }
+-}
+-
+-OMX_ERRORTYPE SoftVP8Encoder::internalGetVp8Params(
+-        OMX_VIDEO_PARAM_VP8TYPE* vp8Params) {
+-    if (vp8Params->nPortIndex != kOutputPortIndex) {
+-        return OMX_ErrorUnsupportedIndex;
+-    }
+-
+-    vp8Params->eProfile = OMX_VIDEO_VP8ProfileMain;
+-    vp8Params->eLevel = mLevel;
+-    vp8Params->bErrorResilientMode = mErrorResilience;
+-    vp8Params->nDCTPartitions = mDCTPartitions;
+-    return OMX_ErrorNone;
+-}
+-
+-OMX_ERRORTYPE SoftVP8Encoder::internalSetVp8Params(
+-        const OMX_VIDEO_PARAM_VP8TYPE* vp8Params) {
+-    if (vp8Params->nPortIndex != kOutputPortIndex) {
+-        return OMX_ErrorUnsupportedIndex;
+-    }
+-
+-    if (vp8Params->eProfile != OMX_VIDEO_VP8ProfileMain) {
+-        return OMX_ErrorBadParameter;
+-    }
+-
+-    if (vp8Params->eLevel == OMX_VIDEO_VP8Level_Version0 ||
+-        vp8Params->eLevel == OMX_VIDEO_VP8Level_Version1 ||
+-        vp8Params->eLevel == OMX_VIDEO_VP8Level_Version2 ||
+-        vp8Params->eLevel == OMX_VIDEO_VP8Level_Version3) {
+-        mLevel = vp8Params->eLevel;
+-    } else {
+-        return OMX_ErrorBadParameter;
+-    }
+-
+-    mErrorResilience = vp8Params->bErrorResilientMode;
+-    if (vp8Params->nDCTPartitions <= kMaxDCTPartitions) {
+-        mDCTPartitions = vp8Params->nDCTPartitions;
+-    } else {
+-        return OMX_ErrorBadParameter;
+-    }
+-    return OMX_ErrorNone;
+-}
+-
+-}  // namespace android
+diff --git a/media/libstagefright/codecs/on2/enc/SoftVP8Encoder.h b/media/libstagefright/codecs/on2/enc/SoftVP8Encoder.h
+deleted file mode 100644
+index c5c2abfa0e..0000000000
+--- a/media/libstagefright/codecs/on2/enc/SoftVP8Encoder.h
++++ /dev/null
+@@ -1,93 +0,0 @@
+-/*
+- * Copyright (C) 2016 The Android Open Source Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-#ifndef SOFT_VP8_ENCODER_H_
+-
+-#define SOFT_VP8_ENCODER_H_
+-
+-#include "SoftVPXEncoder.h"
+-
+-#include <OMX_VideoExt.h>
+-#include <OMX_IndexExt.h>
+-
+-#include "vpx/vpx_encoder.h"
+-#include "vpx/vpx_codec.h"
+-#include "vpx/vp8cx.h"
+-
+-namespace android {
+-
+-// Exposes a vp8 encoder as an OMX Component
+-//
+-// In addition to the base class settings, Only following encoder settings are
+-// available:
+-//    - token partitioning
+-struct SoftVP8Encoder : public SoftVPXEncoder {
+-    SoftVP8Encoder(const char *name,
+-                   const OMX_CALLBACKTYPE *callbacks,
+-                   OMX_PTR appData,
+-                   OMX_COMPONENTTYPE **component);
+-
+-protected:
+-    // Returns current values for requested OMX
+-    // parameters
+-    virtual OMX_ERRORTYPE internalGetParameter(
+-            OMX_INDEXTYPE index, OMX_PTR param);
+-
+-    // Validates, extracts and stores relevant OMX
+-    // parameters
+-    virtual OMX_ERRORTYPE internalSetParameter(
+-            OMX_INDEXTYPE index, const OMX_PTR param);
+-
+-    // Populates |mCodecInterface| with codec specific settings.
+-    virtual void setCodecSpecificInterface();
+-
+-    // Sets codec specific configuration.
+-    virtual void setCodecSpecificConfiguration();
+-
+-    // Initializes codec specific encoder settings.
+-    virtual vpx_codec_err_t setCodecSpecificControls();
+-
+-    // Gets vp8 specific parameters.
+-    OMX_ERRORTYPE internalGetVp8Params(
+-        OMX_VIDEO_PARAM_VP8TYPE* vp8Params);
+-
+-    // Handles vp8 specific parameters.
+-    OMX_ERRORTYPE internalSetVp8Params(
+-        const OMX_VIDEO_PARAM_VP8TYPE* vp8Params);
+-
+-private:
+-    // Max value supported for DCT partitions
+-    static const uint32_t kMaxDCTPartitions = 3;
+-
+-    // vp8 specific configuration parameter
+-    // that enables token partitioning of
+-    // the stream into substreams
+-    int32_t mDCTPartitions;
+-
+-    // Encoder profile corresponding to OMX level parameter
+-    //
+-    // The inconsistency in the naming is caused by
+-    // OMX spec referring vpx profiles (g_profile)
+-    // as "levels" whereas using the name "profile" for
+-    // something else.
+-    OMX_VIDEO_VP8LEVELTYPE mLevel;
+-
+-    DISALLOW_EVIL_CONSTRUCTORS(SoftVP8Encoder);
+-};
+-
+-}  // namespace android
+-
+-#endif  // SOFT_VP8_ENCODER_H_
+diff --git a/media/libstagefright/codecs/on2/enc/SoftVP9Encoder.cpp b/media/libstagefright/codecs/on2/enc/SoftVP9Encoder.cpp
+deleted file mode 100644
+index 1ea1c85f76..0000000000
+--- a/media/libstagefright/codecs/on2/enc/SoftVP9Encoder.cpp
++++ /dev/null
+@@ -1,169 +0,0 @@
+-/*
+- * Copyright (C) 2016 The Android Open Source Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-// #define LOG_NDEBUG 0
+-#define LOG_TAG "SoftVP9Encoder"
+-#include "SoftVP9Encoder.h"
+-
+-#include <utils/Log.h>
+-#include <utils/misc.h>
+-
+-#include <media/hardware/HardwareAPI.h>
+-#include <media/hardware/MetadataBufferType.h>
+-#include <media/stagefright/foundation/ADebug.h>
+-#include <media/stagefright/MediaDefs.h>
+-
+-namespace android {
+-
+-static const CodecProfileLevel kVp9ProfileLevels[] = {
+-    { OMX_VIDEO_VP9Profile0, OMX_VIDEO_VP9Level41 },
+-};
+-
+-SoftVP9Encoder::SoftVP9Encoder(
+-        const char *name, const OMX_CALLBACKTYPE *callbacks, OMX_PTR appData,
+-        OMX_COMPONENTTYPE **component)
+-    : SoftVPXEncoder(
+-            name, callbacks, appData, component, "video_encoder.vp9",
+-            OMX_VIDEO_CodingVP9, MEDIA_MIMETYPE_VIDEO_VP9, 4,
+-            kVp9ProfileLevels, NELEM(kVp9ProfileLevels)),
+-      mLevel(OMX_VIDEO_VP9Level1),
+-      mTileColumns(0),
+-      mFrameParallelDecoding(OMX_FALSE) {
+-}
+-
+-void SoftVP9Encoder::setCodecSpecificInterface() {
+-    mCodecInterface = vpx_codec_vp9_cx();
+-}
+-
+-void SoftVP9Encoder::setCodecSpecificConfiguration() {
+-    mCodecConfiguration->g_profile = 0;
+-}
+-
+-vpx_codec_err_t SoftVP9Encoder::setCodecSpecificControls() {
+-    vpx_codec_err_t codecReturn = vpx_codec_control(
+-            mCodecContext, VP9E_SET_TILE_COLUMNS, mTileColumns);
+-    if (codecReturn != VPX_CODEC_OK) {
+-        ALOGE("Error setting VP9E_SET_TILE_COLUMNS to %d. vpx_codec_control() "
+-              "returned %d", mTileColumns, codecReturn);
+-        return codecReturn;
+-    }
+-    codecReturn = vpx_codec_control(
+-            mCodecContext, VP9E_SET_FRAME_PARALLEL_DECODING,
+-            mFrameParallelDecoding);
+-    if (codecReturn != VPX_CODEC_OK) {
+-        ALOGE("Error setting VP9E_SET_FRAME_PARALLEL_DECODING to %d."
+-              "vpx_codec_control() returned %d", mFrameParallelDecoding,
+-              codecReturn);
+-        return codecReturn;
+-    }
+-    codecReturn = vpx_codec_control(mCodecContext, VP9E_SET_ROW_MT, 1);
+-    if (codecReturn != VPX_CODEC_OK) {
+-        ALOGE("Error setting VP9E_SET_ROW_MT to 1. vpx_codec_control() "
+-              "returned %d", codecReturn);
+-        return codecReturn;
+-    }
+-
+-    // For VP9, we always set CPU_USED to 8 (because the realtime default is 0
+-    // which is too slow).
+-    codecReturn = vpx_codec_control(mCodecContext, VP8E_SET_CPUUSED, 8);
+-    if (codecReturn != VPX_CODEC_OK) {
+-        ALOGE("Error setting VP8E_SET_CPUUSED to 8. vpx_codec_control() "
+-              "returned %d", codecReturn);
+-        return codecReturn;
+-    }
+-    return codecReturn;
+-}
+-
+-OMX_ERRORTYPE SoftVP9Encoder::internalGetParameter(
+-        OMX_INDEXTYPE index, OMX_PTR param) {
+-    // can include extension index OMX_INDEXEXTTYPE
+-    const int32_t indexFull = index;
+-
+-    switch (indexFull) {
+-        case OMX_IndexParamVideoVp9:
+-            return internalGetVp9Params(
+-                    (OMX_VIDEO_PARAM_VP9TYPE *)param);
+-
+-        default:
+-            return SoftVPXEncoder::internalGetParameter(index, param);
+-    }
+-}
+-
+-OMX_ERRORTYPE SoftVP9Encoder::internalSetParameter(
+-        OMX_INDEXTYPE index, const OMX_PTR param) {
+-    // can include extension index OMX_INDEXEXTTYPE
+-    const int32_t indexFull = index;
+-
+-    switch (indexFull) {
+-        case OMX_IndexParamVideoVp9:
+-            return internalSetVp9Params(
+-                    (const OMX_VIDEO_PARAM_VP9TYPE *)param);
+-
+-        default:
+-            return SoftVPXEncoder::internalSetParameter(index, param);
+-    }
+-}
+-
+-OMX_ERRORTYPE SoftVP9Encoder::internalGetVp9Params(
+-        OMX_VIDEO_PARAM_VP9TYPE *vp9Params) {
+-    if (vp9Params->nPortIndex != kOutputPortIndex) {
+-        return OMX_ErrorUnsupportedIndex;
+-    }
+-
+-    vp9Params->eProfile = OMX_VIDEO_VP9Profile0;
+-    vp9Params->eLevel = mLevel;
+-    vp9Params->bErrorResilientMode = mErrorResilience;
+-    vp9Params->nTileColumns = mTileColumns;
+-    vp9Params->bEnableFrameParallelDecoding = mFrameParallelDecoding;
+-    return OMX_ErrorNone;
+-}
+-
+-OMX_ERRORTYPE SoftVP9Encoder::internalSetVp9Params(
+-        const OMX_VIDEO_PARAM_VP9TYPE *vp9Params) {
+-    if (vp9Params->nPortIndex != kOutputPortIndex) {
+-        return OMX_ErrorUnsupportedIndex;
+-    }
+-
+-    if (vp9Params->eProfile != OMX_VIDEO_VP9Profile0) {
+-        return OMX_ErrorBadParameter;
+-    }
+-
+-    if (vp9Params->eLevel == OMX_VIDEO_VP9Level1 ||
+-        vp9Params->eLevel == OMX_VIDEO_VP9Level11 ||
+-        vp9Params->eLevel == OMX_VIDEO_VP9Level2 ||
+-        vp9Params->eLevel == OMX_VIDEO_VP9Level21 ||
+-        vp9Params->eLevel == OMX_VIDEO_VP9Level3 ||
+-        vp9Params->eLevel == OMX_VIDEO_VP9Level31 ||
+-        vp9Params->eLevel == OMX_VIDEO_VP9Level4 ||
+-        vp9Params->eLevel == OMX_VIDEO_VP9Level41 ||
+-        vp9Params->eLevel == OMX_VIDEO_VP9Level5 ||
+-        vp9Params->eLevel == OMX_VIDEO_VP9Level51 ||
+-        vp9Params->eLevel == OMX_VIDEO_VP9Level52 ||
+-        vp9Params->eLevel == OMX_VIDEO_VP9Level6 ||
+-        vp9Params->eLevel == OMX_VIDEO_VP9Level61 ||
+-        vp9Params->eLevel == OMX_VIDEO_VP9Level62) {
+-        mLevel = vp9Params->eLevel;
+-    } else {
+-        return OMX_ErrorBadParameter;
+-    }
+-
+-    mErrorResilience = vp9Params->bErrorResilientMode;
+-    mTileColumns = vp9Params->nTileColumns;
+-    mFrameParallelDecoding = vp9Params->bEnableFrameParallelDecoding;
+-    return OMX_ErrorNone;
+-}
+-
+-}  // namespace android
+diff --git a/media/libstagefright/codecs/on2/enc/SoftVP9Encoder.h b/media/libstagefright/codecs/on2/enc/SoftVP9Encoder.h
+deleted file mode 100644
+index 308a9ac95f..0000000000
+--- a/media/libstagefright/codecs/on2/enc/SoftVP9Encoder.h
++++ /dev/null
+@@ -1,91 +0,0 @@
+-/*
+- * Copyright (C) 2016 The Android Open Source Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-#ifndef SOFT_VP9_ENCODER_H_
+-
+-#define SOFT_VP9_ENCODER_H_
+-
+-#include "SoftVPXEncoder.h"
+-
+-#include <OMX_VideoExt.h>
+-#include <OMX_IndexExt.h>
+-
+-#include "vpx/vpx_encoder.h"
+-#include "vpx/vpx_codec.h"
+-#include "vpx/vp8cx.h"
+-
+-namespace android {
+-
+-// Exposes a VP9 encoder as an OMX Component
+-//
+-// In addition to the base class settings, Only following encoder settings are
+-// available:
+-//    - tile rows
+-//    - tile columns
+-//    - frame parallel mode
+-struct SoftVP9Encoder : public SoftVPXEncoder {
+-    SoftVP9Encoder(const char *name,
+-                   const OMX_CALLBACKTYPE *callbacks,
+-                   OMX_PTR appData,
+-                   OMX_COMPONENTTYPE **component);
+-
+-protected:
+-    // Returns current values for requested OMX
+-    // parameters
+-    virtual OMX_ERRORTYPE internalGetParameter(
+-            OMX_INDEXTYPE index, OMX_PTR param);
+-
+-    // Validates, extracts and stores relevant OMX
+-    // parameters
+-    virtual OMX_ERRORTYPE internalSetParameter(
+-            OMX_INDEXTYPE index, const OMX_PTR param);
+-
+-    // Populates |mCodecInterface| with codec specific settings.
+-    virtual void setCodecSpecificInterface();
+-
+-    // Sets codec specific configuration.
+-    virtual void setCodecSpecificConfiguration();
+-
+-    // Initializes codec specific encoder settings.
+-    virtual vpx_codec_err_t setCodecSpecificControls();
+-
+-    // Gets vp9 specific parameters.
+-    OMX_ERRORTYPE internalGetVp9Params(
+-        OMX_VIDEO_PARAM_VP9TYPE* vp9Params);
+-
+-    // Handles vp9 specific parameters.
+-    OMX_ERRORTYPE internalSetVp9Params(
+-        const OMX_VIDEO_PARAM_VP9TYPE* vp9Params);
+-
+-private:
+-    // Encoder profile corresponding to OMX level parameter
+-    //
+-    // The inconsistency in the naming is caused by
+-    // OMX spec referring vpx profiles (g_profile)
+-    // as "levels" whereas using the name "profile" for
+-    // something else.
+-    OMX_VIDEO_VP9LEVELTYPE mLevel;
+-
+-    int32_t mTileColumns;
+-
+-    OMX_BOOL mFrameParallelDecoding;
+-
+-    DISALLOW_EVIL_CONSTRUCTORS(SoftVP9Encoder);
+-};
+-
+-}  // namespace android
+-
+-#endif  // SOFT_VP9_ENCODER_H_
+diff --git a/media/libstagefright/codecs/on2/enc/SoftVPXEncoder.cpp b/media/libstagefright/codecs/on2/enc/SoftVPXEncoder.cpp
+deleted file mode 100644
+index d0cb0718c2..0000000000
+--- a/media/libstagefright/codecs/on2/enc/SoftVPXEncoder.cpp
++++ /dev/null
+@@ -1,789 +0,0 @@
+-/*
+- * Copyright (C) 2013 The Android Open Source Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-// #define LOG_NDEBUG 0
+-#define LOG_TAG "SoftVPXEncoder"
+-#include "SoftVPXEncoder.h"
+-
+-#include "SoftVP8Encoder.h"
+-#include "SoftVP9Encoder.h"
+-
+-#include <android-base/macros.h>
+-#include <utils/Log.h>
+-#include <utils/misc.h>
+-
+-#include <media/hardware/HardwareAPI.h>
+-#include <media/hardware/MetadataBufferType.h>
+-#include <media/stagefright/foundation/ADebug.h>
+-#include <media/stagefright/MediaDefs.h>
+-
+-#ifndef INT32_MAX
+-#define INT32_MAX   2147483647
+-#endif
+-
+-namespace android {
+-
+-template<class T>
+-static void InitOMXParams(T *params) {
+-    params->nSize = sizeof(T);
+-    // OMX IL 1.1.2
+-    params->nVersion.s.nVersionMajor = 1;
+-    params->nVersion.s.nVersionMinor = 1;
+-    params->nVersion.s.nRevision = 2;
+-    params->nVersion.s.nStep = 0;
+-}
+-
+-static int GetCPUCoreCount() {
+-    int cpuCoreCount = 1;
+-#if defined(_SC_NPROCESSORS_ONLN)
+-    cpuCoreCount = sysconf(_SC_NPROCESSORS_ONLN);
+-#else
+-    // _SC_NPROC_ONLN must be defined...
+-    cpuCoreCount = sysconf(_SC_NPROC_ONLN);
+-#endif
+-    CHECK_GE(cpuCoreCount, 1);
+-    return cpuCoreCount;
+-}
+-
+-SoftVPXEncoder::SoftVPXEncoder(const char *name,
+-                               const OMX_CALLBACKTYPE *callbacks,
+-                               OMX_PTR appData,
+-                               OMX_COMPONENTTYPE **component,
+-                               const char* role,
+-                               OMX_VIDEO_CODINGTYPE codingType,
+-                               const char* mimeType,
+-                               int32_t minCompressionRatio,
+-                               const CodecProfileLevel *profileLevels,
+-                               size_t numProfileLevels)
+-    : SoftVideoEncoderOMXComponent(
+-            name, role, codingType, profileLevels, numProfileLevels,
+-            176 /* width */, 144 /* height */,
+-            callbacks, appData, component),
+-      mCodecContext(NULL),
+-      mCodecConfiguration(NULL),
+-      mCodecInterface(NULL),
+-      mBitrateUpdated(false),
+-      mBitrateControlMode(VPX_VBR),
+-      mErrorResilience(OMX_FALSE),
+-      mKeyFrameInterval(0),
+-      mMinQuantizer(0),
+-      mMaxQuantizer(0),
+-      mTemporalLayers(0),
+-      mTemporalPatternType(OMX_VIDEO_VPXTemporalLayerPatternNone),
+-      mTemporalPatternLength(0),
+-      mTemporalPatternIdx(0),
+-      mLastTimestamp(0x7FFFFFFFFFFFFFFFLL),
+-      mConversionBuffer(NULL),
+-      mKeyFrameRequested(false) {
+-    memset(mTemporalLayerBitrateRatio, 0, sizeof(mTemporalLayerBitrateRatio));
+-    mTemporalLayerBitrateRatio[0] = 100;
+-
+-    const size_t kMinOutputBufferSize = 1024 * 1024; // arbitrary
+-
+-    initPorts(
+-            kNumBuffers, kNumBuffers, kMinOutputBufferSize,
+-            mimeType, minCompressionRatio);
+-}
+-
+-SoftVPXEncoder::~SoftVPXEncoder() {
+-    releaseEncoder();
+-}
+-
+-status_t SoftVPXEncoder::initEncoder() {
+-    vpx_codec_err_t codec_return;
+-    status_t result = UNKNOWN_ERROR;
+-
+-    setCodecSpecificInterface();
+-    if (mCodecInterface == NULL) {
+-        goto CLEAN_UP;
+-    }
+-    ALOGD("VPx: initEncoder. BRMode: %u. TSLayers: %zu. KF: %u. QP: %u - %u",
+-          (uint32_t)mBitrateControlMode, mTemporalLayers, mKeyFrameInterval,
+-          mMinQuantizer, mMaxQuantizer);
+-
+-    mCodecConfiguration = new vpx_codec_enc_cfg_t;
+-    codec_return = vpx_codec_enc_config_default(mCodecInterface,
+-                                                mCodecConfiguration,
+-                                                0);
+-
+-    if (codec_return != VPX_CODEC_OK) {
+-        ALOGE("Error populating default configuration for vpx encoder.");
+-        goto CLEAN_UP;
+-    }
+-
+-    mCodecConfiguration->g_w = mWidth;
+-    mCodecConfiguration->g_h = mHeight;
+-    mCodecConfiguration->g_threads = GetCPUCoreCount();
+-    mCodecConfiguration->g_error_resilient = mErrorResilience;
+-
+-    // OMX timebase unit is microsecond
+-    // g_timebase is in seconds (i.e. 1/1000000 seconds)
+-    mCodecConfiguration->g_timebase.num = 1;
+-    mCodecConfiguration->g_timebase.den = 1000000;
+-    // rc_target_bitrate is in kbps, mBitrate in bps
+-    mCodecConfiguration->rc_target_bitrate = (mBitrate + 500) / 1000;
+-    mCodecConfiguration->rc_end_usage = mBitrateControlMode;
+-    // Disable frame drop - not allowed in MediaCodec now.
+-    mCodecConfiguration->rc_dropframe_thresh = 0;
+-    // Disable lagged encoding.
+-    mCodecConfiguration->g_lag_in_frames = 0;
+-    if (mBitrateControlMode == VPX_CBR) {
+-        // Disable spatial resizing.
+-        mCodecConfiguration->rc_resize_allowed = 0;
+-        // Single-pass mode.
+-        mCodecConfiguration->g_pass = VPX_RC_ONE_PASS;
+-        // Maximum amount of bits that can be subtracted from the target
+-        // bitrate - expressed as percentage of the target bitrate.
+-        mCodecConfiguration->rc_undershoot_pct = 100;
+-        // Maximum amount of bits that can be added to the target
+-        // bitrate - expressed as percentage of the target bitrate.
+-        mCodecConfiguration->rc_overshoot_pct = 15;
+-        // Initial value of the buffer level in ms.
+-        mCodecConfiguration->rc_buf_initial_sz = 500;
+-        // Amount of data that the encoder should try to maintain in ms.
+-        mCodecConfiguration->rc_buf_optimal_sz = 600;
+-        // The amount of data that may be buffered by the decoding
+-        // application in ms.
+-        mCodecConfiguration->rc_buf_sz = 1000;
+-        // Enable error resilience - needed for packet loss.
+-        mCodecConfiguration->g_error_resilient = 1;
+-        // Maximum key frame interval - for CBR boost to 3000
+-        mCodecConfiguration->kf_max_dist = 3000;
+-        // Encoder determines optimal key frame placement automatically.
+-        mCodecConfiguration->kf_mode = VPX_KF_AUTO;
+-    }
+-
+-    // Frames temporal pattern - for now WebRTC like pattern is only supported.
+-    switch (mTemporalLayers) {
+-        case 0:
+-        {
+-            mTemporalPatternLength = 0;
+-            break;
+-        }
+-        case 1:
+-        {
+-            mCodecConfiguration->ts_number_layers = 1;
+-            mCodecConfiguration->ts_rate_decimator[0] = 1;
+-            mCodecConfiguration->ts_periodicity = 1;
+-            mCodecConfiguration->ts_layer_id[0] = 0;
+-            mTemporalPattern[0] = kTemporalUpdateLastRefAll;
+-            mTemporalPatternLength = 1;
+-            break;
+-        }
+-        case 2:
+-        {
+-            mCodecConfiguration->ts_number_layers = 2;
+-            mCodecConfiguration->ts_rate_decimator[0] = 2;
+-            mCodecConfiguration->ts_rate_decimator[1] = 1;
+-            mCodecConfiguration->ts_periodicity = 2;
+-            mCodecConfiguration->ts_layer_id[0] = 0;
+-            mCodecConfiguration->ts_layer_id[1] = 1;
+-            mTemporalPattern[0] = kTemporalUpdateLastAndGoldenRefAltRef;
+-            mTemporalPattern[1] = kTemporalUpdateGoldenWithoutDependencyRefAltRef;
+-            mTemporalPattern[2] = kTemporalUpdateLastRefAltRef;
+-            mTemporalPattern[3] = kTemporalUpdateGoldenRefAltRef;
+-            mTemporalPattern[4] = kTemporalUpdateLastRefAltRef;
+-            mTemporalPattern[5] = kTemporalUpdateGoldenRefAltRef;
+-            mTemporalPattern[6] = kTemporalUpdateLastRefAltRef;
+-            mTemporalPattern[7] = kTemporalUpdateNone;
+-            mTemporalPatternLength = 8;
+-            break;
+-        }
+-        case 3:
+-        {
+-            mCodecConfiguration->ts_number_layers = 3;
+-            mCodecConfiguration->ts_rate_decimator[0] = 4;
+-            mCodecConfiguration->ts_rate_decimator[1] = 2;
+-            mCodecConfiguration->ts_rate_decimator[2] = 1;
+-            mCodecConfiguration->ts_periodicity = 4;
+-            mCodecConfiguration->ts_layer_id[0] = 0;
+-            mCodecConfiguration->ts_layer_id[1] = 2;
+-            mCodecConfiguration->ts_layer_id[2] = 1;
+-            mCodecConfiguration->ts_layer_id[3] = 2;
+-            mTemporalPattern[0] = kTemporalUpdateLastAndGoldenRefAltRef;
+-            mTemporalPattern[1] = kTemporalUpdateNoneNoRefGoldenRefAltRef;
+-            mTemporalPattern[2] = kTemporalUpdateGoldenWithoutDependencyRefAltRef;
+-            mTemporalPattern[3] = kTemporalUpdateNone;
+-            mTemporalPattern[4] = kTemporalUpdateLastRefAltRef;
+-            mTemporalPattern[5] = kTemporalUpdateNone;
+-            mTemporalPattern[6] = kTemporalUpdateGoldenRefAltRef;
+-            mTemporalPattern[7] = kTemporalUpdateNone;
+-            mTemporalPatternLength = 8;
+-            break;
+-        }
+-        default:
+-        {
+-            ALOGE("Wrong number of temporal layers %zu", mTemporalLayers);
+-            goto CLEAN_UP;
+-        }
+-    }
+-    // Set bitrate values for each layer
+-    for (size_t i = 0; i < mCodecConfiguration->ts_number_layers; i++) {
+-        mCodecConfiguration->ts_target_bitrate[i] =
+-            mCodecConfiguration->rc_target_bitrate *
+-            mTemporalLayerBitrateRatio[i] / 100;
+-    }
+-    if (mKeyFrameInterval > 0) {
+-        mCodecConfiguration->kf_max_dist = mKeyFrameInterval;
+-        mCodecConfiguration->kf_min_dist = mKeyFrameInterval;
+-        mCodecConfiguration->kf_mode = VPX_KF_AUTO;
+-    }
+-    if (mMinQuantizer > 0) {
+-        mCodecConfiguration->rc_min_quantizer = mMinQuantizer;
+-    }
+-    if (mMaxQuantizer > 0) {
+-        mCodecConfiguration->rc_max_quantizer = mMaxQuantizer;
+-    }
+-    setCodecSpecificConfiguration();
+-    mCodecContext = new vpx_codec_ctx_t;
+-    codec_return = vpx_codec_enc_init(mCodecContext,
+-                                      mCodecInterface,
+-                                      mCodecConfiguration,
+-                                      0);  // flags
+-
+-    if (codec_return != VPX_CODEC_OK) {
+-        ALOGE("Error initializing vpx encoder");
+-        goto CLEAN_UP;
+-    }
+-
+-    // Extra CBR settings
+-    if (mBitrateControlMode == VPX_CBR) {
+-        codec_return = vpx_codec_control(mCodecContext,
+-                                         VP8E_SET_STATIC_THRESHOLD,
+-                                         1);
+-        if (codec_return == VPX_CODEC_OK) {
+-            uint32_t rc_max_intra_target =
+-                mCodecConfiguration->rc_buf_optimal_sz * (mFramerate >> 17) / 10;
+-            // Don't go below 3 times per frame bandwidth.
+-            if (rc_max_intra_target < 300) {
+-                rc_max_intra_target = 300;
+-            }
+-            codec_return = vpx_codec_control(mCodecContext,
+-                                             VP8E_SET_MAX_INTRA_BITRATE_PCT,
+-                                             rc_max_intra_target);
+-        }
+-        if (codec_return == VPX_CODEC_OK) {
+-            codec_return = vpx_codec_control(mCodecContext,
+-                                             VP8E_SET_CPUUSED,
+-                                             -8);
+-        }
+-        if (codec_return != VPX_CODEC_OK) {
+-            ALOGE("Error setting cbr parameters for vpx encoder.");
+-            goto CLEAN_UP;
+-        }
+-    }
+-
+-    codec_return = setCodecSpecificControls();
+-
+-    if (codec_return != VPX_CODEC_OK) {
+-        // The codec specific method would have logged the error.
+-        goto CLEAN_UP;
+-    }
+-
+-    if (mColorFormat != OMX_COLOR_FormatYUV420Planar || mInputDataIsMeta) {
+-        free(mConversionBuffer);
+-        mConversionBuffer = NULL;
+-        if (((uint64_t)mWidth * mHeight) > ((uint64_t)INT32_MAX / 3)) {
+-            ALOGE("b/25812794, Buffer size is too big, width=%d, height=%d.", mWidth, mHeight);
+-            goto CLEAN_UP;
+-        }
+-        mConversionBuffer = (uint8_t *)malloc(mWidth * mHeight * 3 / 2);
+-        if (mConversionBuffer == NULL) {
+-            ALOGE("Allocating conversion buffer failed.");
+-            goto CLEAN_UP;
+-        }
+-    }
+-    return OK;
+-
+-CLEAN_UP:
+-    releaseEncoder();
+-    return result;
+-}
+-
+-status_t SoftVPXEncoder::releaseEncoder() {
+-    if (mCodecContext != NULL) {
+-        vpx_codec_destroy(mCodecContext);
+-        delete mCodecContext;
+-        mCodecContext = NULL;
+-    }
+-
+-    if (mCodecConfiguration != NULL) {
+-        delete mCodecConfiguration;
+-        mCodecConfiguration = NULL;
+-    }
+-
+-    if (mConversionBuffer != NULL) {
+-        free(mConversionBuffer);
+-        mConversionBuffer = NULL;
+-    }
+-
+-    // this one is not allocated by us
+-    mCodecInterface = NULL;
+-
+-    return OK;
+-}
+-
+-OMX_ERRORTYPE SoftVPXEncoder::internalGetParameter(OMX_INDEXTYPE index,
+-                                                   OMX_PTR param) {
+-    // can include extension index OMX_INDEXEXTTYPE
+-    const int32_t indexFull = index;
+-
+-    switch (indexFull) {
+-        case OMX_IndexParamVideoBitrate: {
+-            OMX_VIDEO_PARAM_BITRATETYPE *bitrate =
+-                (OMX_VIDEO_PARAM_BITRATETYPE *)param;
+-
+-            if (!isValidOMXParam(bitrate)) {
+-                return OMX_ErrorBadParameter;
+-            }
+-
+-            if (bitrate->nPortIndex != kOutputPortIndex) {
+-                return OMX_ErrorUnsupportedIndex;
+-            }
+-
+-            bitrate->nTargetBitrate = mBitrate;
+-
+-            if (mBitrateControlMode == VPX_VBR) {
+-                bitrate->eControlRate = OMX_Video_ControlRateVariable;
+-            } else if (mBitrateControlMode == VPX_CBR) {
+-                bitrate->eControlRate = OMX_Video_ControlRateConstant;
+-            } else {
+-                return OMX_ErrorUnsupportedSetting;
+-            }
+-            return OMX_ErrorNone;
+-        }
+-
+-        case OMX_IndexParamVideoAndroidVp8Encoder:
+-            return internalGetAndroidVpxParams(
+-                (OMX_VIDEO_PARAM_ANDROID_VP8ENCODERTYPE *)param);
+-
+-        default:
+-            return SoftVideoEncoderOMXComponent::internalGetParameter(index, param);
+-    }
+-}
+-
+-OMX_ERRORTYPE SoftVPXEncoder::internalSetParameter(OMX_INDEXTYPE index,
+-                                                   const OMX_PTR param) {
+-    // can include extension index OMX_INDEXEXTTYPE
+-    const int32_t indexFull = index;
+-
+-    switch (indexFull) {
+-        case OMX_IndexParamVideoBitrate: {
+-            const OMX_VIDEO_PARAM_BITRATETYPE *bitRate =
+-                (const OMX_VIDEO_PARAM_BITRATETYPE*) param;
+-
+-            if (!isValidOMXParam(bitRate)) {
+-                return OMX_ErrorBadParameter;
+-            }
+-
+-            return internalSetBitrateParams(bitRate);
+-        }
+-
+-        case OMX_IndexParamVideoAndroidVp8Encoder:
+-            return internalSetAndroidVpxParams(
+-                (const OMX_VIDEO_PARAM_ANDROID_VP8ENCODERTYPE *)param);
+-
+-        default:
+-            return SoftVideoEncoderOMXComponent::internalSetParameter(index, param);
+-    }
+-}
+-
+-OMX_ERRORTYPE SoftVPXEncoder::internalSetConfig(
+-        OMX_INDEXTYPE index, const OMX_PTR _params, bool *frameConfig) {
+-    switch (index) {
+-        case OMX_IndexConfigVideoIntraVOPRefresh:
+-        {
+-            OMX_CONFIG_INTRAREFRESHVOPTYPE *params =
+-                (OMX_CONFIG_INTRAREFRESHVOPTYPE *)_params;
+-
+-            if (!isValidOMXParam(params)) {
+-                return OMX_ErrorBadParameter;
+-            }
+-
+-            if (params->nPortIndex != kOutputPortIndex) {
+-                return OMX_ErrorBadPortIndex;
+-            }
+-
+-            mKeyFrameRequested = params->IntraRefreshVOP;
+-            return OMX_ErrorNone;
+-        }
+-
+-        case OMX_IndexConfigVideoBitrate:
+-        {
+-            OMX_VIDEO_CONFIG_BITRATETYPE *params =
+-                (OMX_VIDEO_CONFIG_BITRATETYPE *)_params;
+-
+-            if (!isValidOMXParam(params)) {
+-                return OMX_ErrorBadParameter;
+-            }
+-
+-            if (params->nPortIndex != kOutputPortIndex) {
+-                return OMX_ErrorBadPortIndex;
+-            }
+-
+-            if (mBitrate != params->nEncodeBitrate) {
+-                mBitrate = params->nEncodeBitrate;
+-                mBitrateUpdated = true;
+-            }
+-            return OMX_ErrorNone;
+-        }
+-
+-        default:
+-            return SimpleSoftOMXComponent::internalSetConfig(index, _params, frameConfig);
+-    }
+-}
+-
+-OMX_ERRORTYPE SoftVPXEncoder::internalGetBitrateParams(
+-        OMX_VIDEO_PARAM_BITRATETYPE* bitrate) {
+-    if (bitrate->nPortIndex != kOutputPortIndex) {
+-        return OMX_ErrorUnsupportedIndex;
+-    }
+-
+-    bitrate->nTargetBitrate = mBitrate;
+-
+-    if (mBitrateControlMode == VPX_VBR) {
+-        bitrate->eControlRate = OMX_Video_ControlRateVariable;
+-    } else if (mBitrateControlMode == VPX_CBR) {
+-        bitrate->eControlRate = OMX_Video_ControlRateConstant;
+-    } else {
+-        return OMX_ErrorUnsupportedSetting;
+-    }
+-    return OMX_ErrorNone;
+-}
+-
+-OMX_ERRORTYPE SoftVPXEncoder::internalSetBitrateParams(
+-        const OMX_VIDEO_PARAM_BITRATETYPE* bitrate) {
+-    if (bitrate->nPortIndex != kOutputPortIndex) {
+-        return OMX_ErrorUnsupportedIndex;
+-    }
+-
+-    mBitrate = bitrate->nTargetBitrate;
+-
+-    if (bitrate->eControlRate == OMX_Video_ControlRateVariable) {
+-        mBitrateControlMode = VPX_VBR;
+-    } else if (bitrate->eControlRate == OMX_Video_ControlRateConstant) {
+-        mBitrateControlMode = VPX_CBR;
+-    } else {
+-        return OMX_ErrorUnsupportedSetting;
+-    }
+-
+-    return OMX_ErrorNone;
+-}
+-
+-OMX_ERRORTYPE SoftVPXEncoder::internalGetAndroidVpxParams(
+-        OMX_VIDEO_PARAM_ANDROID_VP8ENCODERTYPE *vpxAndroidParams) {
+-    if (vpxAndroidParams->nPortIndex != kOutputPortIndex) {
+-        return OMX_ErrorUnsupportedIndex;
+-    }
+-
+-    vpxAndroidParams->nKeyFrameInterval = mKeyFrameInterval;
+-    vpxAndroidParams->eTemporalPattern = mTemporalPatternType;
+-    vpxAndroidParams->nTemporalLayerCount = mTemporalLayers;
+-    vpxAndroidParams->nMinQuantizer = mMinQuantizer;
+-    vpxAndroidParams->nMaxQuantizer = mMaxQuantizer;
+-    memcpy(vpxAndroidParams->nTemporalLayerBitrateRatio,
+-           mTemporalLayerBitrateRatio, sizeof(mTemporalLayerBitrateRatio));
+-    return OMX_ErrorNone;
+-}
+-
+-OMX_ERRORTYPE SoftVPXEncoder::internalSetAndroidVpxParams(
+-        const OMX_VIDEO_PARAM_ANDROID_VP8ENCODERTYPE *vpxAndroidParams) {
+-    if (vpxAndroidParams->nPortIndex != kOutputPortIndex) {
+-        return OMX_ErrorUnsupportedIndex;
+-    }
+-    if (vpxAndroidParams->eTemporalPattern != OMX_VIDEO_VPXTemporalLayerPatternNone &&
+-            vpxAndroidParams->eTemporalPattern != OMX_VIDEO_VPXTemporalLayerPatternWebRTC) {
+-        return OMX_ErrorBadParameter;
+-    }
+-    if (vpxAndroidParams->nTemporalLayerCount > OMX_VIDEO_ANDROID_MAXVP8TEMPORALLAYERS) {
+-        return OMX_ErrorBadParameter;
+-    }
+-    if (vpxAndroidParams->nMinQuantizer > vpxAndroidParams->nMaxQuantizer) {
+-        return OMX_ErrorBadParameter;
+-    }
+-
+-    mTemporalPatternType = vpxAndroidParams->eTemporalPattern;
+-    if (vpxAndroidParams->eTemporalPattern == OMX_VIDEO_VPXTemporalLayerPatternWebRTC) {
+-        mTemporalLayers = vpxAndroidParams->nTemporalLayerCount;
+-    } else if (vpxAndroidParams->eTemporalPattern == OMX_VIDEO_VPXTemporalLayerPatternNone) {
+-        mTemporalLayers = 0;
+-    }
+-    // Check the bitrate distribution between layers is in increasing order
+-    if (mTemporalLayers > 1) {
+-        for (size_t i = 0; i < mTemporalLayers - 1; i++) {
+-            if (vpxAndroidParams->nTemporalLayerBitrateRatio[i + 1] <=
+-                    vpxAndroidParams->nTemporalLayerBitrateRatio[i]) {
+-                ALOGE("Wrong bitrate ratio - should be in increasing order.");
+-                return OMX_ErrorBadParameter;
+-            }
+-        }
+-    }
+-    mKeyFrameInterval = vpxAndroidParams->nKeyFrameInterval;
+-    mMinQuantizer = vpxAndroidParams->nMinQuantizer;
+-    mMaxQuantizer = vpxAndroidParams->nMaxQuantizer;
+-    memcpy(mTemporalLayerBitrateRatio, vpxAndroidParams->nTemporalLayerBitrateRatio,
+-            sizeof(mTemporalLayerBitrateRatio));
+-    ALOGD("VPx: internalSetAndroidVpxParams. BRMode: %u. TS: %zu. KF: %u."
+-            " QP: %u - %u BR0: %u. BR1: %u. BR2: %u",
+-            (uint32_t)mBitrateControlMode, mTemporalLayers, mKeyFrameInterval,
+-            mMinQuantizer, mMaxQuantizer, mTemporalLayerBitrateRatio[0],
+-            mTemporalLayerBitrateRatio[1], mTemporalLayerBitrateRatio[2]);
+-    return OMX_ErrorNone;
+-}
+-
+-vpx_enc_frame_flags_t SoftVPXEncoder::getEncodeFlags() {
+-    vpx_enc_frame_flags_t flags = 0;
+-    if (mTemporalPatternLength > 0) {
+-      int patternIdx = mTemporalPatternIdx % mTemporalPatternLength;
+-      mTemporalPatternIdx++;
+-      switch (mTemporalPattern[patternIdx]) {
+-          case kTemporalUpdateLast:
+-              flags |= VP8_EFLAG_NO_UPD_GF;
+-              flags |= VP8_EFLAG_NO_UPD_ARF;
+-              flags |= VP8_EFLAG_NO_REF_GF;
+-              flags |= VP8_EFLAG_NO_REF_ARF;
+-              break;
+-          case kTemporalUpdateGoldenWithoutDependency:
+-              flags |= VP8_EFLAG_NO_REF_GF;
+-              FALLTHROUGH_INTENDED;
+-          case kTemporalUpdateGolden:
+-              flags |= VP8_EFLAG_NO_REF_ARF;
+-              flags |= VP8_EFLAG_NO_UPD_ARF;
+-              flags |= VP8_EFLAG_NO_UPD_LAST;
+-              break;
+-          case kTemporalUpdateAltrefWithoutDependency:
+-              flags |= VP8_EFLAG_NO_REF_ARF;
+-              flags |= VP8_EFLAG_NO_REF_GF;
+-              FALLTHROUGH_INTENDED;
+-          case kTemporalUpdateAltref:
+-              flags |= VP8_EFLAG_NO_UPD_GF;
+-              flags |= VP8_EFLAG_NO_UPD_LAST;
+-              break;
+-          case kTemporalUpdateNoneNoRefAltref:
+-              flags |= VP8_EFLAG_NO_REF_ARF;
+-              FALLTHROUGH_INTENDED;
+-          case kTemporalUpdateNone:
+-              flags |= VP8_EFLAG_NO_UPD_GF;
+-              flags |= VP8_EFLAG_NO_UPD_ARF;
+-              flags |= VP8_EFLAG_NO_UPD_LAST;
+-              flags |= VP8_EFLAG_NO_UPD_ENTROPY;
+-              break;
+-          case kTemporalUpdateNoneNoRefGoldenRefAltRef:
+-              flags |= VP8_EFLAG_NO_REF_GF;
+-              flags |= VP8_EFLAG_NO_UPD_GF;
+-              flags |= VP8_EFLAG_NO_UPD_ARF;
+-              flags |= VP8_EFLAG_NO_UPD_LAST;
+-              flags |= VP8_EFLAG_NO_UPD_ENTROPY;
+-              break;
+-          case kTemporalUpdateGoldenWithoutDependencyRefAltRef:
+-              flags |= VP8_EFLAG_NO_REF_GF;
+-              flags |= VP8_EFLAG_NO_UPD_ARF;
+-              flags |= VP8_EFLAG_NO_UPD_LAST;
+-              break;
+-          case kTemporalUpdateLastRefAltRef:
+-              flags |= VP8_EFLAG_NO_UPD_GF;
+-              flags |= VP8_EFLAG_NO_UPD_ARF;
+-              flags |= VP8_EFLAG_NO_REF_GF;
+-              break;
+-          case kTemporalUpdateGoldenRefAltRef:
+-              flags |= VP8_EFLAG_NO_UPD_ARF;
+-              flags |= VP8_EFLAG_NO_UPD_LAST;
+-              break;
+-          case kTemporalUpdateLastAndGoldenRefAltRef:
+-              flags |= VP8_EFLAG_NO_UPD_ARF;
+-              flags |= VP8_EFLAG_NO_REF_GF;
+-              break;
+-          case kTemporalUpdateLastRefAll:
+-              flags |= VP8_EFLAG_NO_UPD_ARF;
+-              flags |= VP8_EFLAG_NO_UPD_GF;
+-              break;
+-      }
+-    }
+-    return flags;
+-}
+-
+-void SoftVPXEncoder::onQueueFilled(OMX_U32 /* portIndex */) {
+-    // Initialize encoder if not already
+-    if (mCodecContext == NULL) {
+-        if (OK != initEncoder()) {
+-            ALOGE("Failed to initialize encoder");
+-            notify(OMX_EventError,
+-                   OMX_ErrorUndefined,
+-                   0,  // Extra notification data
+-                   NULL);  // Notification data pointer
+-            return;
+-        }
+-    }
+-
+-    vpx_codec_err_t codec_return;
+-    List<BufferInfo *> &inputBufferInfoQueue = getPortQueue(kInputPortIndex);
+-    List<BufferInfo *> &outputBufferInfoQueue = getPortQueue(kOutputPortIndex);
+-
+-    while (!inputBufferInfoQueue.empty() && !outputBufferInfoQueue.empty()) {
+-        BufferInfo *inputBufferInfo = *inputBufferInfoQueue.begin();
+-        OMX_BUFFERHEADERTYPE *inputBufferHeader = inputBufferInfo->mHeader;
+-
+-        BufferInfo *outputBufferInfo = *outputBufferInfoQueue.begin();
+-        OMX_BUFFERHEADERTYPE *outputBufferHeader = outputBufferInfo->mHeader;
+-
+-        if ((inputBufferHeader->nFlags & OMX_BUFFERFLAG_EOS) &&
+-                inputBufferHeader->nFilledLen == 0) {
+-            inputBufferInfoQueue.erase(inputBufferInfoQueue.begin());
+-            inputBufferInfo->mOwnedByUs = false;
+-            notifyEmptyBufferDone(inputBufferHeader);
+-
+-            outputBufferHeader->nFilledLen = 0;
+-            outputBufferHeader->nFlags = OMX_BUFFERFLAG_EOS;
+-
+-            outputBufferInfoQueue.erase(outputBufferInfoQueue.begin());
+-            outputBufferInfo->mOwnedByUs = false;
+-            notifyFillBufferDone(outputBufferHeader);
+-            return;
+-        }
+-
+-        OMX_ERRORTYPE error = validateInputBuffer(inputBufferHeader);
+-        if (error != OMX_ErrorNone) {
+-            ALOGE("b/27569635");
+-            android_errorWriteLog(0x534e4554, "27569635");
+-            notify(OMX_EventError, error, 0, 0);
+-            return;
+-        }
+-        const uint8_t *source =
+-            inputBufferHeader->pBuffer + inputBufferHeader->nOffset;
+-
+-        size_t frameSize = mWidth * mHeight * 3 / 2;
+-        if (mInputDataIsMeta) {
+-            source = extractGraphicBuffer(
+-                    mConversionBuffer, frameSize,
+-                    source, inputBufferHeader->nFilledLen,
+-                    mWidth, mHeight);
+-            if (source == NULL) {
+-                ALOGE("Unable to extract gralloc buffer in metadata mode");
+-                notify(OMX_EventError, OMX_ErrorUndefined, 0, 0);
+-                return;
+-            }
+-        } else {
+-            if (mColorFormat == OMX_COLOR_FormatYUV420SemiPlanar) {
+-                ConvertYUV420SemiPlanarToYUV420Planar(
+-                        source, mConversionBuffer, mWidth, mHeight);
+-
+-                source = mConversionBuffer;
+-            }
+-        }
+-        vpx_image_t raw_frame;
+-        vpx_img_wrap(&raw_frame, VPX_IMG_FMT_I420, mWidth, mHeight,
+-                     kInputBufferAlignment, (uint8_t *)source);
+-
+-        vpx_enc_frame_flags_t flags = getEncodeFlags();
+-        if (mKeyFrameRequested) {
+-            flags |= VPX_EFLAG_FORCE_KF;
+-            mKeyFrameRequested = false;
+-        }
+-
+-        if (mBitrateUpdated) {
+-            mCodecConfiguration->rc_target_bitrate = mBitrate/1000;
+-            vpx_codec_err_t res = vpx_codec_enc_config_set(mCodecContext,
+-                                                           mCodecConfiguration);
+-            if (res != VPX_CODEC_OK) {
+-                ALOGE("vpx encoder failed to update bitrate: %s",
+-                      vpx_codec_err_to_string(res));
+-                notify(OMX_EventError,
+-                       OMX_ErrorUndefined,
+-                       0, // Extra notification data
+-                       NULL); // Notification data pointer
+-            }
+-            mBitrateUpdated = false;
+-        }
+-
+-        uint32_t frameDuration;
+-        if (inputBufferHeader->nTimeStamp > mLastTimestamp) {
+-            frameDuration = (uint32_t)(inputBufferHeader->nTimeStamp - mLastTimestamp);
+-        } else {
+-            // Use default of 30 fps in case of 0 frame rate.
+-            uint32_t framerate = mFramerate ?: (30 << 16);
+-            frameDuration = (uint32_t)(((uint64_t)1000000 << 16) / framerate);
+-        }
+-        mLastTimestamp = inputBufferHeader->nTimeStamp;
+-        codec_return = vpx_codec_encode(
+-                mCodecContext,
+-                &raw_frame,
+-                inputBufferHeader->nTimeStamp,  // in timebase units
+-                frameDuration,  // frame duration in timebase units
+-                flags,  // frame flags
+-                VPX_DL_REALTIME);  // encoding deadline
+-        if (codec_return != VPX_CODEC_OK) {
+-            ALOGE("vpx encoder failed to encode frame");
+-            notify(OMX_EventError,
+-                   OMX_ErrorUndefined,
+-                   0,  // Extra notification data
+-                   NULL);  // Notification data pointer
+-            return;
+-        }
+-
+-        vpx_codec_iter_t encoded_packet_iterator = NULL;
+-        const vpx_codec_cx_pkt_t* encoded_packet;
+-
+-        while ((encoded_packet = vpx_codec_get_cx_data(
+-                        mCodecContext, &encoded_packet_iterator))) {
+-            if (encoded_packet->kind == VPX_CODEC_CX_FRAME_PKT) {
+-                outputBufferHeader->nTimeStamp = encoded_packet->data.frame.pts;
+-                outputBufferHeader->nFlags = 0;
+-                if (encoded_packet->data.frame.flags & VPX_FRAME_IS_KEY)
+-                    outputBufferHeader->nFlags |= OMX_BUFFERFLAG_SYNCFRAME;
+-                outputBufferHeader->nOffset = 0;
+-                outputBufferHeader->nFilledLen = encoded_packet->data.frame.sz;
+-                if (outputBufferHeader->nFilledLen > outputBufferHeader->nAllocLen) {
+-                    android_errorWriteLog(0x534e4554, "27569635");
+-                    notify(OMX_EventError, OMX_ErrorUndefined, 0, 0);
+-                    return;
+-                }
+-                memcpy(outputBufferHeader->pBuffer,
+-                       encoded_packet->data.frame.buf,
+-                       encoded_packet->data.frame.sz);
+-                outputBufferInfo->mOwnedByUs = false;
+-                outputBufferInfoQueue.erase(outputBufferInfoQueue.begin());
+-                if (inputBufferHeader->nFlags & OMX_BUFFERFLAG_EOS) {
+-                    outputBufferHeader->nFlags |= OMX_BUFFERFLAG_EOS;
+-                }
+-                notifyFillBufferDone(outputBufferHeader);
+-            }
+-        }
+-
+-        inputBufferInfo->mOwnedByUs = false;
+-        inputBufferInfoQueue.erase(inputBufferInfoQueue.begin());
+-        notifyEmptyBufferDone(inputBufferHeader);
+-    }
+-}
+-
+-void SoftVPXEncoder::onReset() {
+-    releaseEncoder();
+-    mLastTimestamp = 0x7FFFFFFFFFFFFFFFLL;
+-}
+-
+-}  // namespace android
+-
+-android::SoftOMXComponent *createSoftOMXComponent(
+-        const char *name, const OMX_CALLBACKTYPE *callbacks,
+-        OMX_PTR appData, OMX_COMPONENTTYPE **component) {
+-  if (!strcmp(name, "OMX.google.vp8.encoder")) {
+-      return new android::SoftVP8Encoder(name, callbacks, appData, component);
+-  } else if (!strcmp(name, "OMX.google.vp9.encoder")) {
+-      return new android::SoftVP9Encoder(name, callbacks, appData, component);
+-  } else {
+-      CHECK(!"Unknown component");
+-  }
+-  return NULL;
+-}
+diff --git a/media/libstagefright/codecs/on2/enc/SoftVPXEncoder.h b/media/libstagefright/codecs/on2/enc/SoftVPXEncoder.h
+deleted file mode 100644
+index 7208d694ac..0000000000
+--- a/media/libstagefright/codecs/on2/enc/SoftVPXEncoder.h
++++ /dev/null
+@@ -1,251 +0,0 @@
+-/*
+- * Copyright (C) 2013 The Android Open Source Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-#ifndef SOFT_VPX_ENCODER_H_
+-
+-#define SOFT_VPX_ENCODER_H_
+-
+-#include <media/stagefright/omx/SoftVideoEncoderOMXComponent.h>
+-
+-#include <OMX_VideoExt.h>
+-#include <OMX_IndexExt.h>
+-
+-#include "vpx/vpx_encoder.h"
+-#include "vpx/vpx_codec.h"
+-#include "vpx/vp8cx.h"
+-
+-namespace android {
+-
+-// Base class for a VPX Encoder OMX Component
+-//
+-// Boilerplate for callback bindings are taken care
+-// by the base class SimpleSoftOMXComponent and its
+-// parent SoftOMXComponent.
+-//
+-// Only following encoder settings are available (codec specific settings might
+-// be available in the sub-classes):
+-//    - target bitrate
+-//    - rate control (constant / variable)
+-//    - frame rate
+-//    - error resilience
+-//    - reconstruction & loop filters (g_profile)
+-//
+-// Only following color formats are recognized
+-//    - YUV420Planar
+-//    - YUV420SemiPlanar
+-//    - AndroidOpaque
+-//
+-// Following settings are not configurable by the client
+-//    - encoding deadline is realtime
+-//    - multithreaded encoding utilizes a number of threads equal
+-// to online cpu's available
+-//    - the algorithm interface for encoder is decided by the sub-class in use
+-//    - fractional bits of frame rate is discarded
+-//    - OMX timestamps are in microseconds, therefore
+-// encoder timebase is fixed to 1/1000000
+-
+-struct SoftVPXEncoder : public SoftVideoEncoderOMXComponent {
+-    SoftVPXEncoder(const char *name,
+-                   const OMX_CALLBACKTYPE *callbacks,
+-                   OMX_PTR appData,
+-                   OMX_COMPONENTTYPE **component,
+-                   const char* role,
+-                   OMX_VIDEO_CODINGTYPE codingType,
+-                   const char* mimeType,
+-                   int32_t minCompressionRatio,
+-                   const CodecProfileLevel *profileLevels,
+-                   size_t numProfileLevels);
+-
+-protected:
+-    virtual ~SoftVPXEncoder();
+-
+-    // Returns current values for requested OMX
+-    // parameters
+-    virtual OMX_ERRORTYPE internalGetParameter(
+-            OMX_INDEXTYPE index, OMX_PTR param);
+-
+-    // Validates, extracts and stores relevant OMX
+-    // parameters
+-    virtual OMX_ERRORTYPE internalSetParameter(
+-            OMX_INDEXTYPE index, const OMX_PTR param);
+-
+-    virtual OMX_ERRORTYPE internalSetConfig(
+-            OMX_INDEXTYPE index, const OMX_PTR params, bool *frameConfig);
+-
+-    // OMX callback when buffers available
+-    // Note that both an input and output buffer
+-    // is expected to be available to carry out
+-    // encoding of the frame
+-    virtual void onQueueFilled(OMX_U32 portIndex);
+-
+-    virtual void onReset();
+-
+-    // Initializes vpx encoder with available settings.
+-    status_t initEncoder();
+-
+-    // Populates mCodecInterface with codec specific settings.
+-    virtual void setCodecSpecificInterface() = 0;
+-
+-    // Sets codec specific configuration.
+-    virtual void setCodecSpecificConfiguration() = 0;
+-
+-    // Sets codec specific encoder controls.
+-    virtual vpx_codec_err_t setCodecSpecificControls() = 0;
+-
+-    // Get current encode flags.
+-    virtual vpx_enc_frame_flags_t getEncodeFlags();
+-
+-    // Releases vpx encoder instance, with it's associated
+-    // data structures.
+-    //
+-    // Unless called earlier, this is handled by the
+-    // dtor.
+-    status_t releaseEncoder();
+-
+-    // Get bitrate parameters.
+-    virtual OMX_ERRORTYPE internalGetBitrateParams(
+-        OMX_VIDEO_PARAM_BITRATETYPE* bitrate);
+-
+-    // Updates bitrate to reflect port settings.
+-    virtual OMX_ERRORTYPE internalSetBitrateParams(
+-        const OMX_VIDEO_PARAM_BITRATETYPE* bitrate);
+-
+-    // Gets Android vpx specific parameters.
+-    OMX_ERRORTYPE internalGetAndroidVpxParams(
+-            OMX_VIDEO_PARAM_ANDROID_VP8ENCODERTYPE *vpxAndroidParams);
+-
+-    // Handles Android vpx specific parameters.
+-    OMX_ERRORTYPE internalSetAndroidVpxParams(
+-            const OMX_VIDEO_PARAM_ANDROID_VP8ENCODERTYPE *vpxAndroidParams);
+-
+-    enum TemporalReferences {
+-        // For 1 layer case: reference all (last, golden, and alt ref), but only
+-        // update last.
+-        kTemporalUpdateLastRefAll = 12,
+-        // First base layer frame for 3 temporal layers, which updates last and
+-        // golden with alt ref dependency.
+-        kTemporalUpdateLastAndGoldenRefAltRef = 11,
+-        // First enhancement layer with alt ref dependency.
+-        kTemporalUpdateGoldenRefAltRef = 10,
+-        // First enhancement layer with alt ref dependency.
+-        kTemporalUpdateGoldenWithoutDependencyRefAltRef = 9,
+-        // Base layer with alt ref dependency.
+-        kTemporalUpdateLastRefAltRef = 8,
+-        // Highest enhacement layer without dependency on golden with alt ref
+-        // dependency.
+-        kTemporalUpdateNoneNoRefGoldenRefAltRef = 7,
+-        // Second layer and last frame in cycle, for 2 layers.
+-        kTemporalUpdateNoneNoRefAltref = 6,
+-        // Highest enhancement layer.
+-        kTemporalUpdateNone = 5,
+-        // Second enhancement layer.
+-        kTemporalUpdateAltref = 4,
+-        // Second enhancement layer without dependency on previous frames in
+-        // the second enhancement layer.
+-        kTemporalUpdateAltrefWithoutDependency = 3,
+-        // First enhancement layer.
+-        kTemporalUpdateGolden = 2,
+-        // First enhancement layer without dependency on previous frames in
+-        // the first enhancement layer.
+-        kTemporalUpdateGoldenWithoutDependency = 1,
+-        // Base layer.
+-        kTemporalUpdateLast = 0,
+-    };
+-    enum {
+-        kMaxTemporalPattern = 8
+-    };
+-
+-    // number of buffers allocated per port
+-    static const uint32_t kNumBuffers = 4;
+-
+-    // OMX port indexes that refer to input and
+-    // output ports respectively
+-    static const uint32_t kInputPortIndex = 0;
+-    static const uint32_t kOutputPortIndex = 1;
+-
+-    // Byte-alignment required for buffers
+-    static const uint32_t kInputBufferAlignment = 1;
+-    static const uint32_t kOutputBufferAlignment = 2;
+-
+-    // Number of supported input color formats
+-    static const uint32_t kNumberOfSupportedColorFormats = 3;
+-
+-    // vpx specific opaque data structure that
+-    // stores encoder state
+-    vpx_codec_ctx_t* mCodecContext;
+-
+-    // vpx specific data structure that
+-    // stores encoder configuration
+-    vpx_codec_enc_cfg_t* mCodecConfiguration;
+-
+-    // vpx specific read-only data structure
+-    // that specifies algorithm interface (e.g. vp8)
+-    vpx_codec_iface_t* mCodecInterface;
+-
+-    // If a request for a change it bitrate has been received.
+-    bool mBitrateUpdated;
+-
+-    // Bitrate control mode, either constant or variable
+-    vpx_rc_mode mBitrateControlMode;
+-
+-    // Parameter that denotes whether error resilience
+-    // is enabled in encoder
+-    OMX_BOOL mErrorResilience;
+-
+-    // Key frame interval in frames
+-    uint32_t mKeyFrameInterval;
+-
+-    // Minimum (best quality) quantizer
+-    uint32_t mMinQuantizer;
+-
+-    // Maximum (worst quality) quantizer
+-    uint32_t mMaxQuantizer;
+-
+-    // Number of coding temporal layers to be used.
+-    size_t mTemporalLayers;
+-
+-    // Temporal layer bitrare ratio in percentage
+-    uint32_t mTemporalLayerBitrateRatio[OMX_VIDEO_ANDROID_MAXVP8TEMPORALLAYERS];
+-
+-    // Temporal pattern type
+-    OMX_VIDEO_ANDROID_VPXTEMPORALLAYERPATTERNTYPE mTemporalPatternType;
+-
+-    // Temporal pattern length
+-    size_t mTemporalPatternLength;
+-
+-    // Temporal pattern current index
+-    size_t mTemporalPatternIdx;
+-
+-    // Frame type temporal pattern
+-    TemporalReferences mTemporalPattern[kMaxTemporalPattern];
+-
+-    // Last input buffer timestamp
+-    OMX_TICKS mLastTimestamp;
+-
+-    // Conversion buffer is needed to convert semi
+-    // planar yuv420 to planar format
+-    // It is only allocated if input format is
+-    // indeed YUV420SemiPlanar.
+-    uint8_t* mConversionBuffer;
+-
+-    bool mKeyFrameRequested;
+-
+-    DISALLOW_EVIL_CONSTRUCTORS(SoftVPXEncoder);
+-};
+-
+-}  // namespace android
+-
+-#endif  // SOFT_VPX_ENCODER_H_
+diff --git a/media/libstagefright/codecs/on2/enc/exports.lds b/media/libstagefright/codecs/on2/enc/exports.lds
+deleted file mode 100644
+index e24f3faa68..0000000000
+--- a/media/libstagefright/codecs/on2/enc/exports.lds
++++ /dev/null
+@@ -1,5 +0,0 @@
+-{
+-    global:
+-        _Z22createSoftOMXComponentPKcPK16OMX_CALLBACKTYPEPvPP17OMX_COMPONENTTYPE;
+-    local: *;
+-};
+diff --git a/media/libstagefright/codecs/opus/dec/Android.bp b/media/libstagefright/codecs/opus/dec/Android.bp
+index 71a2a0d3cd..649f0092ae 100644
+--- a/media/libstagefright/codecs/opus/dec/Android.bp
++++ b/media/libstagefright/codecs/opus/dec/Android.bp
+@@ -15,6 +15,6 @@ cc_library_shared {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+diff --git a/media/libstagefright/codecs/raw/Android.bp b/media/libstagefright/codecs/raw/Android.bp
+index fcc7a0a100..23c081a8df 100644
+--- a/media/libstagefright/codecs/raw/Android.bp
++++ b/media/libstagefright/codecs/raw/Android.bp
+@@ -11,6 +11,6 @@ cc_library_shared {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+diff --git a/media/libstagefright/codecs/xaacdec/Android.bp b/media/libstagefright/codecs/xaacdec/Android.bp
+index 5385dbcbab..f222c6c5b1 100644
+--- a/media/libstagefright/codecs/xaacdec/Android.bp
++++ b/media/libstagefright/codecs/xaacdec/Android.bp
+@@ -13,7 +13,7 @@ cc_library_shared {
+     sanitize: {
+         // integer_overflow: true,
+         misc_undefined: [ "signed-integer-overflow", "unsigned-integer-overflow", ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     static_libs: ["libxaacdec"],
+diff --git a/media/libstagefright/colorconversion/Android.bp b/media/libstagefright/colorconversion/Android.bp
+index ba57497431..123643f522 100644
+--- a/media/libstagefright/colorconversion/Android.bp
++++ b/media/libstagefright/colorconversion/Android.bp
+@@ -23,6 +23,6 @@ cc_library_static {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+diff --git a/media/libstagefright/filters/Android.bp b/media/libstagefright/filters/Android.bp
+index 7a67e55bca..c4d9c5add0 100644
+--- a/media/libstagefright/filters/Android.bp
++++ b/media/libstagefright/filters/Android.bp
+@@ -6,9 +6,9 @@ cc_library_static {
+         "GraphicBufferListener.cpp",
+         "IntrinsicBlurFilter.cpp",
+         "MediaFilter.cpp",
+-        "RSFilter.cpp",
++        //"RSFilter.cpp",
+         "SaturationFilter.cpp",
+-        "saturationARGB.rs",
++        //"saturationARGB.rs",
+         "SimpleFilter.cpp",
+         "ZeroFilter.cpp",
+     ],
+@@ -30,6 +30,6 @@ cc_library_static {
+     ],
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+     },
+ }
+diff --git a/media/libstagefright/flac/dec/Android.bp b/media/libstagefright/flac/dec/Android.bp
+index b494e16a99..6c47a7ee75 100644
+--- a/media/libstagefright/flac/dec/Android.bp
++++ b/media/libstagefright/flac/dec/Android.bp
+@@ -15,7 +15,7 @@ cc_library {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     static: {
+diff --git a/media/libstagefright/foundation/Android.bp b/media/libstagefright/foundation/Android.bp
+index 533cd721df..647f0589e1 100644
+--- a/media/libstagefright/foundation/Android.bp
++++ b/media/libstagefright/foundation/Android.bp
+@@ -85,7 +85,7 @@ cc_defaults {
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+ 
+diff --git a/media/libstagefright/http/Android.bp b/media/libstagefright/http/Android.bp
+index 8655caf9a1..c55b42bfb3 100644
+--- a/media/libstagefright/http/Android.bp
++++ b/media/libstagefright/http/Android.bp
+@@ -28,7 +28,7 @@ cc_library_shared {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     product_variables: {
+diff --git a/media/libstagefright/httplive/Android.bp b/media/libstagefright/httplive/Android.bp
+index c0ee14eaa3..40b2b290bd 100644
+--- a/media/libstagefright/httplive/Android.bp
++++ b/media/libstagefright/httplive/Android.bp
+@@ -24,7 +24,7 @@ cc_library {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     shared_libs: [
+diff --git a/media/libstagefright/id3/Android.bp b/media/libstagefright/id3/Android.bp
+index 7151d07458..dbabe418ec 100644
+--- a/media/libstagefright/id3/Android.bp
++++ b/media/libstagefright/id3/Android.bp
+@@ -15,7 +15,7 @@ cc_library_static {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+ 
+@@ -43,7 +43,7 @@ cc_test {
+     static_libs: ["libstagefright_id3"],
+ 
+     sanitize: {
+-        cfi: true,
++        cfi: false,
+     },
+ 
+ }
+diff --git a/media/libstagefright/mpeg2ts/Android.bp b/media/libstagefright/mpeg2ts/Android.bp
+index a507b91a24..a59a4ce14a 100644
+--- a/media/libstagefright/mpeg2ts/Android.bp
++++ b/media/libstagefright/mpeg2ts/Android.bp
+@@ -24,7 +24,7 @@ cc_library_static {
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     shared_libs: [
+diff --git a/media/libstagefright/omx/Android.bp b/media/libstagefright/omx/Android.bp
+index 7d03d98ccf..da49fc42c1 100644
+--- a/media/libstagefright/omx/Android.bp
++++ b/media/libstagefright/omx/Android.bp
+@@ -69,7 +69,7 @@ cc_library_shared {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+ }
+@@ -116,7 +116,7 @@ cc_library_shared {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+ 
+@@ -159,7 +159,7 @@ cc_library_shared {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+ 
+@@ -187,7 +187,7 @@ cc_defaults {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     compile_multilib: "32",
+@@ -223,7 +223,7 @@ cc_library_shared {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+     cflags: ["-Wall", "-Werror"],
+ }
+diff --git a/media/libstagefright/rtsp/Android.bp b/media/libstagefright/rtsp/Android.bp
+index 9bc9c897d4..3866179269 100644
+--- a/media/libstagefright/rtsp/Android.bp
++++ b/media/libstagefright/rtsp/Android.bp
+@@ -45,7 +45,7 @@ cc_defaults {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+ 
+@@ -100,6 +100,6 @@ cc_test {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+diff --git a/media/libstagefright/timedtext/Android.bp b/media/libstagefright/timedtext/Android.bp
+index 6935655187..1c87b27d34 100644
+--- a/media/libstagefright/timedtext/Android.bp
++++ b/media/libstagefright/timedtext/Android.bp
+@@ -13,7 +13,7 @@ cc_library_static {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     include_dirs: [
+@@ -43,7 +43,7 @@ cc_library_static {
+         misc_undefined: [
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     include_dirs: [
+diff --git a/media/libstagefright/webm/Android.bp b/media/libstagefright/webm/Android.bp
+index 64ecc2db19..b78e9fc493 100644
+--- a/media/libstagefright/webm/Android.bp
++++ b/media/libstagefright/webm/Android.bp
+@@ -13,7 +13,7 @@ cc_library_static {
+             "signed-integer-overflow",
+             "unsigned-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+     srcs: [
+diff --git a/media/libstagefright/xmlparser/Android.bp b/media/libstagefright/xmlparser/Android.bp
+index 38de831d2e..e9b663ed16 100644
+--- a/media/libstagefright/xmlparser/Android.bp
++++ b/media/libstagefright/xmlparser/Android.bp
+@@ -38,7 +38,7 @@ cc_library_shared {
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ 
+ }
+diff --git a/media/mediaserver/Android.bp b/media/mediaserver/Android.bp
+index a968890b32..3c418b8a1d 100644
+--- a/media/mediaserver/Android.bp
++++ b/media/mediaserver/Android.bp
+@@ -34,7 +34,7 @@ cc_binary {
+     ],
+ 
+     // back to 32-bit, b/126502613
+-    compile_multilib: "32",
++    compile_multilib: "64",
+ 
+     init_rc: ["mediaserver.rc"],
+ 
+diff --git a/media/ndk/Android.bp b/media/ndk/Android.bp
+index a3cabd877a..2548943593 100644
+--- a/media/ndk/Android.bp
++++ b/media/ndk/Android.bp
+@@ -154,7 +154,7 @@ cc_library {
+             "unsigned-integer-overflow",
+             "signed-integer-overflow",
+         ],
+-        cfi: true,
++        cfi: false,
+     },
+ }
+ 
+diff --git a/media/utils/MemoryLeakTrackUtil.cpp b/media/utils/MemoryLeakTrackUtil.cpp
+index 2988b52615..b18f3a2b15 100644
+--- a/media/utils/MemoryLeakTrackUtil.cpp
++++ b/media/utils/MemoryLeakTrackUtil.cpp
+@@ -41,6 +41,8 @@
+ #define ABI_STRING "x86"
+ #elif defined(__x86_64__)
+ #define ABI_STRING "x86_64"
++#elif defined(__riscv) && (__riscv_xlen == 64)
++#define ABI_STRING "riscv64"
+ #else
+ #error "Unsupported ABI"
+ #endif
+diff --git a/services/audioflinger/AudioFlinger.cpp b/services/audioflinger/AudioFlinger.cpp
+index 0b745ac834..f24f4dd217 100644
+--- a/services/audioflinger/AudioFlinger.cpp
++++ b/services/audioflinger/AudioFlinger.cpp
+@@ -168,6 +168,7 @@ AudioFlinger::AudioFlinger()
+       mPatchPanel(this),
+       mSystemReady(false)
+ {
++    ALOGI("Audio Flinger started !!!!!!!!!!!!!!!!!!!!!!!\n");
+     // unsigned instead of audio_unique_id_use_t, because ++ operator is unavailable for enum
+     for (unsigned use = AUDIO_UNIQUE_ID_USE_UNSPECIFIED; use < AUDIO_UNIQUE_ID_USE_MAX; use++) {
+         // zero ID has a special meaning, so unavailable
+diff --git a/services/audiopolicy/managerdefault/Android.mk b/services/audiopolicy/managerdefault/Android.mk
+index 684fc9f2ba..bf72651044 100644
+--- a/services/audiopolicy/managerdefault/Android.mk
++++ b/services/audiopolicy/managerdefault/Android.mk
+@@ -47,7 +47,7 @@ ifeq ($(USE_XML_AUDIO_POLICY_CONF), 1)
+ LOCAL_CFLAGS += -DUSE_XML_AUDIO_POLICY_CONF
+ endif #ifeq ($(USE_XML_AUDIO_POLICY_CONF), 1)
+ 
+-LOCAL_CFLAGS += -Wall -Werror
++#LOCAL_CFLAGS += -Wall -Werror
+ 
+ LOCAL_MULTILIB := $(AUDIOSERVER_MULTILIB)
+ 
+diff --git a/services/mediacodec/Android.bp b/services/mediacodec/Android.bp
+index 99a6d6b807..47b55ad263 100644
+--- a/services/mediacodec/Android.bp
++++ b/services/mediacodec/Android.bp
+@@ -21,15 +21,15 @@ cc_binary {
+             exclude_shared_libs: ["libavservices_minijail"],
+             shared_libs: ["libavservices_minijail_vendor"],
+         },
+-        android: {
+-            product_variables: {
+-                malloc_not_svelte: {
+-                    // Scudo increases memory footprint, so only enable on
+-                    // non-svelte devices.
+-                    shared_libs: ["libc_scudo"],
+-                },
+-            },
+-        },
++        //android: {
++        //    product_variables: {
++        //        malloc_not_svelte: {
++        //            // Scudo increases memory footprint, so only enable on
++        //            // non-svelte devices.
++        //            shared_libs: ["libc_scudo"],
++        //        },
++        //    },
++        //},
+     },
+ 
+     header_libs: [
+@@ -57,6 +57,9 @@ prebuilt_etc {
+         arm64: {
+             src: "seccomp_policy/mediaswcodec-arm64.policy",
+         },
++        riscv64: {
++            src: "seccomp_policy/mediaswcodec-riscv64.policy",
++        },
+         x86: {
+             src: "seccomp_policy/mediacodec-x86.policy",
+         },
+diff --git a/services/mediacodec/Android.mk b/services/mediacodec/Android.mk
+index ecc84087b3..60b02b203c 100644
+--- a/services/mediacodec/Android.mk
++++ b/services/mediacodec/Android.mk
+@@ -20,8 +20,6 @@ _software_codecs := \
+     libstagefright_soft_opusdec \
+     libstagefright_soft_rawdec \
+     libstagefright_soft_vorbisdec \
+-    libstagefright_soft_vpxdec \
+-    libstagefright_soft_vpxenc \
+     libstagefright_softomx_plugin \
+ 
+ # service executable
+@@ -50,7 +48,7 @@ LOCAL_SHARED_LIBRARIES := \
+ LOCAL_MODULE := android.hardware.media.omx@1.0-service
+ LOCAL_MODULE_RELATIVE_PATH := hw
+ LOCAL_VENDOR_MODULE := true
+-LOCAL_32_BIT_ONLY := true
++#LOCAL_32_BIT_ONLY := true
+ # Since this is 32-bit-only module, only 32-bit version of the codecs are installed.
+ # TODO(b/72343507): eliminate the need for manually adding .vendor suffix. This should be done
+ # by the build system.
+diff --git a/services/mediacodec/registrant/Android.bp b/services/mediacodec/registrant/Android.bp
+index 17c2e0261b..726834551b 100644
+--- a/services/mediacodec/registrant/Android.bp
++++ b/services/mediacodec/registrant/Android.bp
+@@ -27,8 +27,6 @@ cc_library_shared {
+         "libcodec2_soft_amrnbenc",
+         "libcodec2_soft_amrwbdec",
+         "libcodec2_soft_amrwbenc",
+-        "libcodec2_soft_hevcdec",
+-        "libcodec2_soft_hevcenc",
+         "libcodec2_soft_g711alawdec",
+         "libcodec2_soft_g711mlawdec",
+         "libcodec2_soft_mpeg2dec",
+@@ -40,11 +38,6 @@ cc_library_shared {
+         "libcodec2_soft_vorbisdec",
+         "libcodec2_soft_opusdec",
+         "libcodec2_soft_opusenc",
+-        "libcodec2_soft_vp8dec",
+-        "libcodec2_soft_vp9dec",
+-        "libcodec2_soft_av1dec",
+-        "libcodec2_soft_vp8enc",
+-        "libcodec2_soft_vp9enc",
+         "libcodec2_soft_rawdec",
+         "libcodec2_soft_flacdec",
+         "libcodec2_soft_flacenc",
+diff --git a/media/libstagefright/codecs/on2/dec/MODULE_LICENSE_APACHE2 b/services/mediacodec/seccomp_policy/mediaswcodec-riscv64.policy
+similarity index 100%
+rename from media/libstagefright/codecs/on2/dec/MODULE_LICENSE_APACHE2
+rename to services/mediacodec/seccomp_policy/mediaswcodec-riscv64.policy
+diff --git a/services/mediadrm/Android.mk b/services/mediadrm/Android.mk
+index 227a29d4cb..34f1357449 100644
+--- a/services/mediadrm/Android.mk
++++ b/services/mediadrm/Android.mk
+@@ -40,9 +40,9 @@ LOCAL_MODULE:= mediadrmserver
+ # 64-bit. (b/18948909) Once all of a device's legacy DRM plugins support 64-bit,
+ # that device can turn on TARGET_ENABLE_MEDIADRM_64 to build this service as
+ # 64-bit.
+-ifneq ($(TARGET_ENABLE_MEDIADRM_64), true)
+-LOCAL_32_BIT_ONLY := true
+-endif
++#ifneq ($(TARGET_ENABLE_MEDIADRM_64), true)
++#LOCAL_32_BIT_ONLY := true
++#endif
+ 
+ LOCAL_INIT_RC := mediadrmserver.rc
+ 
+diff --git a/services/mediaextractor/Android.bp b/services/mediaextractor/Android.bp
+index b812244170..7bb69870f9 100644
+--- a/services/mediaextractor/Android.bp
++++ b/services/mediaextractor/Android.bp
+@@ -28,17 +28,17 @@ cc_binary {
+         "liblog",
+         "libavservices_minijail",
+     ],
+-    target: {
+-        android: {
+-            product_variables: {
+-                malloc_not_svelte: {
+-                    // Scudo increases memory footprint, so only enable on
+-                    // non-svelte devices.
+-                    shared_libs: ["libc_scudo"],
+-                },
+-            },
+-        },
+-    },
++    //target: {
++    //    android: {
++    //        product_variables: {
++    //            malloc_not_svelte: {
++    //                // Scudo increases memory footprint, so only enable on
++    //                // non-svelte devices.
++    //                shared_libs: ["libc_scudo"],
++    //            },
++    //        },
++    //    },
++    //},
+     init_rc: ["mediaextractor.rc"],
+ 
+     include_dirs: ["frameworks/av/media/libmedia"],
+@@ -59,6 +59,9 @@ prebuilt_etc {
+         arm64: {
+             src: "seccomp_policy/mediaextractor-arm64.policy",
+         },
++        riscv64: {
++            src: "seccomp_policy/mediaextractor-riscv64.policy",
++        },
+         x86: {
+             src: "seccomp_policy/mediaextractor-x86.policy",
+         },
+diff --git a/services/mediaextractor/mediaextractor.rc b/services/mediaextractor/mediaextractor.rc
+index 5fc294111c..b97d617200 100644
+--- a/services/mediaextractor/mediaextractor.rc
++++ b/services/mediaextractor/mediaextractor.rc
+@@ -1,6 +1,6 @@
+-service mediaextractor /system/bin/mediaextractor
+-    class main
+-    user mediaex
+-    group drmrpc mediadrm
+-    ioprio rt 4
+-    writepid /dev/cpuset/foreground/tasks
++#service mediaextractor /system/bin/mediaextractor
++#    class main
++#    user mediaex
++#    group drmrpc mediadrm
++#    ioprio rt 4
++#    writepid /dev/cpuset/foreground/tasks
+diff --git a/services/mediaextractor/seccomp_policy/mediaextractor-riscv64.policy b/services/mediaextractor/seccomp_policy/mediaextractor-riscv64.policy
+new file mode 100644
+index 0000000000..354c9b0da7
+--- /dev/null
++++ b/services/mediaextractor/seccomp_policy/mediaextractor-riscv64.policy
+@@ -0,0 +1,50 @@
++# Organized by frequency of systemcall - in descending order for
++# best performance.
++ioctl: 1
++futex: 1
++prctl: 1
++write: 1
++getpriority: 1
++close: 1
++dup: 1
++mmap: 1
++munmap: 1
++openat: 1
++mprotect: 1
++madvise: 1
++getuid: 1
++fstat: 1
++fstatfs: 1
++read: 1
++setpriority: 1
++sigaltstack: 1
++clone: 1
++sched_setscheduler: 1
++lseek: 1
++newfstatat: 1
++faccessat: 1
++restart_syscall: 1
++exit: 1
++exit_group: 1
++rt_sigreturn: 1
++getrlimit: 1
++nanosleep: 1
++getrandom: 1
++timer_create: 1
++timer_settime: 1
++timer_delete: 1
++
++# for FileSource
++readlinkat: 1
++
++# for dynamically loading extractors
++getdents64: 1
++readlinkat: 1
++pread64: 1
++mremap: 1
++
++# Required by Sanitizers
++sched_yield: 1
++
++#@include /system/etc/seccomp_policy/crash_dump.arm64.policy
++#@include /system/etc/seccomp_policy/code_coverage.arm64.policy
+-- 
+2.18.4
+

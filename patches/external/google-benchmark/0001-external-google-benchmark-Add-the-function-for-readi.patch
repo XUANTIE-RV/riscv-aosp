@@ -1,0 +1,29 @@
+From ca5d671f936d64320536fb2e316f3d869146e405 Mon Sep 17 00:00:00 2001
+From: Ma Jun <majun258@linux.alibaba.com>
+Date: Fri, 10 Jul 2020 17:01:33 +0800
+Subject: [PATCH] external/google-benchmark: Add the function for reading clock
+
+Signed-off-by: Ma Jun <majun258@linux.alibaba.com>
+Change-Id: Ifb9c0831e33897a3f074e8863b3a0000e13ab9d1
+---
+ src/cycleclock.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/cycleclock.h b/src/cycleclock.h
+index f5e37b0..3d59197 100644
+--- a/src/cycleclock.h
++++ b/src/cycleclock.h
+@@ -164,6 +164,10 @@ inline BENCHMARK_ALWAYS_INLINE int64_t Now() {
+   uint64_t tsc;
+   asm("stck %0" : "=Q"(tsc) : : "cc");
+   return tsc;
++#elif defined(__riscv) && __riscv_xlen==64
++  unsigned long __tmp;
++  asm volatile ("csrr %0,time" : "=r"(__tmp));
++  return __tmp;
+ #else
+ // The soft failover to a generic implementation is automatic only for ARM.
+ // For other platforms the developer is expected to make an attempt to create
+-- 
+2.18.4
+

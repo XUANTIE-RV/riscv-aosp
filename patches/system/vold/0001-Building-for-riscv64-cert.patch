@@ -1,0 +1,33 @@
+From b98c89afb82a1ff16e2d2d40648f6711dc405361 Mon Sep 17 00:00:00 2001
+From: Lifang Xia <lifang_xia@linux.alibaba.com>
+Date: Fri, 24 Jul 2020 17:40:43 +0800
+Subject: [PATCH] Remove cert check for riscv64
+
+Change-Id: I673676c48cf18be1a2d792f152e957d3cb0b4dbf
+---
+ Android.bp | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/Android.bp b/Android.bp
+index 1045dc2..4c1f0ac 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -15,12 +15,13 @@ cc_defaults {
+     tidy: true,
+     tidy_checks: [
+         "-*",
+-        "cert-*",
++        //FIXME: "cert-*",
+         "clang-analyzer-security*",
+         "android-*",
+     ],
+     tidy_flags: [
+-        "-warnings-as-errors=clang-analyzer-security*,cert-*",
++        // FIXME: "-warnings-as-errors=clang-analyzer-security*,cert-*",
++        "-warnings-as-errors=clang-analyzer-security*",
+     ],
+ }
+ 
+-- 
+2.18.4
+

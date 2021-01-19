@@ -1,0 +1,315 @@
+From b9ecae8b35f5a55df3e06da4e947abb7b50516a6 Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sun, 17 Jan 2021 09:19:57 +0800
+Subject: [PATCH] New arch riscv64
+
+Change-Id: I2969d6c6c4bcdbaaff34b18e30d60dc2454a539c
+---
+ cmds/installd/Android.bp                      |  7 +-
+ libs/renderengine/Android.bp                  |  8 +-
+ libs/renderengine/tests/Android.bp            | 38 ---------
+ opengl/libs/GLES2/gl2.cpp                     | 27 +++++++
+ opengl/libs/GLES_CM/gl.cpp                    | 26 +++++++
+ services/gpuservice/Android.bp                |  4 +-
+ services/surfaceflinger/Android.bp            |  9 ++-
+ .../CompositionEngine/Android.bp              | 78 +++++++++----------
+ 8 files changed, 107 insertions(+), 90 deletions(-)
+ delete mode 100644 libs/renderengine/tests/Android.bp
+
+diff --git a/cmds/installd/Android.bp b/cmds/installd/Android.bp
+index c80ae3bbf..2d9978f96 100644
+--- a/cmds/installd/Android.bp
++++ b/cmds/installd/Android.bp
+@@ -59,11 +59,12 @@ cc_defaults {
+     tidy_checks: [
+         "-*",
+         "clang-analyzer-security*",
+-        "cert-*",
+-        "-cert-err58-cpp",
++        //FIXME: "cert-*",
++        //FIXME: "-cert-err58-cpp",
+     ],
+     tidy_flags: [
+-        "-warnings-as-errors=clang-analyzer-security*,cert-*"
++        //FIXME: "-warnings-as-errors=clang-analyzer-security*,cert-*"
++        "-warnings-as-errors=clang-analyzer-security*"
+     ],
+ }
+ 
+diff --git a/libs/renderengine/Android.bp b/libs/renderengine/Android.bp
+index 36211ca73..6cc2feffd 100644
+--- a/libs/renderengine/Android.bp
++++ b/libs/renderengine/Android.bp
+@@ -70,15 +70,15 @@ cc_library_static {
+         "-Werror=format",
+     ],
+     cppflags: [
+-        "-fwhole-program-vtables", // requires ThinLTO
++        //"-fwhole-program-vtables", // requires ThinLTO
+     ],
+     srcs: [
+         ":librenderengine_sources",
+         ":librenderengine_gl_sources",
+     ],
+-    lto: {
+-        thin: true,
+-    },
++    //lto: {
++    //    thin: true,
++    //},
+ }
+ 
+ cc_library_static {
+diff --git a/libs/renderengine/tests/Android.bp b/libs/renderengine/tests/Android.bp
+deleted file mode 100644
+index 9b483ef51..000000000
+--- a/libs/renderengine/tests/Android.bp
++++ /dev/null
+@@ -1,38 +0,0 @@
+-// Copyright 2018 The Android Open Source Project
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//      http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-
+-cc_test {
+-    name: "librenderengine_test",
+-    defaults: ["surfaceflinger_defaults"],
+-    test_suites: ["device-tests"],
+-    srcs: [
+-        "RenderEngineTest.cpp",
+-    ],
+-    static_libs: [
+-        "libgmock",
+-        "librenderengine",
+-    ],
+-    shared_libs: [
+-        "libbase",
+-        "libcutils",
+-        "libEGL",
+-        "libGLESv2",
+-        "libgui",
+-        "liblog",
+-        "libnativewindow",
+-        "libsync",
+-        "libui",
+-        "libutils",
+-    ],
+-}
+diff --git a/opengl/libs/GLES2/gl2.cpp b/opengl/libs/GLES2/gl2.cpp
+index 65f50f54f..9abd93e16 100644
+--- a/opengl/libs/GLES2/gl2.cpp
++++ b/opengl/libs/GLES2/gl2.cpp
+@@ -259,6 +259,33 @@ using namespace android;
+     #define CALL_GL_API_INTERNAL_SET_RETURN_VALUE
+     #define CALL_GL_API_INTERNAL_DO_RETURN
+ 
++#elif defined(__riscv) && (__riscv_xlen == 64)
++
++    #define API_ENTRY(_api) __attribute__((naked,noinline)) _api
++
++    #define CALL_GL_API_INTERNAL_CALL(_api, ...)                 \
++        asm volatile(                                            \
++            "mv t0, tp\n"                                      \
++            "li t1, %[tls]\n" \
++            "add t0, t0, t1\n" \
++            "ld t0, 0(t0)\n"                              \
++            "beqz t0, 1f\n"                                    \
++            "li t1, %[api]\n" \
++            "add t0, t0, t1\n" \
++            "ld t0, 0(t0)\n"                                   \
++            "jalr x0, t0\n"                                        \
++            "1:\n" \
++            :                                                    \
++            : [tls] "i"(TLS_SLOT_OPENGL_API*sizeof(void *)),     \
++              [api] "i"(__builtin_offsetof(gl_hooks_t, gl._api))  \
++            : "t0", "t1", "t2", "a0", "a1", "a2", "a3", "a4",    \
++              "a5", "t6", "t3", "t4", "t5", "t6"                 \
++        );
++
++    #define CALL_GL_API_INTERNAL_SET_RETURN_VALUE
++    #define CALL_GL_API_INTERNAL_DO_RETURN
++
++
+ #endif
+ 
+ #define CALL_GL_API(_api, ...) \
+diff --git a/opengl/libs/GLES_CM/gl.cpp b/opengl/libs/GLES_CM/gl.cpp
+index bacd4b4bc..bdb933b32 100644
+--- a/opengl/libs/GLES_CM/gl.cpp
++++ b/opengl/libs/GLES_CM/gl.cpp
+@@ -315,6 +315,32 @@ GL_API void GL_APIENTRY glWeightPointerOESBounds(GLint size, GLenum type,
+     #define CALL_GL_API_INTERNAL_SET_RETURN_VALUE
+     #define CALL_GL_API_INTERNAL_DO_RETURN
+ 
++#elif defined(__riscv) && (__riscv_xlen == 64)
++
++    #define API_ENTRY(_api) __attribute__((naked,noinline)) _api
++
++    #define CALL_GL_API_INTERNAL_CALL(_api, ...)                 \
++        asm volatile(                                            \
++            "mv t0, tp\n"                                      \
++            "li t1, %[tls]\n" \
++            "add t0, t0, t1\n" \
++            "ld t0, 0(t0)\n"                              \
++            "beqz t0, 1f\n"                                    \
++            "li t1, %[api]\n" \
++            "add t0, t0, t1\n" \
++            "ld t0, 0(t0)\n"                                   \
++            "jalr x0, t0\n"                                        \
++            "1:\n"                                                 \
++            :                                                    \
++            : [tls] "i"(TLS_SLOT_OPENGL_API*sizeof(void *)),     \
++              [api] "i"(__builtin_offsetof(gl_hooks_t, gl._api)) \
++            : "t0", "t1", "t2", "a0", "a1", "a2", "a3", "a4",    \
++              "a5", "t6", "t3", "t4", "t5", "t6"                 \
++        );
++
++    #define CALL_GL_API_INTERNAL_SET_RETURN_VALUE
++    #define CALL_GL_API_INTERNAL_DO_RETURN
++
+ #endif
+ 
+ #define CALL_GL_API(_api, ...) \
+diff --git a/services/gpuservice/Android.bp b/services/gpuservice/Android.bp
+index dbb6ba671..7bf38b1b9 100644
+--- a/services/gpuservice/Android.bp
++++ b/services/gpuservice/Android.bp
+@@ -49,10 +49,10 @@ cc_defaults {
+     defaults: ["gpuservice_defaults"],
+     cflags: [
+         "-fvisibility=hidden",
+-        "-fwhole-program-vtables", // requires ThinLTO
++        //"-fwhole-program-vtables", // requires ThinLTO
+     ],
+     lto: {
+-        thin: true,
++        thin: false,
+     },
+ }
+ 
+diff --git a/services/surfaceflinger/Android.bp b/services/surfaceflinger/Android.bp
+index 4cd0a1386..d16dabd89 100644
+--- a/services/surfaceflinger/Android.bp
++++ b/services/surfaceflinger/Android.bp
+@@ -18,6 +18,7 @@ cc_defaults {
+         "-DGL_GLEXT_PROTOTYPES",
+         "-DEGL_EGLEXT_PROTOTYPES",
+     ],
++
+     shared_libs: [
+         "android.frameworks.vr.composer@1.0",
+         "android.hardware.configstore-utils",
+@@ -95,11 +96,11 @@ cc_defaults {
+     defaults: ["libsurfaceflinger_defaults"],
+     cflags: [
+         "-fvisibility=hidden",
+-        "-fwhole-program-vtables", // requires ThinLTO
++        //"-fwhole-program-vtables", // requires ThinLTO
+     ],
+-    lto: {
+-        thin: true,
+-    },
++    //lto: {
++    //    thin: false,
++    //},
+ }
+ 
+ cc_library_headers {
+diff --git a/services/surfaceflinger/CompositionEngine/Android.bp b/services/surfaceflinger/CompositionEngine/Android.bp
+index 6f076ad11..fa934af69 100644
+--- a/services/surfaceflinger/CompositionEngine/Android.bp
++++ b/services/surfaceflinger/CompositionEngine/Android.bp
+@@ -82,42 +82,42 @@ cc_library {
+     export_include_dirs: ["include"],
+ }
+ 
+-cc_test {
+-    name: "libcompositionengine_test",
+-    test_suites: ["device-tests"],
+-    defaults: ["libcompositionengine_defaults"],
+-    srcs: [
+-        "tests/CompositionEngineTest.cpp",
+-        "tests/DisplayColorProfileTest.cpp",
+-        "tests/DisplayTest.cpp",
+-        "tests/HwcBufferCacheTest.cpp",
+-        "tests/LayerTest.cpp",
+-        "tests/MockHWC2.cpp",
+-        "tests/MockHWComposer.cpp",
+-        "tests/OutputTest.cpp",
+-        "tests/OutputLayerTest.cpp",
+-        "tests/RenderSurfaceTest.cpp",
+-    ],
+-    static_libs: [
+-        "libcompositionengine",
+-        "libcompositionengine_mocks",
+-        "librenderengine_mocks",
+-        "libgmock",
+-        "libgtest",
+-    ],
+-    sanitize: {
+-        // By using the address sanitizer, we not only uncover any issues
+-        // with the test, but also any issues with the code under test.
+-        //
+-        // Note: If you get an runtime link error like:
+-        //
+-        //   CANNOT LINK EXECUTABLE "/data/local/tmp/libcompositionengine_test": library "libclang_rt.asan-aarch64-android.so" not found
+-        //
+-        // it is because the address sanitizer shared objects are not installed
+-        // by default in the system image.
+-        //
+-        // You can either "make dist tests" before flashing, or set this
+-        // option to false temporarily.
+-        address: true,
+-    },
+-}
++//cc_test {
++//    name: "libcompositionengine_test",
++//    test_suites: ["device-tests"],
++//    defaults: ["libcompositionengine_defaults"],
++//    srcs: [
++//        "tests/CompositionEngineTest.cpp",
++//        "tests/DisplayColorProfileTest.cpp",
++//        "tests/DisplayTest.cpp",
++//        "tests/HwcBufferCacheTest.cpp",
++//        "tests/LayerTest.cpp",
++//        "tests/MockHWC2.cpp",
++//        "tests/MockHWComposer.cpp",
++//        "tests/OutputTest.cpp",
++//        "tests/OutputLayerTest.cpp",
++//        "tests/RenderSurfaceTest.cpp",
++//    ],
++//    static_libs: [
++//        "libcompositionengine",
++//        "libcompositionengine_mocks",
++//        "librenderengine_mocks",
++//        "libgmock",
++//        "libgtest",
++//    ],
++//    sanitize: {
++//        // By using the address sanitizer, we not only uncover any issues
++//        // with the test, but also any issues with the code under test.
++//        //
++//        // Note: If you get an runtime link error like:
++//        //
++//        //   CANNOT LINK EXECUTABLE "/data/local/tmp/libcompositionengine_test": library "libclang_rt.asan-aarch64-android.so" not found
++//        //
++//        // it is because the address sanitizer shared objects are not installed
++//        // by default in the system image.
++//        //
++//        // You can either "make dist tests" before flashing, or set this
++//        // option to false temporarily.
++//        address: true,
++//    },
++//}
+-- 
+2.18.4
+

@@ -1,0 +1,28 @@
+From a14836a16eac3e3792a09c21eee4dd839442438c Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sat, 16 Jan 2021 21:29:17 +0800
+Subject: [PATCH] Disable for riscv64
+
+Change-Id: Iafc9269346c1002b2731299872be344bb5e4c505
+---
+ Android.bp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/Android.bp b/Android.bp
+index 8ef0406b..34897f82 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -295,6 +295,10 @@ cc_binary {
+         mips64: {
+             enabled: false,
+         },
++        riscv64: {
++            enabled: false,
++        },
++
+         x86: {
+             cflags: ["-DI386=1"] + ["-DHAVE_STRUCT___OLD_KERNEL_STAT=1"],
+ 
+-- 
+2.18.4
+

@@ -1,0 +1,28 @@
+From f7cc406e1a3f152172a29f98f5c259b7ad72b34c Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sat, 16 Jan 2021 11:17:58 +0800
+Subject: [PATCH] New arch riscv64
+
+Define kInstructionSet for riscv64
+
+Change-Id: Ie97af45d604a8aaa670fd64e4392dac6a440ee12
+---
+ libdex/OptInvocation.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/libdex/OptInvocation.cpp b/libdex/OptInvocation.cpp
+index 35d6262e5..2e1ba93fc 100644
+--- a/libdex/OptInvocation.cpp
++++ b/libdex/OptInvocation.cpp
+@@ -42,6 +42,8 @@ static const char* kInstructionSet = "x86";
+ static const char* kInstructionSet = "mips";
+ #elif defined(__x86_64__)
+ static const char* kInstructionSet = "x86_64";
++#elif defined(__riscv) && (__riscv_xlen == 64)
++static const char* kInstructionSet = "riscv64";
+ #else
+ #error Unsupported instruction set.
+ #endif
+-- 
+2.18.4
+

@@ -1,0 +1,56 @@
+From 0ba4b10f3b600885e5b08c08f7a3f0c6fb00ad6e Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sat, 16 Jan 2021 21:16:38 +0800
+Subject: [PATCH] New arch riscv64
+
+Change-Id: I2521d67f03fc9f86d52198f55cb3b63684feee71
+---
+ base/process/launch_posix.cc                | 2 +-
+ build/android/pylib/constants/host_paths.py | 1 +
+ build/build_config.h                        | 5 +++++
+ 3 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/base/process/launch_posix.cc b/base/process/launch_posix.cc
+index ec584883b..13d3d4101 100644
+--- a/base/process/launch_posix.cc
++++ b/base/process/launch_posix.cc
+@@ -728,7 +728,7 @@ NOINLINE pid_t CloneAndLongjmpInChild(unsigned long flags,
+   alignas(16) char stack_buf[PTHREAD_STACK_MIN];
+ #if defined(ARCH_CPU_X86_FAMILY) || defined(ARCH_CPU_ARM_FAMILY) ||   \
+     defined(ARCH_CPU_MIPS_FAMILY) || defined(ARCH_CPU_S390_FAMILY) || \
+-    defined(ARCH_CPU_PPC64_FAMILY)
++    defined(ARCH_CPU_PPC64_FAMILY) ||  defined (ARCH_CPU_RISCV_FAMILY)
+   // The stack grows downward.
+   void* stack = stack_buf + sizeof(stack_buf);
+ #else
+diff --git a/build/android/pylib/constants/host_paths.py b/build/android/pylib/constants/host_paths.py
+index 9ebf8d505..19faa2f1c 100644
+--- a/build/android/pylib/constants/host_paths.py
++++ b/build/android/pylib/constants/host_paths.py
+@@ -49,6 +49,7 @@ _TOOL_ARCH_MAP = {
+   'x86_64': ('x86_64-4.9', 'x86_64-linux-android'),
+   'x64': ('x86_64-4.9', 'x86_64-linux-android'),
+   'mips': ('mipsel-linux-android-4.9', 'mipsel-linux-android'),
++  'riscv64': ('riscv64-linux-android-8.1', 'riscv64-linux-android'),
+ }
+ 
+ # Cache used to speed up the results of ToolPath()
+diff --git a/build/build_config.h b/build/build_config.h
+index d669ea750..e8191fc84 100644
+--- a/build/build_config.h
++++ b/build/build_config.h
+@@ -178,6 +178,11 @@
+ #define ARCH_CPU_ARM64 1
+ #define ARCH_CPU_64_BITS 1
+ #define ARCH_CPU_LITTLE_ENDIAN 1
++#elif defined(__riscv) && (__riscv_xlen == 64)
++#define ARCH_CPU_RISCV_FAMILY 1
++#define ARCH_CPU_RISCV64 1
++#define ARCH_CPU_64_BITS 1
++#define ARCH_CPU_LITTLE_ENDIAN 1
+ #elif defined(__pnacl__) || defined(__asmjs__)
+ #define ARCH_CPU_32_BITS 1
+ #define ARCH_CPU_LITTLE_ENDIAN 1
+-- 
+2.18.4
+

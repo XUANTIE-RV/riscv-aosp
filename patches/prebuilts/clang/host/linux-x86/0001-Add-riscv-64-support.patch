@@ -1,0 +1,326 @@
+From fa3c202cf9a2ad38b9ae240b3c1fd0d8f6179e8a Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Mon, 18 Jan 2021 14:11:43 +0800
+Subject: [PATCH] Add riscv 64 support
+
+Change-Id: I30bb854632be993cf7ae2757ee5c06d192d44aca
+---
+ Android.bp              | 182 +++++++++++++++++++++++++++++++++++++---
+ soong/clangprebuilts.go |  10 ++-
+ 2 files changed, 176 insertions(+), 16 deletions(-)
+
+diff --git a/Android.bp b/Android.bp
+index e453d75..a3562d1 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -47,7 +47,22 @@ libclang_rt_prebuilt_library_static {
+     },
+     stl: "none",
+ }
+-
++libclang_rt_prebuilt_library_static {
++    name: "libclang_rt.builtins-riscv64-android",
++    sdk_version: "minimum",
++    enabled: false,
++    recovery_available: true,
++    vendor_available: true,
++    sanitize: {
++        never: true,
++    },
++    arch: {
++        riscv64: {
++            enabled: true,
++        },
++    },
++    stl: "none",
++}
+ libclang_rt_prebuilt_library_static {
+     name: "libclang_rt.builtins-aarch64-android",
+     sdk_version: "minimum",
+@@ -112,7 +127,18 @@ libclang_rt_prebuilt_library_shared {
+     },
+     check_elf_files: false,  // Bypass circular dependency between libc++
+ }
+-
++libclang_rt_prebuilt_library_shared {
++    name: "libclang_rt.asan-riscv64-android",
++    sdk_version: "minimum",
++    enabled: false,
++    recovery_available: true,
++    arch: {
++        riscv64: {
++            enabled: true,
++        },
++    },
++    check_elf_files: false,  // Bypass circular dependency between libc++
++}
+ libclang_rt_prebuilt_library_shared {
+     name: "libclang_rt.asan-aarch64-android",
+     sdk_version: "minimum",
+@@ -167,7 +193,15 @@ libclang_rt_llndk_library {
+         },
+     },
+ }
+-
++libclang_rt_llndk_library {
++    name: "libclang_rt.asan-riscv64-android",
++    enabled: false,
++    arch: {
++        riscv64: {
++            enabled: true,
++        },
++    },
++}
+ libclang_rt_llndk_library {
+     name: "libclang_rt.asan-aarch64-android",
+     enabled: false,
+@@ -197,7 +231,15 @@ libclang_rt_llndk_library {
+         },
+     },
+ }
+-
++libclang_rt_llndk_library {
++    name: "libclang_rt.hwasan-riscv64-android",
++    enabled: false,
++    arch: {
++        riscv64: {
++            enabled: true,
++        },
++    },
++}
+ libclang_rt_llndk_library {
+     name: "libclang_rt.hwasan-aarch64-android",
+     enabled: false,
+@@ -225,7 +267,23 @@ libclang_rt_prebuilt_library_shared {
+     },
+     check_elf_files: false,  // Bypass circular dependency between libc++
+ }
+-
++libclang_rt_prebuilt_library_shared {
++    name: "libclang_rt.ubsan_standalone-riscv64-android",
++    sdk_version: "minimum",
++    enabled: false,
++    vendor_available: true,
++    recovery_available: true,
++    double_loadable: true,
++    vndk: {
++        enabled: true,
++    },
++    arch: {
++        riscv64: {
++            enabled: true,
++        },
++    },
++    check_elf_files: false,  // Bypass circular dependency between libc++
++}
+ libclang_rt_prebuilt_library_shared {
+     name: "libclang_rt.ubsan_standalone-aarch64-android",
+     sdk_version: "minimum",
+@@ -294,7 +352,20 @@ libclang_rt_prebuilt_library_static {
+         },
+     },
+ }
+-
++libclang_rt_prebuilt_library_static {
++    name: "libclang_rt.ubsan_minimal-riscv64-android",
++    sdk_version: "minimum",
++    enabled: false,
++    vendor_available: true,
++    vndk: {
++        enabled: true,
++    },
++    arch: {
++        riscv64: {
++            enabled: true,
++        },
++    },
++}
+ libclang_rt_prebuilt_library_static {
+     name: "libclang_rt.ubsan_minimal-aarch64-android",
+     sdk_version: "minimum",
+@@ -339,7 +410,18 @@ libclang_rt_prebuilt_library_static {
+         },
+     },
+ }
+-
++libclang_rt_prebuilt_library_static {
++    name: "libclang_rt.hwasan_static-riscv64-android",
++    sdk_version: "minimum",
++    enabled: false,
++    recovery_available: true,
++    vendor_available: true,
++    arch: {
++        riscv64: {
++            enabled: true,
++        },
++    },
++}
+ libclang_rt_prebuilt_library_static {
+     name: "libclang_rt.hwasan_static-aarch64-android",
+     sdk_version: "minimum",
+@@ -352,7 +434,18 @@ libclang_rt_prebuilt_library_static {
+         },
+     },
+ }
+-
++libclang_rt_prebuilt_library_shared {
++    name: "libclang_rt.hwasan-riscv64-android",
++    sdk_version: "minimum",
++    enabled: false,
++    recovery_available: true,
++    arch: {
++        riscv64: {
++            enabled: true,
++        },
++    },
++    check_elf_files: false,  // Bypass circular dependency between libc++
++}
+ libclang_rt_prebuilt_library_shared {
+     name: "libclang_rt.hwasan-aarch64-android",
+     sdk_version: "minimum",
+@@ -378,7 +471,18 @@ libclang_rt_prebuilt_library_static {
+         },
+     },
+ }
+-
++libclang_rt_prebuilt_library_static {
++    name: "libclang_rt.profile-riscv64-android",
++    sdk_version: "minimum",
++    enabled: false,
++    recovery_available: true,
++    vendor_available: true,
++    arch: {
++        riscv64: {
++            enabled: true,
++        },
++    },
++}
+ libclang_rt_prebuilt_library_static {
+     name: "libclang_rt.profile-aarch64-android",
+     sdk_version: "minimum",
+@@ -458,7 +562,21 @@ libclang_rt_prebuilt_library_shared {
+     },
+     check_elf_files: false,  // Bypass circular dependency between libc++
+ }
+-
++libclang_rt_prebuilt_library_shared {
++    name: "libclang_rt.scudo-riscv64-android",
++    sdk_version: "minimum",
++    enabled: false,
++    vendor_available: true,
++    vndk: {
++        enabled: true,
++    },
++    arch: {
++        riscv64: {
++            enabled: true,
++        },
++    },
++    check_elf_files: false,  // Bypass circular dependency between libc++
++}
+ libclang_rt_prebuilt_library_shared {
+     name: "libclang_rt.scudo-aarch64-android",
+     sdk_version: "minimum",
+@@ -520,7 +638,19 @@ libclang_rt_prebuilt_library_static {
+         },
+     },
+ }
+-
++libclang_rt_prebuilt_library_static {
++    name: "libclang_rt.scudo-riscv64-android.static",
++    enabled: false,
++    vendor_available: true,
++    sanitize: {
++        never: true,
++    },
++    arch: {
++        riscv64: {
++            enabled: true,
++        },
++    },
++}
+ libclang_rt_prebuilt_library_static {
+     name: "libclang_rt.scudo-aarch64-android.static",
+     enabled: false,
+@@ -578,7 +708,21 @@ libclang_rt_prebuilt_library_shared {
+     },
+     shared_libs: ["libc", "libdl", "liblog"],
+ }
+-
++libclang_rt_prebuilt_library_shared {
++    name: "libclang_rt.scudo_minimal-riscv64-android",
++    sdk_version: "minimum",
++    enabled: false,
++    vendor_available: true,
++    vndk: {
++        enabled: true,
++    },
++    arch: {
++        riscv64: {
++            enabled: true,
++        },
++    },
++    shared_libs: ["libc", "libdl", "liblog"],
++}
+ libclang_rt_prebuilt_library_shared {
+     name: "libclang_rt.scudo_minimal-aarch64-android",
+     sdk_version: "minimum",
+@@ -640,7 +784,19 @@ libclang_rt_prebuilt_library_static {
+         },
+     },
+ }
+-
++libclang_rt_prebuilt_library_static {
++    name: "libclang_rt.scudo_minimal-riscv64-android.static",
++    enabled: false,
++    vendor_available: true,
++    sanitize: {
++        never: true,
++    },
++    arch: {
++        riscv64: {
++            enabled: true,
++        },
++    },
++}
+ libclang_rt_prebuilt_library_static {
+     name: "libclang_rt.scudo_minimal-aarch64-android.static",
+     enabled: false,
+diff --git a/soong/clangprebuilts.go b/soong/clangprebuilts.go
+index a802c23..676b6ad 100644
+--- a/soong/clangprebuilts.go
++++ b/soong/clangprebuilts.go
+@@ -29,9 +29,9 @@ import (
+ 	"android/soong/genrule"
+ )
+ 
+-const libLLVMSoFormat = "libLLVM-%ssvn.so"
+-const libclangSoFormat = "libclang.so.%ssvn"
+-const libclangCxxSoFormat = "libclang_cxx.so.%ssvn"
++const libLLVMSoFormat = "libLLVM-%sgit.so"
++const libclangSoFormat = "libclang.so.%sgit"
++const libclangCxxSoFormat = "libclang_cxx.so.%sgit"
+ const libcxxSoName = "libc++.so.1"
+ const libcxxabiSoName = "libc++abi.so.1"
+ 
+@@ -157,6 +157,9 @@ type archProps struct {
+ 	Android_x86_64 struct {
+ 		Srcs []string
+ 	}
++	Android_riscv64 struct {
++		Srcs []string
++	}
+ }
+ 
+ func llvmPrebuiltLibraryStatic(ctx android.LoadHookContext) {
+@@ -179,6 +182,7 @@ func llvmPrebuiltLibraryStatic(ctx android.LoadHookContext) {
+ 	p.Target.Android_arm64.Srcs = []string{path.Join(libDir, "aarch64", name)}
+ 	p.Target.Android_x86.Srcs = []string{path.Join(libDir, "i386", name)}
+ 	p.Target.Android_x86_64.Srcs = []string{path.Join(libDir, "x86_64", name)}
++	p.Target.Android_riscv64.Srcs = []string{path.Join(libDir, "riscv64", name)}
+ 	ctx.AppendProperties(p)
+ }
+ 
+-- 
+2.18.4
+

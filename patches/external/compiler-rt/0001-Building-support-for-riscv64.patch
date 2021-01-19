@@ -1,0 +1,50 @@
+From 103d391bebd5b82b2407eadaf5b630ae1483735b Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sat, 16 Jan 2021 21:13:06 +0800
+Subject: [PATCH] Building support for riscv64
+
+Change-Id: I243385c889b66657be8d60288225551d137e82aa
+---
+ Android.bp | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/Android.bp b/Android.bp
+index b8be74026..0be5f54e7 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -55,6 +55,9 @@ cc_library_static {
+         arm64: {
+             srcs: ["lib/builtins/comparedf2.c"],
+         },
++        riscv64: {
++            //srcs: ["lib/builtins/clear_cache.c"],
++        },
+         x86_64: {
+             srcs: ["lib/builtins/comparedf2.c"],
+         },
+@@ -314,6 +317,12 @@ cc_library {
+                 "-DCRT_HAS_128BIT",
+             ],
+         },
++        riscv64: {
++            cflags: [
++                //"-DCRT_HAS_128BIT",
++            ],
++        },
++
+         x86: {
+             srcs: [
+                 "lib/builtins/i386/ashldi3.S",
+@@ -437,6 +446,9 @@ cc_defaults {
+         android_mips64: {
+             enabled: true,
+         },
++        android_riscv64: {
++            enabled: true,
++        },
+         android_x86: {
+             enabled: true,
+         },
+-- 
+2.18.4
+

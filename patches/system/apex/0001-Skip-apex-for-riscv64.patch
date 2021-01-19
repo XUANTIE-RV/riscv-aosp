@@ -1,0 +1,86 @@
+From 6bc9c509bd419a9940ec63b3416f0b4bb70f70e0 Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sun, 17 Jan 2021 09:04:50 +0800
+Subject: [PATCH] Skip apex for riscv64
+
+Change-Id: Ib1201f2f453feedb1791dd9067ac9e8f2c7dae9e
+---
+ apexer/Android.bp |  7 ++++++-
+ tests/Android.bp  | 38 +++++++++++++++++++-------------------
+ 2 files changed, 25 insertions(+), 20 deletions(-)
+
+diff --git a/apexer/Android.bp b/apexer/Android.bp
+index 68dc384..65292f6 100644
+--- a/apexer/Android.bp
++++ b/apexer/Android.bp
+@@ -59,6 +59,11 @@ apex_key {
+ // soong.
+ apex_test {
+   name: "com.android.support.apexer",
++  arch: {
++      riscv64: {
++          enabled: false,
++      },
++  },
+   payload_type: "zip",
+   host_supported: true,
+   device_supported: false,
+@@ -66,4 +71,4 @@ apex_test {
+   ignore_system_library_special_case: true,
+   key: "com.android.support.apexer.key",
+   binaries: apexer_tools,
+-}
+\ No newline at end of file
++}
+diff --git a/tests/Android.bp b/tests/Android.bp
+index 6b2438d..34b9c3b 100644
+--- a/tests/Android.bp
++++ b/tests/Android.bp
+@@ -118,25 +118,25 @@ apex {
+ 
+ // This target is not consumed by anyone. It's a sanity
+ // check for the build features.
+-apex {
+-    name: "apex_test_build_features",
+-    file_contexts: "apex.test",
+-    manifest: "testdata/apex_manifest.json",
+-    androidManifest: "testdata/AndroidManifest.xml",
+-    binaries: ["surfaceflinger", "vold"],
+-    multilib: {
+-        prefer32: {
+-            binaries: ["dex2oat"],
+-        },
+-    },
+-    native_shared_libs: ["libc", "libcutils"],
+-    java_libs: ["conscrypt"],
+-    prebuilts: ["sample_prebuilt_file", "apex.test.ld.config.txt", "apex.test.init.rc"],
+-    compile_multilib: "both",
+-    key: "apex.test.key",
+-    certificate: ":apex.test.certificate",
+-    installable: false,
+-}
++//apex {
++//    name: "apex_test_build_features",
++//    file_contexts: "apex.test",
++//    manifest: "testdata/apex_manifest.json",
++//    androidManifest: "testdata/AndroidManifest.xml",
++//    binaries: ["surfaceflinger", "vold"],
++//    multilib: {
++//        prefer32: {
++//            binaries: ["dex2oat"],
++//        },
++//    },
++//    native_shared_libs: ["libc", "libcutils"],
++//    java_libs: ["conscrypt"],
++//    prebuilts: ["sample_prebuilt_file", "apex.test.ld.config.txt", "apex.test.init.rc"],
++//    compile_multilib: "both",
++//    key: "apex.test.key",
++//    certificate: ":apex.test.certificate",
++//    installable: false,
++//}
+ 
+ apex_key {
+     name: "apex.test.key",
+-- 
+2.18.4
+

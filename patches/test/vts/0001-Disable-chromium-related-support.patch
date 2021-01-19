@@ -1,0 +1,38 @@
+From e7a461f840feef2f4aaea1faeac28e6ef1daf5c0 Mon Sep 17 00:00:00 2001
+From: Lifang Xia <lifang_xia@linux.alibaba.com>
+Date: Thu, 16 Jul 2020 17:04:21 +0800
+Subject: [PATCH] Disable chromium related support
+
+Change-Id: I350c0a262a5cb9159dad4484daa466ab776ed277
+---
+ tools/build/tasks/framework/vtf_package.mk | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/tools/build/tasks/framework/vtf_package.mk b/tools/build/tasks/framework/vtf_package.mk
+index 502ce5dad..1a046a3f2 100644
+--- a/tools/build/tasks/framework/vtf_package.mk
++++ b/tools/build/tasks/framework/vtf_package.mk
+@@ -95,13 +95,13 @@ host_camera_its_copy_pairs :=
+ 
+ endif  # ifneq ($(TARGET_BUILD_PDK),true)
+ 
+-host_systrace_files := \
+-  $(filter-out .git/%, \
+-    $(call find-files-in-subdirs,external/chromium-trace,"*" -and -type f,.))
+-
+-host_systrace_copy_pairs := \
+-  $(foreach f,$(host_systrace_files),\
+-    external/chromium-trace/$(f):$(VTF_TOOLS_OUT)/external/chromium-trace/$(f))
++#host_systrace_files := \
++#  $(filter-out .git/%, \
++#    $(call find-files-in-subdirs,external/chromium-trace,"*" -and -type f,.))
++#
++#host_systrace_copy_pairs := \
++#  $(foreach f,$(host_systrace_files),\
++#    external/chromium-trace/$(f):$(VTF_TOOLS_OUT)/external/chromium-trace/$(f))
+ 
+ target_script_files := \
+   $(call find-files-in-subdirs,test/vts/script/target,"*.sh" -and -type f,.)
+-- 
+2.18.4
+

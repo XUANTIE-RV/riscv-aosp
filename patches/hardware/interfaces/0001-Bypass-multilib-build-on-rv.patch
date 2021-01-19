@@ -1,0 +1,306 @@
+From d8e88a0932343dce31c83ede9c145b748e94c3e6 Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sun, 17 Jan 2021 09:17:10 +0800
+Subject: [PATCH] Bypass multilib build on rv
+
+Change-Id: Ib7fc1386131340a43d791636c8ccb972723f83d7
+---
+ .../all-versions/default/service/Android.mk   |  17 +--
+ neuralnetworks/1.0/vts/functional/Android.bp  | 105 ------------------
+ neuralnetworks/1.1/vts/functional/Android.bp  |  46 --------
+ neuralnetworks/1.2/vts/functional/Android.bp  |  70 ------------
+ renderscript/1.0/default/Android.bp           |   2 +-
+ 5 files changed, 10 insertions(+), 230 deletions(-)
+ delete mode 100644 neuralnetworks/1.0/vts/functional/Android.bp
+ delete mode 100644 neuralnetworks/1.1/vts/functional/Android.bp
+ delete mode 100644 neuralnetworks/1.2/vts/functional/Android.bp
+
+diff --git a/audio/common/all-versions/default/service/Android.mk b/audio/common/all-versions/default/service/Android.mk
+index b57a1ae3d..90100c738 100644
+--- a/audio/common/all-versions/default/service/Android.mk
++++ b/audio/common/all-versions/default/service/Android.mk
+@@ -28,7 +28,7 @@ LOCAL_PROPRIETARY_MODULE := true
+ LOCAL_SRC_FILES := \
+     service.cpp
+ 
+-LOCAL_CFLAGS := -Wall -Werror
++#LOCAL_CFLAGS := -Wall -Werror
+ 
+ LOCAL_SHARED_LIBRARIES := \
+     libcutils \
+@@ -54,12 +54,13 @@ LOCAL_SHARED_LIBRARIES := \
+     android.hardware.soundtrigger@2.1 \
+     android.hardware.soundtrigger@2.2
+ 
+-# Can not switch to Android.bp until AUDIOSERVER_MULTILIB
+-# is deprecated as build config variable are not supported
+-ifeq ($(strip $(AUDIOSERVER_MULTILIB)),)
+-LOCAL_MULTILIB := 32
+-else
+-LOCAL_MULTILIB := $(AUDIOSERVER_MULTILIB)
+-endif
++##TODO: rv fix multilib
++## Can not switch to Android.bp until AUDIOSERVER_MULTILIB
++## is deprecated as build config variable are not supported
++#ifeq ($(strip $(AUDIOSERVER_MULTILIB)),)
++#LOCAL_MULTILIB := 32
++#else
++#LOCAL_MULTILIB := $(AUDIOSERVER_MULTILIB)
++#endif
+ 
+ include $(BUILD_EXECUTABLE)
+diff --git a/neuralnetworks/1.0/vts/functional/Android.bp b/neuralnetworks/1.0/vts/functional/Android.bp
+deleted file mode 100644
+index 9057695e9..000000000
+--- a/neuralnetworks/1.0/vts/functional/Android.bp
++++ /dev/null
+@@ -1,105 +0,0 @@
+-//
+-// Copyright (C) 2017 The Android Open Source Project
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//      http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-//
+-
+-cc_library_static {
+-    name: "VtsHalNeuralnetworksTest_utils",
+-    srcs: [
+-        "Callbacks.cpp",
+-        "GeneratedTestHarness.cpp",
+-    ],
+-    defaults: ["VtsHalTargetTestDefaults"],
+-    export_include_dirs: ["."],
+-    shared_libs: [
+-        "libfmq",
+-        "libnativewindow",
+-    ],
+-    static_libs: [
+-        "android.hardware.neuralnetworks@1.0",
+-        "android.hardware.neuralnetworks@1.1",
+-        "android.hardware.neuralnetworks@1.2",
+-        "android.hidl.allocator@1.0",
+-        "android.hidl.memory@1.0",
+-        "libgmock",
+-        "libhidlmemory",
+-        "libneuralnetworks_utils",
+-    ],
+-    header_libs: [
+-        "libneuralnetworks_headers",
+-        "libneuralnetworks_generated_test_harness_headers",
+-        "libneuralnetworks_generated_tests",
+-    ],
+-}
+-
+-cc_defaults {
+-    name: "VtsHalNeuralNetworksTargetTestDefaults",
+-    defaults: ["VtsHalTargetTestDefaults"],
+-    srcs: [
+-        "ValidateModel.cpp",
+-        "ValidateRequest.cpp",
+-        "VtsHalNeuralnetworks.cpp",
+-    ],
+-    shared_libs: [
+-        "libfmq",
+-        "libnativewindow",
+-    ],
+-    static_libs: [
+-        "android.hardware.neuralnetworks@1.0",
+-        "android.hardware.neuralnetworks@1.1",
+-        "android.hardware.neuralnetworks@1.2",
+-        "android.hidl.allocator@1.0",
+-        "android.hidl.memory@1.0",
+-        "libgmock",
+-        "libhidlmemory",
+-        "libneuralnetworks_utils",
+-        "VtsHalNeuralnetworksTest_utils",
+-    ],
+-    header_libs: [
+-        "libneuralnetworks_headers",
+-        "libneuralnetworks_generated_test_harness_headers",
+-        "libneuralnetworks_generated_tests",
+-    ],
+-    // Bug: http://b/74200014 - Disable arm32 asan since it triggers internal
+-    // error in ld.gold.
+-    arch: {
+-        arm: {
+-            sanitize: {
+-                never: true,
+-            },
+-        },
+-    },
+-    test_suites: ["general-tests"],
+-}
+-
+-cc_test {
+-    name: "VtsHalNeuralnetworksV1_0TargetTest",
+-    defaults: ["VtsHalNeuralNetworksTargetTestDefaults"],
+-    srcs: [
+-        "BasicTests.cpp",
+-        "GeneratedTests.cpp",
+-    ],
+-}
+-
+-cc_test {
+-    name: "PresubmitHalNeuralnetworksV1_0TargetTest",
+-    defaults: ["VtsHalNeuralNetworksTargetTestDefaults"],
+-    srcs: [
+-        "BasicTests.cpp",
+-        "GeneratedTests.cpp",
+-    ],
+-    cflags: [
+-        "-DPRESUBMIT_NOT_VTS",
+-    ],
+-}
+diff --git a/neuralnetworks/1.1/vts/functional/Android.bp b/neuralnetworks/1.1/vts/functional/Android.bp
+deleted file mode 100644
+index 4fbeac978..000000000
+--- a/neuralnetworks/1.1/vts/functional/Android.bp
++++ /dev/null
+@@ -1,46 +0,0 @@
+-//
+-// Copyright (C) 2018 The Android Open Source Project
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//      http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-//
+-
+-// Tests for V1_0 models using the V1_1 HAL.
+-cc_test {
+-    name: "VtsHalNeuralnetworksV1_1CompatV1_0TargetTest",
+-    defaults: ["VtsHalNeuralNetworksTargetTestDefaults"],
+-    srcs: [
+-        "GeneratedTestsV1_0.cpp",
+-    ],
+-}
+-
+-// Tests for V1_1 models.
+-cc_test {
+-    name: "VtsHalNeuralnetworksV1_1TargetTest",
+-    defaults: ["VtsHalNeuralNetworksTargetTestDefaults"],
+-    srcs: [
+-        "BasicTests.cpp",
+-        "GeneratedTests.cpp",
+-    ],
+-}
+-
+-cc_test {
+-    name: "PresubmitHalNeuralnetworksV1_1TargetTest",
+-    defaults: ["VtsHalNeuralNetworksTargetTestDefaults"],
+-    srcs: [
+-        "BasicTests.cpp",
+-        "GeneratedTests.cpp",
+-    ],
+-    cflags: [
+-        "-DPRESUBMIT_NOT_VTS",
+-    ],
+-}
+diff --git a/neuralnetworks/1.2/vts/functional/Android.bp b/neuralnetworks/1.2/vts/functional/Android.bp
+deleted file mode 100644
+index 6c26820b2..000000000
+--- a/neuralnetworks/1.2/vts/functional/Android.bp
++++ /dev/null
+@@ -1,70 +0,0 @@
+-//
+-// Copyright (C) 2018 The Android Open Source Project
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//      http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-//
+-
+-// Tests for V1_0 models using the V1_2 HAL.
+-cc_test {
+-    name: "VtsHalNeuralnetworksV1_2CompatV1_0TargetTest",
+-    defaults: ["VtsHalNeuralNetworksTargetTestDefaults"],
+-    srcs: [
+-        "GeneratedTestsV1_0.cpp",
+-        "ValidateBurst.cpp",
+-    ],
+-    cflags: [
+-        "-DNN_TEST_DYNAMIC_OUTPUT_SHAPE"
+-    ],
+-}
+-
+-// Tests for V1_1 models using the V1_2 HAL.
+-cc_test {
+-    name: "VtsHalNeuralnetworksV1_2CompatV1_1TargetTest",
+-    defaults: ["VtsHalNeuralNetworksTargetTestDefaults"],
+-    srcs: [
+-        "GeneratedTestsV1_1.cpp",
+-        "ValidateBurst.cpp",
+-    ],
+-    cflags: [
+-        "-DNN_TEST_DYNAMIC_OUTPUT_SHAPE"
+-    ],
+-}
+-
+-// Tests for V1_2 models.
+-cc_test {
+-    name: "VtsHalNeuralnetworksV1_2TargetTest",
+-    defaults: ["VtsHalNeuralNetworksTargetTestDefaults"],
+-    srcs: [
+-        "BasicTests.cpp",
+-        "CompilationCachingTests.cpp",
+-        "GeneratedTests.cpp",
+-        "ValidateBurst.cpp",
+-    ],
+-    cflags: [
+-        "-DNN_TEST_DYNAMIC_OUTPUT_SHAPE"
+-    ],
+-}
+-
+-cc_test {
+-    name: "PresubmitHalNeuralnetworksV1_2TargetTest",
+-    defaults: ["VtsHalNeuralNetworksTargetTestDefaults"],
+-    srcs: [
+-        "BasicTests.cpp",
+-        "GeneratedTests.cpp",
+-        "ValidateBurst.cpp",
+-    ],
+-    cflags: [
+-        "-DNN_TEST_DYNAMIC_OUTPUT_SHAPE",
+-        "-DPRESUBMIT_NOT_VTS",
+-    ],
+-}
+diff --git a/renderscript/1.0/default/Android.bp b/renderscript/1.0/default/Android.bp
+index d5d6d8d3e..a6eacab07 100644
+--- a/renderscript/1.0/default/Android.bp
++++ b/renderscript/1.0/default/Android.bp
+@@ -8,7 +8,7 @@ cc_library_shared {
+         "Device.cpp",
+     ],
+     include_dirs: [
+-        "frameworks/rs",
++        //"frameworks/rs",
+     ],
+     shared_libs: [
+         "libdl",
+-- 
+2.18.4
+

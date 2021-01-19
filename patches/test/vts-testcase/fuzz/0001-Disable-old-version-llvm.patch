@@ -1,0 +1,26 @@
+From 56a88c6753e143a7eca434c21b7fe9815ceb813c Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sun, 17 Jan 2021 08:39:20 +0800
+Subject: [PATCH] Disable old version llvm
+
+Change-Id: I1da39fcfaf2c1eb6d16d5143954dd6f9544c5ee3
+---
+ iface_fuzzer/Android.bp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/iface_fuzzer/Android.bp b/iface_fuzzer/Android.bp
+index b611bac..f279342 100644
+--- a/iface_fuzzer/Android.bp
++++ b/iface_fuzzer/Android.bp
+@@ -47,7 +47,7 @@ cc_binary {
+         "ProtoFuzzerMain.cpp",
+     ],
+     include_dirs: [
+-        "external/llvm/lib/Fuzzer",
++        //"external/llvm/lib/Fuzzer",
+         "test/vts/drivers/hal/common/include",
+         "test/vts-testcase/fuzz/iface_fuzzer/include",
+     ],
+-- 
+2.18.4
+

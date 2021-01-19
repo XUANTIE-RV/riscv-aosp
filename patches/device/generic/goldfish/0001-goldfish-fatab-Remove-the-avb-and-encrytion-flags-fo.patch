@@ -1,0 +1,40 @@
+From 2ee69d983dae82273dd61107ef543ba71b67a3da Mon Sep 17 00:00:00 2001
+From: Ma Jun <majun258@linux.alibaba.com>
+Date: Fri, 21 Aug 2020 13:55:56 +0800
+Subject: [PATCH] goldfish/fatab: Remove the avb and encrytion flags for system
+ and data partition
+
+Let's remove these flags for now, because we dont' support avb and data encryption.
+
+Signed-off-by: Ma Jun <majun258@linux.alibaba.com>
+Change-Id: Ie192c9e461b2ef4ff344dbc40774ec0ee12d3363
+---
+ fstab.ranchu        | 2 +-
+ fstab.ranchu.initrd | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/fstab.ranchu b/fstab.ranchu
+index 5fcd5ce..ba73fad 100644
+--- a/fstab.ranchu
++++ b/fstab.ranchu
+@@ -2,6 +2,6 @@
+ #<dev>  <mnt_point> <type>  <mnt_flags options> <fs_mgr_flags>
+ system   /system     ext4    ro,barrier=1     wait,logical,avb=vbmeta,first_stage_mount
+ vendor   /vendor     ext4    ro,barrier=1     wait,logical,first_stage_mount
+-/dev/block/vdc   /data     ext4      noatime,nosuid,nodev,nomblk_io_submit,errors=panic   wait,check,quota,fileencryption=aes-256-xts:aes-256-cts,reservedsize=128M
++/dev/block/vdc   /data     ext4      noatime,nosuid,nodev,nomblk_io_submit,errors=panic   wait,check,quota
+ /devices/*/block/vdf auto   auto      defaults    voldmanaged=sdcard:auto,encryptable=userdata
+ dev/block/zram0 none swap  defaults zramsize=75%
+diff --git a/fstab.ranchu.initrd b/fstab.ranchu.initrd
+index e792feb..d506a90 100644
+--- a/fstab.ranchu.initrd
++++ b/fstab.ranchu.initrd
+@@ -1,4 +1,4 @@
+ # Android fstab file for ramdisk
+ #<dev>  <mnt_point> <type>  <mnt_flags options> <fs_mgr_flags>
+-system   /system     ext4    ro,barrier=1     wait,logical,avb=vbmeta,first_stage_mount
++system   /system     ext4    ro,barrier=1     wait,logical,first_stage_mount
+ vendor   /vendor     ext4    ro,barrier=1     wait,logical,first_stage_mount
+-- 
+2.18.4
+

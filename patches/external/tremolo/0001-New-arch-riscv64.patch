@@ -1,0 +1,27 @@
+From e070d8ae59cacc896cf962a184032e291117a908 Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sat, 16 Jan 2021 21:30:27 +0800
+Subject: [PATCH] New arch riscv64
+
+Change-Id: I585fe2a5eccff1bb3afa76b9cbf68d4e0bbb3e84
+---
+ Android.bp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/Android.bp b/Android.bp
+index 70cfe14..cdf6365 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -41,6 +41,9 @@ cc_library {
+         mips64: {
+             cflags: ["-DONLY_C"],
+         },
++        riscv64: {
++            cflags: ["-DONLY_C"],
++        },
+         x86: {
+             cflags: ["-DONLY_C"],
+         },
+-- 
+2.18.4
+

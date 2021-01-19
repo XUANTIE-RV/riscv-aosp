@@ -1,0 +1,24 @@
+From 447f4798ab6831e77c7be455613d38adcd5911db Mon Sep 17 00:00:00 2001
+From: Lifang Xia <lifang_xia@linux.alibaba.com>
+Date: Fri, 24 Jul 2020 17:29:43 +0800
+Subject: [PATCH] Remove audiohal depedency
+
+Change-Id: I85ccb7b61a1dc0e250f342b1e4e9ce22affe3475
+---
+ modules/audio_remote_submix/tests/Android.bp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules/audio_remote_submix/tests/Android.bp b/modules/audio_remote_submix/tests/Android.bp
+index 8e4d42d0..f8e411bc 100644
+--- a/modules/audio_remote_submix/tests/Android.bp
++++ b/modules/audio_remote_submix/tests/Android.bp
+@@ -25,5 +25,5 @@ cc_test {
+ 
+     cflags: ["-Wall", "-Werror", "-O0", "-g",],
+ 
+-    header_libs: ["libaudiohal_headers"],
++    //header_libs: ["libaudiohal_headers"],
+ }
+-- 
+2.18.4
+

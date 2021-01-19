@@ -1,0 +1,42 @@
+From a4b702f00b64a2f447873965a64e7df2c7968967 Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sun, 17 Jan 2021 16:45:07 +0800
+Subject: [PATCH] update ndk version
+
+Change-Id: I0e306cfdfa841341816cf4604f180d30c4c3db59
+---
+ current   | 2 +-
+ update.py | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/current b/current
+index c32c322..e479b7d 120000
+--- a/current
++++ b/current
+@@ -1 +1 @@
+-r18
+\ No newline at end of file
++r20
+\ No newline at end of file
+diff --git a/update.py b/update.py
+index aab8630..3baf050 100755
+--- a/update.py
++++ b/update.py
+@@ -71,11 +71,11 @@ def remove_old_release(install_dir):
+ def install_new_release(branch, build, install_dir):
+     os.makedirs(install_dir)
+ 
+-    artifact_pattern = 'android-ndk-*.tar.bz2'
++    artifact_pattern = 'android-ndk-0-linux-x86_64.tar.bz2'
+     logger().info('Fetching %s from %s (artifacts matching %s)', build, branch,
+                   artifact_pattern)
+-    fetch_artifact(branch, build, artifact_pattern)
+-    artifacts = glob.glob('android-ndk-*.tar.bz2')
++    #fetch_artifact(branch, build, artifact_pattern)
++    artifacts = glob.glob('android-ndk-0-linux-x86_64.tar.bz2')
+     try:
+         assert len(artifacts) == 1
+         artifact = artifacts[0]
+-- 
+2.18.4
+

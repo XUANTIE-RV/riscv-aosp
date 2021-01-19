@@ -1,0 +1,26 @@
+From 73596a05921759b6a8278a9adf4071016b35ced0 Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sat, 16 Jan 2021 21:31:40 +0800
+Subject: [PATCH] Disable lto for riscv64
+
+Change-Id: I45daecacb69b4470d6ee39448b69609dca378695
+---
+ Android.bp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Android.bp b/Android.bp
+index bc4e560d..d527fbbb 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -141,7 +141,7 @@ art_cc_library {
+     target: {
+         android: {
+             lto: {
+-                 thin: true,
++                 thin: false,
+             },
+         },
+     },
+-- 
+2.18.4
+

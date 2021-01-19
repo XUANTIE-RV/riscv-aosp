@@ -1,0 +1,29 @@
+From 3c4a6f3c4ca3253483741d05d53b5d77faf5aaaa Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sat, 16 Jan 2021 21:24:58 +0800
+Subject: [PATCH] New arch riscv64
+
+Change-Id: Ic6adcb1161b4180032071ab8d5e4483a93323776
+---
+ third_party/build/build_config.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/third_party/build/build_config.h b/third_party/build/build_config.h
+index d4c66e046..36ada2863 100644
+--- a/third_party/build/build_config.h
++++ b/third_party/build/build_config.h
+@@ -149,6 +149,11 @@
+ #elif defined(__pnacl__)
+ #define ARCH_CPU_32_BITS 1
+ #define ARCH_CPU_LITTLE_ENDIAN 1
++#elif defined(__riscv) && (__riscv_xlen == 64)
++#define ARCH_CPU_RISCV_FAMILY 1
++#define ARCH_CPU_RISCV64 1
++#define ARCH_CPU_64_BITS 1
++#define ARCH_CPU_LITTLE_ENDIAN 1
+ #elif defined(__MIPSEL__)
+ #if defined(__LP64__)
+ #define ARCH_CPU_MIPS_FAMILY 1
+-- 
+2.18.4
+

@@ -1,0 +1,33 @@
+From 30800b5a7934d88b3e1d96681a2971aa87565852 Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sat, 16 Jan 2021 11:42:07 +0800
+Subject: [PATCH] Skip cert-* for riscv64
+
+Change-Id: Iaa7525ca9ef107e3c791de692b3d4b3c4b2bcd91
+---
+ Android.bp | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/Android.bp b/Android.bp
+index b495dac..268be2b 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -60,12 +60,13 @@ cc_binary {
+     tidy: true,
+     tidy_checks: [
+         "-*",
+-        "cert-*",
++        //FIXME: "cert-*",
+         "clang-analyzer-security*",
+         "android-*",
+     ],
+     tidy_flags: [
+-        "-warnings-as-errors=clang-analyzer-security*,cert-*,android-*",
++        //FIXME: "-warnings-as-errors=clang-analyzer-security*,cert-*,android-*",
++        "-warnings-as-errors=clang-analyzer-security*,android-*",
+     ],
+ }
+ 
+-- 
+2.18.4
+

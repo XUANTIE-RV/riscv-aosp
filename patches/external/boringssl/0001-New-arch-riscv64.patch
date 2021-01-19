@@ -1,0 +1,26 @@
+From 08e38447ec2c7cbf885e2520d9b0d20d81b0c429 Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sat, 16 Jan 2021 21:06:59 +0800
+Subject: [PATCH] New arch riscv64
+
+Change-Id: I762336d4e0c3ba6ca9999025091b04239b451fa4
+---
+ src/include/openssl/base.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/include/openssl/base.h b/src/include/openssl/base.h
+index 7fe232f3..920c6960 100644
+--- a/src/include/openssl/base.h
++++ b/src/include/openssl/base.h
+@@ -114,6 +114,8 @@ extern "C" {
+ #define OPENSSL_32_BIT
+ #elif defined(__myriad2__)
+ #define OPENSSL_32_BIT
++#elif defined(__riscv) && (__riscv_xlen == 64)
++#define OPENSSL_64_BIT
+ #else
+ // Note BoringSSL only supports standard 32-bit and 64-bit two's-complement,
+ // little-endian architectures. Functions will not produce the correct answer
+-- 
+2.18.4
+

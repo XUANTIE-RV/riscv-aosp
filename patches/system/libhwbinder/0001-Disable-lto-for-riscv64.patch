@@ -1,0 +1,38 @@
+From c1b44b6e26d35b7b75d69c04ce28a3003ff145b4 Mon Sep 17 00:00:00 2001
+From: Lifang Xia <lifang_xia@linux.alibaba.com>
+Date: Sat, 11 Jul 2020 10:18:57 +0800
+Subject: [PATCH] Disable lto for riscv64
+
+Change-Id: I3ab32ab4c71407ee8f7d96781a22fdd235049ea8
+---
+ Android.bp | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/Android.bp b/Android.bp
+index a5901e0..f81e48d 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -45,8 +45,9 @@ cc_defaults {
+     },
+ 
+     cflags: [
+-        "-Wall",
+-        "-Werror",
++        //"-Wall",
++        //"-Werror",
++	"-Wno-reorder-init-list",
+     ],
+ }
+ 
+@@ -161,7 +162,7 @@ cc_defaults {
+     target: {
+         android: {
+             lto: {
+-                thin: true,
++                thin: false,
+             },
+         },
+     },
+-- 
+2.18.4
+

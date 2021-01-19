@@ -1,0 +1,1234 @@
+From 4eb9871d4510a2b935d6db03b89d0b952789caaa Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sun, 17 Jan 2021 09:02:14 +0800
+Subject: [PATCH] New arch riscv64
+
+Change-Id: Id752c7b0b2a78766546296364cbb565df8359f18
+---
+ base/include/android-base/macros.h            |   2 +
+ debuggerd/crasher/Android.bp                  |   3 +
+ debuggerd/crasher/crasher.cpp                 |   2 +
+ debuggerd/crasher/riscv64/crashglue.S         |  45 ++++++
+ init/security.cpp                             |   2 +
+ libcutils/Android.bp                          |   7 +
+ libcutils/arch-riscv64/android_memset.c       | 100 ++++++++++++
+ libmemunreachable/ThreadCapture.cpp           |   2 +
+ libnativeloader/native_loader.cpp             |   7 +
+ libunwindstack/Android.bp                     |   1 +
+ libunwindstack/AsmGetRegsriscv64.S            |  77 +++++++++
+ libunwindstack/Elf.cpp                        |   4 +-
+ libunwindstack/Regs.cpp                       |  18 ++-
+ libunwindstack/RegsRiscv64.cpp                | 152 ++++++++++++++++++
+ libunwindstack/include/unwindstack/Elf.h      |   5 +
+ .../include/unwindstack/MachineRiscv64.h      |  62 +++++++
+ .../include/unwindstack/RegsGetLocal.h        |  43 +++++
+ .../include/unwindstack/RegsRiscv64.h         |  62 +++++++
+ .../include/unwindstack/UcontextRiscv64.h     |  91 +++++++++++
+ .../include/unwindstack/UserRiscv64.h         |  40 +++++
+ libunwindstack/tests/ElfTest.cpp              |  14 +-
+ libunwindstack/tests/RegsIterateTest.cpp      |  43 ++++-
+ .../tests/RegsStepIfSignalHandlerTest.cpp     |  21 +++
+ libunwindstack/tests/RegsTest.cpp             |   1 +
+ libunwindstack/tests/UnwinderTest.cpp         |   7 +
+ libunwindstack/tools/unwind.cpp               |   3 +
+ libutils/include/utils/RefBase.h              |   2 +-
+ rootdir/init.rc                               |  13 +-
+ 28 files changed, 816 insertions(+), 13 deletions(-)
+ create mode 100644 debuggerd/crasher/riscv64/crashglue.S
+ create mode 100644 libcutils/arch-riscv64/android_memset.c
+ create mode 100644 libunwindstack/AsmGetRegsriscv64.S
+ create mode 100644 libunwindstack/RegsRiscv64.cpp
+ create mode 100644 libunwindstack/include/unwindstack/MachineRiscv64.h
+ create mode 100644 libunwindstack/include/unwindstack/RegsRiscv64.h
+ create mode 100644 libunwindstack/include/unwindstack/UcontextRiscv64.h
+ create mode 100644 libunwindstack/include/unwindstack/UserRiscv64.h
+
+diff --git a/base/include/android-base/macros.h b/base/include/android-base/macros.h
+index 5abf5141f..427b97e40 100644
+--- a/base/include/android-base/macros.h
++++ b/base/include/android-base/macros.h
+@@ -147,4 +147,6 @@ void UNUSED(const T&...) {
+ #define ABI_STRING "mips"
+ #elif defined(__mips__) && defined(__LP64__)
+ #define ABI_STRING "mips64"
++#elif defined(__riscv) && (__riscv_xlen == 64)
++#define ABI_STRING "riscv64"
+ #endif
+diff --git a/debuggerd/crasher/Android.bp b/debuggerd/crasher/Android.bp
+index 7bec470fb..444c7b91f 100644
+--- a/debuggerd/crasher/Android.bp
++++ b/debuggerd/crasher/Android.bp
+@@ -30,6 +30,9 @@ cc_defaults {
+         mips64: {
+             srcs: ["mips64/crashglue.S"],
+         },
++        riscv64: {
++            srcs: ["riscv64/crashglue.S"],
++        },
+         x86: {
+             srcs: ["x86/crashglue.S"],
+         },
+diff --git a/debuggerd/crasher/crasher.cpp b/debuggerd/crasher/crasher.cpp
+index f0bdfbfde..b388cb2ed 100644
+--- a/debuggerd/crasher/crasher.cpp
++++ b/debuggerd/crasher/crasher.cpp
+@@ -288,6 +288,8 @@ noinline int do_action(const char* arg) {
+       __asm__ volatile(".word 0xe7f0def0\n");
+ #elif defined(__i386__) || defined(__x86_64__)
+       __asm__ volatile("ud2\n");
++#elif defined(__riscv)
++      __asm__ volatile(".word 0\n");
+ #else
+ #error
+ #endif
+diff --git a/debuggerd/crasher/riscv64/crashglue.S b/debuggerd/crasher/riscv64/crashglue.S
+new file mode 100644
+index 000000000..47dd93bac
+--- /dev/null
++++ b/debuggerd/crasher/riscv64/crashglue.S
+@@ -0,0 +1,45 @@
++
++	.globl crash1
++	.globl crashnostack
++
++crash1:
++	li	x0,0xdead0000+0
++	li	x1,0xdead0000+1
++	li	x2,0xdead0000+2
++	li	x3,0xdead0000+3
++	li	x4,0xdead0000+4
++	li	x5,0xdead0000+5
++	li	x6,0xdead0000+6
++	li	x7,0xdead0000+7
++	li	x8,0xdead0000+8
++	li	x9,0xdead0000+9
++	li	x10,0xdead0000+10
++	li	x11,0xdead0000+11
++	li	x12,0xdead0000+12
++	li	x13,0xdead0000+13
++	li	x14,0xdead0000+14
++	li	x15,0xdead0000+15
++	li	x16,0xdead0000+16
++	li	x17,0xdead0000+17
++	li	x18,0xdead0000+18
++	li	x19,0xdead0000+19
++	li	x20,0xdead0000+20
++	li	x21,0xdead0000+21
++	li	x22,0xdead0000+22
++	li	x23,0xdead0000+23
++	li	x24,0xdead0000+24
++	li	x25,0xdead0000+25
++	li	x26,0xdead0000+26
++	li	x27,0xdead0000+27
++	li	x28,0xdead0000+28
++	# don't trash the stack otherwise the signal handler won't run
++	#li	$29,0xdead0000+29
++	li	x30,0xdead0000+30
++	li	x31,0xdead0000+31
++
++	j .
++
++
++crashnostack:
++	li	sp, 0
++	j .
+diff --git a/init/security.cpp b/init/security.cpp
+index a3494a280..730349a78 100644
+--- a/init/security.cpp
++++ b/init/security.cpp
+@@ -172,6 +172,8 @@ Result<Success> SetMmapRndBitsAction(const BuiltinArguments&) {
+ #elif defined(__mips__) || defined(__mips64__)
+     // TODO: add mips support b/27788820
+     return Success();
++#elif __riscv_xlen == 64
++    return Success();
+ #else
+     LOG(ERROR) << "Unknown architecture";
+ #endif
+diff --git a/libcutils/Android.bp b/libcutils/Android.bp
+index 619bc567a..42d01a515 100644
+--- a/libcutils/Android.bp
++++ b/libcutils/Android.bp
+@@ -139,6 +139,13 @@ cc_library {
+             },
+         },
+ 
++        android_riscv64: {
++            srcs: ["arch-riscv64/android_memset.c"],
++            sanitize: {
++                misc_undefined: ["integer"],
++            },
++        },
++
+         android_x86: {
+             srcs: [
+                 "arch-x86/android_memset16.S",
+diff --git a/libcutils/arch-riscv64/android_memset.c b/libcutils/arch-riscv64/android_memset.c
+new file mode 100644
+index 000000000..c0fe3d1e6
+--- /dev/null
++++ b/libcutils/arch-riscv64/android_memset.c
+@@ -0,0 +1,100 @@
++/*
++ * Copyright (C) 2015 The Android Open Source Project
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ *  * Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ *  * Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in
++ *    the documentation and/or other materials provided with the
++ *    distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
++ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
++ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
++ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
++ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
++ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
++ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
++ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
++ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ */
++
++/* generic C version for any machine */
++
++#include <cutils/memory.h>
++
++#ifdef __clang__
++__attribute__((no_sanitize("integer")))
++#endif
++void android_memset16(uint16_t* dst, uint16_t value, size_t size)
++{
++   /* optimized version of
++      size >>= 1;
++      while (size--)
++        *dst++ = value;
++   */
++
++   size >>= 1;
++   if (((uintptr_t)dst & 2) && size) {
++      /* fill unpaired first elem separately */
++      *dst++ = value;
++      size--;
++   }
++   /* dst is now 32-bit-aligned */
++   /* fill body with 32-bit pairs */
++   uint32_t value32 = (((uint32_t)value) << 16) | ((uint32_t)value);
++   android_memset32((uint32_t*) dst, value32, size<<1);
++   if (size & 1) {
++      dst[size-1] = value;  /* fill unpaired last elem */
++   }
++}
++
++
++#ifdef __clang__
++__attribute__((no_sanitize("integer")))
++#endif
++void android_memset32(uint32_t* dst, uint32_t value, size_t size)
++{
++   /* optimized version of
++      size >>= 2;
++      while (size--)
++         *dst++ = value;
++   */
++
++   size >>= 2;
++   if (((uintptr_t)dst & 4) && size) {
++      /* fill unpaired first 32-bit elem separately */
++      *dst++ = value;
++      size--;
++   }
++   /* dst is now 64-bit aligned */
++   /* fill body with 64-bit pairs */
++   uint64_t value64 = (((uint64_t)value) << 32) | ((uint64_t)value);
++   uint64_t* dst64 = (uint64_t*)dst;
++
++   while (size >= 12) {
++      dst64[0] = value64;
++      dst64[1] = value64;
++      dst64[2] = value64;
++      dst64[3] = value64;
++      dst64[4] = value64;
++      dst64[5] = value64;
++      size  -= 12;
++      dst64 += 6;
++   }
++
++   /* fill remainder with original 32-bit single-elem loop */
++   dst = (uint32_t*) dst64;
++   while (size != 0) {
++       size--;
++      *dst++ = value;
++   }
++
++}
+diff --git a/libmemunreachable/ThreadCapture.cpp b/libmemunreachable/ThreadCapture.cpp
+index 45eb55de8..a67ed0d7b 100644
+--- a/libmemunreachable/ThreadCapture.cpp
++++ b/libmemunreachable/ThreadCapture.cpp
+@@ -236,6 +236,8 @@ bool ThreadCaptureImpl::PtraceThreadInfo(pid_t tid, ThreadInfo& thread_info) {
+       offsetof(struct user_pt_regs, sp) / sizeof(uintptr_t)
+ #elif defined(__mips__) || defined(__mips64__)
+       offsetof(struct pt_regs, regs[29]) / sizeof(uintptr_t)
++#elif defined(__riscv) || (__riscv_xlen == 64)
++      offsetof(struct pt_regs, sp) / sizeof(uintptr_t)
+ #else
+ #error Unrecognized architecture
+ #endif
+diff --git a/libnativeloader/native_loader.cpp b/libnativeloader/native_loader.cpp
+index e460b1a30..14b99ab5a 100644
+--- a/libnativeloader/native_loader.cpp
++++ b/libnativeloader/native_loader.cpp
+@@ -492,6 +492,13 @@ class LibraryNamespaces {
+     // For now we rely on CTS test to catch things like this but
+     // it should probably be addressed in the future.
+     for (const auto& soname : sonames) {
++      if( (strcmp(soname.c_str(), "libcamera2ndk.so") == 0)  ||
++             (strcmp(soname.c_str(), "libneuralnetworks.so") == 0)  ||
++             (strcmp(soname.c_str(), "libOpenMAXAL.so") == 0) ||
++             (strcmp(soname.c_str(), "libRS.so") == 0) ) {
++                 //if (fp) {fprintf(fp, "   - %s\n", soname.c_str()); fflush(fp);}
++                 continue;
++         }
+       LOG_ALWAYS_FATAL_IF(dlopen(soname.c_str(), RTLD_NOW | RTLD_NODELETE) == nullptr,
+                           "Error preloading public library %s: %s", soname.c_str(), dlerror());
+     }
+diff --git a/libunwindstack/Android.bp b/libunwindstack/Android.bp
+index b7650a178..1ef183949 100644
+--- a/libunwindstack/Android.bp
++++ b/libunwindstack/Android.bp
+@@ -72,6 +72,7 @@ cc_library {
+         "RegsX86_64.cpp",
+         "RegsMips.cpp",
+         "RegsMips64.cpp",
++        "RegsRiscv64.cpp",
+         "Unwinder.cpp",
+         "Symbols.cpp",
+     ],
+diff --git a/libunwindstack/AsmGetRegsriscv64.S b/libunwindstack/AsmGetRegsriscv64.S
+new file mode 100644
+index 000000000..84d506704
+--- /dev/null
++++ b/libunwindstack/AsmGetRegsriscv64.S
+@@ -0,0 +1,77 @@
++/*
++ * Copyright (C) 2020 The Android Open Source Project
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ *  * Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ *  * Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in
++ *    the documentation and/or other materials provided with the
++ *    distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
++ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
++ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
++ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
++ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
++ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
++ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
++ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
++ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ */
++
++  .text
++  .type     AsmGetRegs, %function
++  .globl    AsmGetRegs
++  .ent      AsmGetRegs
++  .balign    16
++AsmGetRegs:
++  .cfi_startproc
++  .cfi_def_cfa $sp, 0
++  .set push
++  .set noreorder
++  sd      zero, 0(a0)
++  sd      sp, 8(a0)
++  sd      gp, 16(a0)
++  sd      tp, 24(a0)
++  sd      t0, 32(a0)
++  sd      t1, 40(a0)
++  sd      t2, 48(a0)
++  sd      fp, 56(a0)
++  sd      s1, 64(a0)
++  sd      a0, 72(a0)
++  sd      a1, 80(a0)
++  sd      a2, 88(a0)
++  sd      a3, 96(a0)
++  sd      a4, 104(a0)
++  sd      a5, 112(a0)
++  sd      a6, 120(a0)
++  sd      a7, 128(a0)
++  sd      s2, 136(a0)
++  sd      s3, 144(a0)
++  sd      s4, 152(a0)
++  sd      s5, 160(a0)
++  sd      s6, 168(a0)
++  sd      s7, 176(a0)
++  sd      s8, 184(a0)
++  sd      s9, 192(a0)
++  sd      s10, 200(a0)
++  sd      s11, 208(a0)
++  sd      t3, 216(a0)
++  sd      t4, 224(a0)
++  sd      t5, 232(a0)
++  sd      t6, 240(a0)
++  sd	  ra, 248(a0)
++  ret
++  sd	  ra, 256(a0)
++
++  .set pop
++  .cfi_endproc
++  .size AsmGetRegs, .-AsmGetRegs
++  .end      AsmGetRegs
+diff --git a/libunwindstack/Elf.cpp b/libunwindstack/Elf.cpp
+index 345491356..2e57a88da 100644
+--- a/libunwindstack/Elf.cpp
++++ b/libunwindstack/Elf.cpp
+@@ -287,9 +287,11 @@ ElfInterface* Elf::CreateInterfaceFromMemory(Memory* memory) {
+       arch_ = ARCH_X86_64;
+     } else if (e_machine == EM_MIPS) {
+       arch_ = ARCH_MIPS64;
++    } else if (e_machine == EM_RISCV64) {
++      arch_ = ARCH_RISCV64;
+     } else {
+       // Unsupported.
+-      ALOGI("64 bit elf that is neither aarch64 nor x86_64 nor mips64: e_machine = %d\n",
++      ALOGI("64 bit elf that is none of aarch64|x86_64|mips64|riscv64: e_machine = %d\n",
+             e_machine);
+       return nullptr;
+     }
+diff --git a/libunwindstack/Regs.cpp b/libunwindstack/Regs.cpp
+index c7dec5259..5af3598a9 100644
+--- a/libunwindstack/Regs.cpp
++++ b/libunwindstack/Regs.cpp
+@@ -27,12 +27,14 @@
+ #include <unwindstack/RegsArm64.h>
+ #include <unwindstack/RegsMips.h>
+ #include <unwindstack/RegsMips64.h>
++#include <unwindstack/RegsRiscv64.h>
+ #include <unwindstack/RegsX86.h>
+ #include <unwindstack/RegsX86_64.h>
+ #include <unwindstack/UserArm.h>
+ #include <unwindstack/UserArm64.h>
+ #include <unwindstack/UserMips.h>
+ #include <unwindstack/UserMips64.h>
++#include <unwindstack/UserRiscv64.h>
+ #include <unwindstack/UserX86.h>
+ #include <unwindstack/UserX86_64.h>
+ 
+@@ -67,6 +69,8 @@ Regs* Regs::RemoteGet(pid_t pid) {
+     return RegsMips::Read(buffer.data());
+   case sizeof(mips64_user_regs):
+     return RegsMips64::Read(buffer.data());
++  case sizeof(riscv64_user_regs):
++    return RegsRiscv64::Read(buffer.data());
+   }
+   return nullptr;
+ }
+@@ -85,6 +89,8 @@ Regs* Regs::CreateFromUcontext(ArchEnum arch, void* ucontext) {
+       return RegsMips::CreateFromUcontext(ucontext);
+     case ARCH_MIPS64:
+       return RegsMips64::CreateFromUcontext(ucontext);
++    case ARCH_RISCV64:
++      return RegsRiscv64::CreateFromUcontext(ucontext);
+     case ARCH_UNKNOWN:
+     default:
+       return nullptr;
+@@ -100,10 +106,8 @@ ArchEnum Regs::CurrentArch() {
+   return ARCH_X86;
+ #elif defined(__x86_64__)
+   return ARCH_X86_64;
+-#elif defined(__mips__) && !defined(__LP64__)
+-  return ARCH_MIPS;
+-#elif defined(__mips__) && defined(__LP64__)
+-  return ARCH_MIPS64;
++#elif defined(__riscv)
++  return ARCH_RISCV64;
+ #else
+   abort();
+ #endif
+@@ -119,10 +123,8 @@ Regs* Regs::CreateFromLocal() {
+   regs = new RegsX86();
+ #elif defined(__x86_64__)
+   regs = new RegsX86_64();
+-#elif defined(__mips__) && !defined(__LP64__)
+-  regs = new RegsMips();
+-#elif defined(__mips__) && defined(__LP64__)
+-  regs = new RegsMips64();
++#elif defined(__riscv)
++  regs = new RegsRiscv64();
+ #else
+   abort();
+ #endif
+diff --git a/libunwindstack/RegsRiscv64.cpp b/libunwindstack/RegsRiscv64.cpp
+new file mode 100644
+index 000000000..93c4ffe49
+--- /dev/null
++++ b/libunwindstack/RegsRiscv64.cpp
+@@ -0,0 +1,152 @@
++/*
++ * Copyright (C) 2016 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++#include <stdint.h>
++#include <string.h>
++
++#include <functional>
++
++#include <unwindstack/Elf.h>
++#include <unwindstack/MachineRiscv64.h>
++#include <unwindstack/MapInfo.h>
++#include <unwindstack/Memory.h>
++#include <unwindstack/RegsRiscv64.h>
++#include <unwindstack/UcontextRiscv64.h>
++#include <unwindstack/UserRiscv64.h>
++
++namespace unwindstack {
++
++RegsRiscv64::RegsRiscv64()
++    : RegsImpl<uint64_t>(RISCV64_REG_MAX, Location(LOCATION_REGISTER, RISCV64_REG_RA)) {}
++
++ArchEnum RegsRiscv64::Arch() {
++  return ARCH_RISCV64;
++}
++
++uint64_t RegsRiscv64::pc() {
++  return regs_[RISCV64_REG_PC];
++}
++
++uint64_t RegsRiscv64::sp() {
++  return regs_[RISCV64_REG_SP];
++}
++
++void RegsRiscv64::set_pc(uint64_t pc) {
++  regs_[RISCV64_REG_PC] = pc;
++}
++
++void RegsRiscv64::set_sp(uint64_t sp) {
++  regs_[RISCV64_REG_SP] = sp;
++}
++
++uint64_t RegsRiscv64::GetPcAdjustment(uint64_t rel_pc, Elf*elf) {
++  if (rel_pc < 4) {
++    return 0;
++  }
++  return 4;
++}
++
++bool RegsRiscv64::SetPcFromReturnAddress(Memory*) {
++  uint64_t ra = regs_[RISCV64_REG_RA];
++  if (regs_[RISCV64_REG_PC] == ra) {
++    return false;
++  }
++
++  regs_[RISCV64_REG_PC] = ra;
++  return true;
++}
++
++void RegsRiscv64::IterateRegisters(std::function<void(const char*, uint64_t)> fn) {
++  fn("pc", regs_[RISCV64_REG_PC]);
++  fn("ra", regs_[RISCV64_REG_RA]);
++  fn("sp", regs_[RISCV64_REG_SP]);
++  fn("gp", regs_[RISCV64_REG_GP]);
++  fn("tp", regs_[RISCV64_REG_TP]);
++  fn("t0", regs_[RISCV64_REG_T0]);
++  fn("t1", regs_[RISCV64_REG_T1]);
++  fn("t2", regs_[RISCV64_REG_T2]);
++  fn("s0", regs_[RISCV64_REG_S0]);
++  fn("s1", regs_[RISCV64_REG_S1]);
++  fn("a0", regs_[RISCV64_REG_A0]);
++  fn("a1", regs_[RISCV64_REG_A1]);
++  fn("a2", regs_[RISCV64_REG_A2]);
++  fn("a3", regs_[RISCV64_REG_A3]);
++  fn("a4", regs_[RISCV64_REG_A4]);
++  fn("a5", regs_[RISCV64_REG_A5]);
++  fn("a6", regs_[RISCV64_REG_A6]);
++  fn("a7", regs_[RISCV64_REG_A7]);
++  fn("s2", regs_[RISCV64_REG_S2]);
++  fn("s3", regs_[RISCV64_REG_S3]);
++  fn("s4", regs_[RISCV64_REG_S4]);
++  fn("s5", regs_[RISCV64_REG_S5]);
++  fn("s6", regs_[RISCV64_REG_S6]);
++  fn("s7", regs_[RISCV64_REG_S7]);
++  fn("s8", regs_[RISCV64_REG_S8]);
++  fn("s9", regs_[RISCV64_REG_S9]);
++  fn("s10", regs_[RISCV64_REG_S10]);
++  fn("s11", regs_[RISCV64_REG_S11]);
++  fn("t3", regs_[RISCV64_REG_T3]);
++  fn("t4", regs_[RISCV64_REG_T4]);
++  fn("t5", regs_[RISCV64_REG_T5]);
++  fn("t6", regs_[RISCV64_REG_T6]);
++}
++
++Regs* RegsRiscv64::Read(void* remote_data) {
++  riscv64_user_regs* user = reinterpret_cast<riscv64_user_regs*>(remote_data);
++
++  RegsRiscv64* regs = new RegsRiscv64();
++  memcpy(regs->RawData(), &user->regs[0], RISCV64_REG_MAX * sizeof(uint64_t));
++  uint64_t* reg_data = reinterpret_cast<uint64_t*>(regs->RawData());
++  return regs;
++}
++
++Regs* RegsRiscv64::CreateFromUcontext(void* ucontext) {
++  riscv64_ucontext_t* riscv64_ucontext = reinterpret_cast<riscv64_ucontext_t*>(ucontext);
++
++  RegsRiscv64* regs = new RegsRiscv64();
++  memcpy(regs->RawData(), &riscv64_ucontext->uc_mcontext.regs[0], RISCV64_REG_MAX * sizeof(uint64_t));
++  return regs;
++}
++
++bool RegsRiscv64::StepIfSignalHandler(uint64_t elf_offset, Elf* elf, Memory* process_memory) {
++  uint64_t data;
++  Memory* elf_memory = elf->memory();
++  // Read from elf memory since it is usually more expensive to read from
++  // process memory.
++  if (!elf_memory->ReadFully(elf_offset, &data, sizeof(data))) {
++    return false;
++  }
++#if 1 // guoren debug
++  // Look for the kernel sigreturn function.
++  // __kernel_rt_sigreturn:
++  if (data != 0xd4000001d2801168ULL) {
++    return false;
++  }
++#endif
++
++  // SP + sizeof(siginfo_t) + uc_mcontext offset + X0 offset.
++  if (!process_memory->ReadFully(regs_[RISCV64_REG_SP] + 0x80 + 0xb0 + 0x08, regs_.data(),
++                                 sizeof(uint64_t) * RISCV64_REG_MAX)) {
++    return false;
++  }
++  return true;
++}
++
++Regs* RegsRiscv64::Clone() {
++  return new RegsRiscv64(*this);
++}
++
++}  // namespace unwindstack
+diff --git a/libunwindstack/include/unwindstack/Elf.h b/libunwindstack/include/unwindstack/Elf.h
+index 56bf318c8..faac84c90 100644
+--- a/libunwindstack/include/unwindstack/Elf.h
++++ b/libunwindstack/include/unwindstack/Elf.h
+@@ -32,6 +32,10 @@
+ #define EM_AARCH64 183
+ #endif
+ 
++#if !defined(EM_RISCV64)
++#define EM_RISCV64 243
++#endif
++
+ namespace unwindstack {
+ 
+ // Forward declaration.
+@@ -46,6 +50,7 @@ enum ArchEnum : uint8_t {
+   ARCH_X86_64,
+   ARCH_MIPS,
+   ARCH_MIPS64,
++  ARCH_RISCV64,
+ };
+ 
+ class Elf {
+diff --git a/libunwindstack/include/unwindstack/MachineRiscv64.h b/libunwindstack/include/unwindstack/MachineRiscv64.h
+new file mode 100644
+index 000000000..3c9db72dc
+--- /dev/null
++++ b/libunwindstack/include/unwindstack/MachineRiscv64.h
+@@ -0,0 +1,62 @@
++/*
++ * Copyright (C) 2017 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++#ifndef _LIBUNWINDSTACK_MACHINE_RISCV64_H
++#define _LIBUNWINDSTACK_MACHINE_RISCV64_H
++
++#include <stdint.h>
++
++namespace unwindstack {
++
++enum Riscv64Reg : uint16_t {
++  RISCV64_REG_PC,
++  RISCV64_REG_RA,
++  RISCV64_REG_SP,
++  RISCV64_REG_GP,
++  RISCV64_REG_TP,
++  RISCV64_REG_T0,
++  RISCV64_REG_T1,
++  RISCV64_REG_T2,
++  RISCV64_REG_S0,
++  RISCV64_REG_S1,
++  RISCV64_REG_A0,
++  RISCV64_REG_A1,
++  RISCV64_REG_A2,
++  RISCV64_REG_A3,
++  RISCV64_REG_A4,
++  RISCV64_REG_A5,
++  RISCV64_REG_A6,
++  RISCV64_REG_A7,
++  RISCV64_REG_S2,
++  RISCV64_REG_S3,
++  RISCV64_REG_S4,
++  RISCV64_REG_S5,
++  RISCV64_REG_S6,
++  RISCV64_REG_S7,
++  RISCV64_REG_S8,
++  RISCV64_REG_S9,
++  RISCV64_REG_S10,
++  RISCV64_REG_S11,
++  RISCV64_REG_T3,
++  RISCV64_REG_T4,
++  RISCV64_REG_T5,
++  RISCV64_REG_T6,
++  RISCV64_REG_MAX,
++};
++
++}  // namespace unwindstack
++
++#endif  // _LIBUNWINDSTACK_MACHINE_RISCV64_H
+diff --git a/libunwindstack/include/unwindstack/RegsGetLocal.h b/libunwindstack/include/unwindstack/RegsGetLocal.h
+index f0b5e3a1d..698eba229 100644
+--- a/libunwindstack/include/unwindstack/RegsGetLocal.h
++++ b/libunwindstack/include/unwindstack/RegsGetLocal.h
+@@ -81,6 +81,49 @@ inline __attribute__((__always_inline__)) void AsmGetRegs(void* reg_data) {
+       : "x12", "x13", "memory");
+ }
+ 
++#elif defined(__riscv)
++
++inline __attribute__((__always_inline__)) void AsmGetRegs(void* reg_data) {
++  asm volatile(
++      "1:\n"
++      "sd ra, 8(%[base])\n"
++      "sd sp, 16(%[base])\n"
++      "sd gp, 24(%[base])\n"
++      "sd tp, 32(%[base])\n"
++      "sd t0, 40(%[base])\n"
++      "sd t1, 48(%[base])\n"
++      "sd t2, 56(%[base])\n"
++      "sd s0, 64(%[base])\n"
++      "sd s1, 72(%[base])\n"
++      "sd a0, 80(%[base])\n"
++      "sd a1, 88(%[base])\n"
++      "sd a2, 96(%[base])\n"
++      "sd a3, 104(%[base])\n"
++      "sd a4, 112(%[base])\n"
++      "sd a5, 120(%[base])\n"
++      "sd a6, 128(%[base])\n"
++      "sd a7, 136(%[base])\n"
++      "sd s2, 144(%[base])\n"
++      "sd s3, 152(%[base])\n"
++      "sd s4, 160(%[base])\n"
++      "sd s5, 168(%[base])\n"
++      "sd s6, 176(%[base])\n"
++      "sd s7, 184(%[base])\n"
++      "sd s8, 192(%[base])\n"
++      "sd s9, 200(%[base])\n"
++      "sd s10, 208(%[base])\n"
++      "sd s11, 216(%[base])\n"
++      "sd t3, 224(%[base])\n"
++      "sd t4, 232(%[base])\n"
++      "sd t5, 240(%[base])\n"
++      "sd t6, 248(%[base])\n"
++      "la t1, 1b\n"
++      "sd t1, 0(%[base])\n"
++      : [base] "+r"(reg_data)
++      :
++      : "t1", "memory");
++}
++
+ #elif defined(__i386__) || defined(__x86_64__) || defined(__mips__)
+ 
+ extern "C" void AsmGetRegs(void* regs);
+diff --git a/libunwindstack/include/unwindstack/RegsRiscv64.h b/libunwindstack/include/unwindstack/RegsRiscv64.h
+new file mode 100644
+index 000000000..1764a40b6
+--- /dev/null
++++ b/libunwindstack/include/unwindstack/RegsRiscv64.h
+@@ -0,0 +1,62 @@
++/*
++ * Copyright (C) 2016 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++#ifndef _LIBUNWINDSTACK_REGS_RISCV64_H
++#define _LIBUNWINDSTACK_REGS_RISCV64_H
++
++#include <stdint.h>
++
++#include <functional>
++
++#include <unwindstack/Elf.h>
++#include <unwindstack/Regs.h>
++
++namespace unwindstack {
++
++// Forward declarations.
++class Memory;
++
++class RegsRiscv64 : public RegsImpl<uint64_t> {
++ public:
++  RegsRiscv64();
++  virtual ~RegsRiscv64() = default;
++
++  ArchEnum Arch() override final;
++
++  uint64_t GetPcAdjustment(uint64_t rel_pc, Elf* elf) override;
++
++  bool SetPcFromReturnAddress(Memory* process_memory) override;
++
++  bool StepIfSignalHandler(uint64_t elf_offset, Elf* elf, Memory* process_memory) override;
++
++  void IterateRegisters(std::function<void(const char*, uint64_t)>) override final;
++
++  uint64_t pc() override;
++  uint64_t sp() override;
++
++  void set_pc(uint64_t pc) override;
++  void set_sp(uint64_t sp) override;
++
++  Regs* Clone() override final;
++
++  static Regs* Read(void* data);
++
++  static Regs* CreateFromUcontext(void* ucontext);
++};
++
++}  // namespace unwindstack
++
++#endif  // _LIBUNWINDSTACK_REGS_RISCV64_H
+diff --git a/libunwindstack/include/unwindstack/UcontextRiscv64.h b/libunwindstack/include/unwindstack/UcontextRiscv64.h
+new file mode 100644
+index 000000000..d499b6aee
+--- /dev/null
++++ b/libunwindstack/include/unwindstack/UcontextRiscv64.h
+@@ -0,0 +1,91 @@
++/*
++ * Copyright (C) 2016 The Android Open Source Project
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ *  * Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ *  * Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in
++ *    the documentation and/or other materials provided with the
++ *    distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
++ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
++ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
++ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
++ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
++ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
++ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
++ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
++ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ */
++
++#ifndef _LIBUNWINDSTACK_UCONTEXT_RISCV64_H
++#define _LIBUNWINDSTACK_UCONTEXT_RISCV64_H
++
++#include <stdint.h>
++
++#include <unwindstack/MachineRiscv64.h>
++
++namespace unwindstack {
++
++struct __riscv_mc_f_ext_state {
++  unsigned int __f[32];
++  unsigned int __fcsr;
++};
++
++struct __riscv_mc_d_ext_state {
++  unsigned long long int __f[32];
++  unsigned int __fcsr;
++};
++
++struct __riscv_mc_q_ext_state {
++  unsigned long long int __f[64] __attribute__ ((__aligned__ (16)));
++  unsigned int __fcsr;
++  /* Reserved for expansion of sigcontext structure.  Currently zeroed
++     upon signal, and must be zero upon sigreturn.  */
++  unsigned int __glibc_reserved[3];
++};
++
++union __riscv_mc_fp_state {
++  struct __riscv_mc_f_ext_state __f;
++  struct __riscv_mc_d_ext_state __d;
++  struct __riscv_mc_q_ext_state __q;
++};
++
++struct riscv64_stack_t {
++  uint64_t ss_sp;    // void __user*
++  int32_t ss_flags;  // int
++  uint64_t ss_size;  // size_t
++};
++
++struct riscv64_sigset_t {
++  uint64_t sig;  // unsigned long
++};
++
++struct riscv64_mcontext_t {
++  uint64_t regs[RISCV64_REG_MAX];  // __u64
++  union  __riscv_mc_fp_state __fpregs;
++};
++
++struct riscv64_ucontext_t {
++  uint64_t uc_flags;  // unsigned long
++  uint64_t uc_link;   // struct ucontext*
++  riscv64_stack_t uc_stack;
++  riscv64_sigset_t uc_sigmask;
++  // The kernel adds extra padding after uc_sigmask to match glibc sigset_t on RISCV64.
++  char __glibc_reserved[1024 / 8 - sizeof (sigset_t)];
++  // The full structure requires 16 byte alignment, but our partial structure
++  // doesn't, so force the alignment.
++  riscv64_mcontext_t uc_mcontext __attribute__((aligned(16)));
++};
++
++}  // namespace unwindstack
++
++#endif  // _LIBUNWINDSTACK_UCONTEXT_RISCV64_H
+diff --git a/libunwindstack/include/unwindstack/UserRiscv64.h b/libunwindstack/include/unwindstack/UserRiscv64.h
+new file mode 100644
+index 000000000..76239686b
+--- /dev/null
++++ b/libunwindstack/include/unwindstack/UserRiscv64.h
+@@ -0,0 +1,40 @@
++/*
++ * Copyright (C) 2016 The Android Open Source Project
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ *  * Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ *  * Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in
++ *    the documentation and/or other materials provided with the
++ *    distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
++ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
++ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
++ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
++ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
++ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
++ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
++ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
++ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ */
++
++#ifndef _LIBUNWINDSTACK_USER_RISCV64_H
++#define _LIBUNWINDSTACK_USER_RISCV64_H
++
++namespace unwindstack {
++
++struct riscv64_user_regs {
++  uint64_t regs[32];
++};
++
++}  // namespace unwindstack
++
++#endif  // _LIBUNWINDSTACK_USER_RISCV64_H
+diff --git a/libunwindstack/tests/ElfTest.cpp b/libunwindstack/tests/ElfTest.cpp
+index c432d6d4f..c9272c3e1 100644
+--- a/libunwindstack/tests/ElfTest.cpp
++++ b/libunwindstack/tests/ElfTest.cpp
+@@ -162,7 +162,7 @@ TEST_F(ElfTest, elf64_invalid_machine) {
+   ASSERT_FALSE(elf.Init());
+ 
+   ASSERT_EQ("", GetFakeLogBuf());
+-  ASSERT_EQ("4 unwind 64 bit elf that is neither aarch64 nor x86_64 nor mips64: e_machine = 21\n\n",
++  ASSERT_EQ("4 unwind 64 bit elf that is none of aarch64|x86_64|mips64|riscv64: e_machine = 21\n\n",
+             GetFakeLogPrint());
+ }
+ 
+@@ -214,6 +214,18 @@ TEST_F(ElfTest, elf_arm64) {
+   ASSERT_TRUE(elf.interface() != nullptr);
+ }
+ 
++TEST_F(ElfTest, elf_riscv64) {
++  Elf elf(memory_);
++
++  InitElf64(EM_RISCV64);
++
++  ASSERT_TRUE(elf.Init());
++  ASSERT_TRUE(elf.valid());
++  ASSERT_EQ(static_cast<uint32_t>(EM_RISCV64), elf.machine_type());
++  ASSERT_EQ(ELFCLASS64, elf.class_type());
++  ASSERT_TRUE(elf.interface() != nullptr);
++}
++
+ TEST_F(ElfTest, elf_x86_64) {
+   Elf elf(memory_);
+ 
+diff --git a/libunwindstack/tests/RegsIterateTest.cpp b/libunwindstack/tests/RegsIterateTest.cpp
+index 9a27dbd21..67c5537e1 100644
+--- a/libunwindstack/tests/RegsIterateTest.cpp
++++ b/libunwindstack/tests/RegsIterateTest.cpp
+@@ -30,6 +30,7 @@
+ #include <unwindstack/MachineMips64.h>
+ #include <unwindstack/MachineX86.h>
+ #include <unwindstack/MachineX86_64.h>
++#include <unwindstack/MachineRiscv64.h>
+ #include <unwindstack/MapInfo.h>
+ #include <unwindstack/RegsArm.h>
+ #include <unwindstack/RegsArm64.h>
+@@ -37,6 +38,7 @@
+ #include <unwindstack/RegsMips64.h>
+ #include <unwindstack/RegsX86.h>
+ #include <unwindstack/RegsX86_64.h>
++#include <unwindstack/RegsRiscv64.h>
+ 
+ namespace unwindstack {
+ 
+@@ -235,7 +237,46 @@ std::vector<Register> ExpectedRegisters<RegsMips64>() {
+   return result;
+ }
+ 
+-using RegTypes = ::testing::Types<RegsArm, RegsArm64, RegsX86, RegsX86_64, RegsMips, RegsMips64>;
++template<>
++std::vector<Register> ExpectedRegisters<RegsRiscv64>() {
++  std::vector<Register> result;
++  result.push_back({"pc", RISCV64_REG_PC});
++  result.push_back({"ra", RISCV64_REG_RA});
++  result.push_back({"sp", RISCV64_REG_SP});
++  result.push_back({"gp", RISCV64_REG_GP});
++  result.push_back({"tp", RISCV64_REG_TP});
++  result.push_back({"t0", RISCV64_REG_T0});
++  result.push_back({"t1", RISCV64_REG_T1});
++  result.push_back({"t2", RISCV64_REG_T2});
++  result.push_back({"s0", RISCV64_REG_S0});
++  result.push_back({"s1", RISCV64_REG_S1});
++  result.push_back({"a0", RISCV64_REG_A0});
++  result.push_back({"a1", RISCV64_REG_A1});
++  result.push_back({"a2", RISCV64_REG_A2});
++  result.push_back({"a3", RISCV64_REG_A3});
++  result.push_back({"a4", RISCV64_REG_A4});
++  result.push_back({"a5", RISCV64_REG_A5});
++  result.push_back({"a6", RISCV64_REG_A6});
++  result.push_back({"a7", RISCV64_REG_A7});
++  result.push_back({"s2", RISCV64_REG_S2});
++  result.push_back({"s3", RISCV64_REG_S3});
++  result.push_back({"s4", RISCV64_REG_S4});
++  result.push_back({"s5", RISCV64_REG_S5});
++  result.push_back({"s6", RISCV64_REG_S6});
++  result.push_back({"s7", RISCV64_REG_S7});
++  result.push_back({"s8", RISCV64_REG_S8});
++  result.push_back({"s9", RISCV64_REG_S9});
++  result.push_back({"s10", RISCV64_REG_S10});
++  result.push_back({"s11", RISCV64_REG_S11});
++  result.push_back({"t3", RISCV64_REG_T3});
++  result.push_back({"t4", RISCV64_REG_T4});
++  result.push_back({"t5", RISCV64_REG_T5});
++  result.push_back({"t6", RISCV64_REG_T6});
++
++  return result;
++}
++
++using RegTypes = ::testing::Types<RegsArm, RegsArm64, RegsX86, RegsX86_64, RegsMips, RegsMips64, RegsRiscv64>;
+ TYPED_TEST_CASE(RegsIterateTest, RegTypes);
+ 
+ TYPED_TEST(RegsIterateTest, iterate) {
+diff --git a/libunwindstack/tests/RegsStepIfSignalHandlerTest.cpp b/libunwindstack/tests/RegsStepIfSignalHandlerTest.cpp
+index eac12ca64..45181ba10 100644
+--- a/libunwindstack/tests/RegsStepIfSignalHandlerTest.cpp
++++ b/libunwindstack/tests/RegsStepIfSignalHandlerTest.cpp
+@@ -25,12 +25,14 @@
+ #include <unwindstack/MachineMips64.h>
+ #include <unwindstack/MachineX86.h>
+ #include <unwindstack/MachineX86_64.h>
++#include <unwindstack/MachineRiscv64.h>
+ #include <unwindstack/RegsArm.h>
+ #include <unwindstack/RegsArm64.h>
+ #include <unwindstack/RegsMips.h>
+ #include <unwindstack/RegsMips64.h>
+ #include <unwindstack/RegsX86.h>
+ #include <unwindstack/RegsX86_64.h>
++#include <unwindstack/RegsRiscv64.h>
+ 
+ #include "MemoryFake.h"
+ 
+@@ -130,6 +132,25 @@ TEST_F(RegsStepIfSignalHandlerTest, arm64_step_if_signal_handler) {
+   EXPECT_EQ(0x470U, regs.pc());
+ }
+ 
++TEST_F(RegsStepIfSignalHandlerTest, riscv64_step_if_signal_handler) {
++  uint64_t addr = 0x1000;
++  RegsRiscv64 regs;
++  regs[RISCV64_REG_PC] = 0x8000;
++  regs[RISCV64_REG_SP] = addr;
++
++  elf_memory_->SetData64(0x8000, 0xd4000001d2801168ULL);
++
++  for (uint64_t index = 0; index <= 100; index++) {
++    process_memory_.SetData64(addr + index * 8, index * 0x10);
++  }
++
++  ASSERT_TRUE(regs.StepIfSignalHandler(0x8000, elf_.get(), &process_memory_));
++  EXPECT_EQ(0x460U, regs[RISCV64_REG_SP]);
++  EXPECT_EQ(0x470U, regs[RISCV64_REG_PC]);
++  EXPECT_EQ(0x460U, regs.sp());
++  EXPECT_EQ(0x470U, regs.pc());
++}
++
+ TEST_F(RegsStepIfSignalHandlerTest, x86_step_if_signal_handler_no_siginfo) {
+   uint64_t addr = 0xa00;
+   RegsX86 regs;
+diff --git a/libunwindstack/tests/RegsTest.cpp b/libunwindstack/tests/RegsTest.cpp
+index 472d1cfa4..c5a32744d 100644
+--- a/libunwindstack/tests/RegsTest.cpp
++++ b/libunwindstack/tests/RegsTest.cpp
+@@ -27,6 +27,7 @@
+ #include <unwindstack/RegsX86_64.h>
+ #include <unwindstack/RegsMips.h>
+ #include <unwindstack/RegsMips64.h>
++#include <unwindstack/RegsRiscv64.h>
+ 
+ #include "ElfFake.h"
+ #include "MemoryFake.h"
+diff --git a/libunwindstack/tests/UnwinderTest.cpp b/libunwindstack/tests/UnwinderTest.cpp
+index 30e57a142..41bf88cd7 100644
+--- a/libunwindstack/tests/UnwinderTest.cpp
++++ b/libunwindstack/tests/UnwinderTest.cpp
+@@ -34,6 +34,7 @@
+ #include <unwindstack/RegsX86_64.h>
+ #include <unwindstack/RegsMips.h>
+ #include <unwindstack/RegsMips64.h>
++#include <unwindstack/RegsRiscv64.h>
+ #include <unwindstack/Unwinder.h>
+ 
+ #include "ElfFake.h"
+@@ -1378,6 +1379,11 @@ TEST_F(UnwinderTest, format_frame_by_arch) {
+   arm64->set_sp(0x10000);
+   reg_list.push_back(arm64);
+ 
++  RegsRiscv64* riscv64 = new RegsRiscv64;
++  riscv64->set_pc(0x2300);
++  riscv64->set_sp(0x10000);
++  reg_list.push_back(riscv64);
++
+   RegsX86* x86 = new RegsX86;
+   x86->set_pc(0x2300);
+   x86->set_sp(0x10000);
+@@ -1415,6 +1421,7 @@ TEST_F(UnwinderTest, format_frame_by_arch) {
+       case ARCH_ARM64:
+       case ARCH_X86_64:
+       case ARCH_MIPS64:
++      case ARCH_RISCV64:
+         expected = "  #00 pc 0000000000001300  /system/fake/libc.so (Frame0+10)";
+         break;
+       default:
+diff --git a/libunwindstack/tools/unwind.cpp b/libunwindstack/tools/unwind.cpp
+index 1812e5037..ae2089136 100644
+--- a/libunwindstack/tools/unwind.cpp
++++ b/libunwindstack/tools/unwind.cpp
+@@ -83,6 +83,9 @@ void DoUnwind(pid_t pid) {
+     case unwindstack::ARCH_MIPS64:
+       printf("mips64");
+       break;
++    case unwindstack::ARCH_RISCV64:
++      printf("riscv64");
++      break;
+     default:
+       printf("unknown\n");
+       return;
+diff --git a/libutils/include/utils/RefBase.h b/libutils/include/utils/RefBase.h
+index a105474bb..f3b193f4a 100644
+--- a/libutils/include/utils/RefBase.h
++++ b/libutils/include/utils/RefBase.h
+@@ -630,7 +630,7 @@ void wp<T>::clear()
+ {
+     if (m_ptr) {
+         m_refs->decWeak(this);
+-        m_refs = 0;
++        m_refs = nullptr;
+         m_ptr = 0;
+     }
+ }
+diff --git a/rootdir/init.rc b/rootdir/init.rc
+index 893998cee..dbb0b46b7 100644
+--- a/rootdir/init.rc
++++ b/rootdir/init.rc
+@@ -80,7 +80,18 @@ on init
+     chmod 0664 /dev/stune/top-app/tasks
+     chmod 0664 /dev/stune/rt/tasks
+ 
+-    # Create blkio group and apply initial settings.
++# Display socket
++    mkdir /dev/socket/pdx 0755 system system
++    mkdir /dev/socket/pdx/system 0755 system system
++    mkdir /dev/socket/pdx/system/buffer_hub 0755 system system
++    mkdir /dev/socket/pdx/system/performance 0755 system system
++    mkdir /dev/socket/pdx/system/vr 0755 system system
++    mkdir /dev/socket/pdx/system/vr/display 0755 system system
++    mkdir /dev/socket/pdx/system/vr/pose 0755 system system
++    mkdir /dev/socket/pdx/system/vr/sensors 0755 system system
++
++
++# Create blkio group and apply initial settings.
+     # This feature needs kernel to support it, and the
+     # device's init.rc must actually set the correct values.
+     mkdir /dev/blkio/background
+-- 
+2.18.4
+

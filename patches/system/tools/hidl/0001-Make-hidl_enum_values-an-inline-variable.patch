@@ -1,0 +1,48 @@
+From 7c778d492ca7c4165647139fddfd2cfffd002422 Mon Sep 17 00:00:00 2001
+From: Peter Collingbourne <pcc@google.com>
+Date: Thu, 6 Jun 2019 16:06:55 -0700
+Subject: [PATCH] Make hidl_enum_values an inline variable.
+
+It is an ODR violation to specialize a variable in more
+than one translation unit unless it is inline. See:
+https://en.cppreference.com/w/cpp/language/inline
+
+Newer versions of clang will emit the variable definition into each
+translation unit, resulting in duplicate symbol errors from the linker.
+
+Test: builds
+Change-Id: Ia8528a6583023f8146fa4f6c9c3c65074f39b366
+---
+ EnumType.cpp | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/EnumType.cpp b/EnumType.cpp
+index 32682645..9f808eaa 100644
+--- a/EnumType.cpp
++++ b/EnumType.cpp
+@@ -289,7 +289,12 @@ void EnumType::emitIteratorDeclaration(Formatter& out) const {
+         elementCount += type->mValues.size();
+     }
+ 
+-    out << "template<> constexpr std::array<" << getCppStackType() << ", " << elementCount
++    // TODO(pcc): Remove the pragmas once all users of the hidl headers have
++    // been moved to C++17.
++    out << "#pragma clang diagnostic push\n";
++    out << "#pragma clang diagnostic ignored \"-Wc++17-extensions\"\n";
++
++    out << "template<> inline constexpr std::array<" << getCppStackType() << ", " << elementCount
+         << "> hidl_enum_values<" << getCppStackType() << "> = ";
+     out.block([&] {
+         auto enumerators = typeChain();
+@@ -300,6 +305,8 @@ void EnumType::emitIteratorDeclaration(Formatter& out) const {
+             }
+         }
+     }) << ";\n";
++
++    out << "#pragma clang diagnostic pop\n";
+ }
+ 
+ void EnumType::emitEnumBitwiseOperator(
+-- 
+2.18.4
+

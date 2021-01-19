@@ -1,0 +1,42 @@
+From b0ab7ab834622275b8c1b4979dca9654ca0a551c Mon Sep 17 00:00:00 2001
+From: Peter Collingbourne <pcc@google.com>
+Date: Wed, 15 Jan 2020 17:04:15 -0800
+Subject: [PATCH] Change ConcurrentMap::setLocked() to take a const K& instead
+ of K&&.
+
+This allows const qualification to be implicitly added to pointers when
+converting them to the type of setLocked()'s first argument (this implicit
+conversion was for example being done here: [1]). Previously this was allowed,
+but a standards wording change adopted in newer versions of clang caused
+this to become forbidden. See [2] for details.
+
+The std::forward that was previously being applied to the first argument
+now has no effect, so it has been removed.
+
+[1] https://cs.android.com/android/platform/superproject/+/master:system/libhidl/transport/HidlBinderSupport.cpp;l=247
+[2] http://lists.llvm.org/pipermail/cfe-commits/Week-of-Mon-20191223/299934.html
+
+Bug: 145916209
+Change-Id: Id5aac7805ad2944f019cadc87159aaf817c3e3e4
+---
+ transport/include/hidl/ConcurrentMap.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/transport/include/hidl/ConcurrentMap.h b/transport/include/hidl/ConcurrentMap.h
+index 329752c..57b28c5 100644
+--- a/transport/include/hidl/ConcurrentMap.h
++++ b/transport/include/hidl/ConcurrentMap.h
+@@ -66,8 +66,8 @@ public:
+ 
+     std::unique_lock<std::mutex> lock() { return std::unique_lock<std::mutex>(mMutex); }
+ 
+-    void setLocked(K&& k, V&& v) { mMap[std::forward<K>(k)] = std::forward<V>(v); }
+-    void setLocked(K&& k, const V& v) { mMap[std::forward<K>(k)] = v; }
++    void setLocked(const K& k, V&& v) { mMap[k] = std::forward<V>(v); }
++    void setLocked(const K& k, const V& v) { mMap[k] = v; }
+ 
+     const V& getLocked(const K& k, const V& def) const {
+         const_iterator iter = mMap.find(k);
+-- 
+2.18.4
+

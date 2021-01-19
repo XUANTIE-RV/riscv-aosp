@@ -1,0 +1,587 @@
+From 922d3b9d208e974fdffca76d2913c30897074a3a Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sun, 17 Jan 2021 09:25:11 +0800
+Subject: [PATCH] Compile problem and timeout
+
+Change-Id: I4b844c3be4f220968fab0a8e12187ed062a59ca0
+---
+ Android.bp                                    |  2 +-
+ cmds/idmap2/Android.bp                        |  4 +-
+ cmds/statsd/Android.bp                        |  2 +-
+ cmds/statsd/src/external/Perfprofd.cpp        | 31 ++++----
+ libs/androidfw/Android.bp                     |  1 +
+ libs/hwui/Android.bp                          |  4 +-
+ packages/services/PacProcessor/Android.bp     | 23 ------
+ packages/services/PacProcessor/jni/Android.bp | 40 -----------
+ rs/jni/Android.mk                             | 70 +++++++++----------
+ .../java/com/android/server/Watchdog.java     |  2 +-
+ .../com/android/server/am/ActiveServices.java |  4 +-
+ .../server/am/ActivityManagerService.java     | 14 ++--
+ .../android/server/am/BroadcastConstants.java |  8 +--
+ .../android/server/job/JobServiceContext.java |  4 +-
+ .../policy/PermissionPolicyService.java       | 68 +++++++++---------
+ .../server/policy/PhoneWindowManager.java     |  6 +-
+ .../server/wm/ActivityStackSupervisor.java    |  6 +-
+ .../server/wm/ActivityTaskManagerService.java |  6 +-
+ 18 files changed, 117 insertions(+), 178 deletions(-)
+ delete mode 100644 packages/services/PacProcessor/Android.bp
+ delete mode 100644 packages/services/PacProcessor/jni/Android.bp
+
+diff --git a/Android.bp b/Android.bp
+index 16abdbf79de..cf52be21fcd 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -1287,7 +1287,7 @@ framework_docs_only_libs = [
+     "android-support-emoji",
+     "android-support-emoji-appcompat",
+     "android-support-emoji-bundled",
+-    "android-support-v8-renderscript",
++    //"android-support-v8-renderscript",
+     "android-support-multidex",
+     "android-support-multidex-instrumentation",
+ ]
+diff --git a/cmds/idmap2/Android.bp b/cmds/idmap2/Android.bp
+index 18d56fa87cc..3443e30674b 100644
+--- a/cmds/idmap2/Android.bp
++++ b/cmds/idmap2/Android.bp
+@@ -16,7 +16,7 @@ cc_defaults {
+     name: "idmap2_defaults",
+     tidy: true,
+     tidy_checks: [
+-        "modernize-*",
++        //FIXME: "modernize-*",
+         "-modernize-avoid-c-arrays",
+         "android-*",
+         "misc-*",
+@@ -24,7 +24,7 @@ cc_defaults {
+     ],
+     tidy_flags: [
+         "-system-headers",
+-        "-warnings-as-errors=*",
++        //"-warnings-as-errors=*",
+     ],
+ }
+ 
+diff --git a/cmds/statsd/Android.bp b/cmds/statsd/Android.bp
+index 6bedfcdfafa..48cda1627e8 100644
+--- a/cmds/statsd/Android.bp
++++ b/cmds/statsd/Android.bp
+@@ -110,7 +110,7 @@ cc_defaults {
+         "src/shell/ShellSubscriber.cpp",
+         "src/shell/shell_config.proto",
+ 
+-        ":perfprofd_aidl",
++        //":perfprofd_aidl",
+     ],
+ 
+     local_include_dirs: [
+diff --git a/cmds/statsd/src/external/Perfprofd.cpp b/cmds/statsd/src/external/Perfprofd.cpp
+index 1678f104a07..f669441109c 100644
+--- a/cmds/statsd/src/external/Perfprofd.cpp
++++ b/cmds/statsd/src/external/Perfprofd.cpp
+@@ -32,7 +32,7 @@
+ 
+ #include "frameworks/base/cmds/statsd/src/statsd_config.pb.h"  // Alert
+ 
+-#include "android/os/IPerfProfd.h"
++//#include "android/os/IPerfProfd.h"
+ 
+ namespace android {
+ namespace os {
+@@ -48,24 +48,25 @@ bool CollectPerfprofdTraceAndUploadToDropbox(const PerfprofdDetails& config,
+       return false;
+     }
+ 
+-    sp<IPerfProfd> service = interface_cast<IPerfProfd>(
+-        defaultServiceManager()->getService(android::String16("perfprofd")));
+-    if (service == NULL) {
+-      ALOGE("Could not find perfprofd service");
+-      return false;
+-    }
++    //sp<IPerfProfd> service = interface_cast<IPerfProfd>(
++    //    defaultServiceManager()->getService(android::String16("perfprofd")));
++    //if (service == NULL) {
++    //  ALOGE("Could not find perfprofd service");
++    //  return false;
++    //}
+ 
+-    auto* data = reinterpret_cast<const uint8_t*>(config.perfprofd_config().data());
+-    std::vector<uint8_t> proto_serialized(data, data + config.perfprofd_config().size());
++    //auto* data = reinterpret_cast<const uint8_t*>(config.perfprofd_config().data());
++    //std::vector<uint8_t> proto_serialized(data, data + config.perfprofd_config().size());
+ 
+-    // TODO: alert-id etc?
++    //// TODO: alert-id etc?
+ 
+-    binder::Status status = service->startProfilingProtobuf(proto_serialized);
+-    if (status.isOk()) {
+-      return true;
+-    }
++    //binder::Status status = service->startProfilingProtobuf(proto_serialized);
++    //if (status.isOk()) {
++    //  return true;
++    //}
+ 
+-    ALOGE("Error starting perfprofd profiling: %s", status.toString8().c_str());
++    //ALOGE("Error starting perfprofd profiling: %s", status.toString8().c_str());
++    ALOGE("Error starting perfprofd profiling: ");
+     return false;
+ }
+ 
+diff --git a/libs/androidfw/Android.bp b/libs/androidfw/Android.bp
+index eeaefc5b157..20f0ad58ba5 100644
+--- a/libs/androidfw/Android.bp
++++ b/libs/androidfw/Android.bp
+@@ -19,6 +19,7 @@ cc_defaults {
+     cflags: [
+         "-Werror",
+         "-Wunreachable-code",
++        "-Wno-tautological-overlap-compare",
+     ],
+     target: {
+         windows: {
+diff --git a/libs/hwui/Android.bp b/libs/hwui/Android.bp
+index ebba4cb79df..014ea9826ab 100644
+--- a/libs/hwui/Android.bp
++++ b/libs/hwui/Android.bp
+@@ -43,7 +43,7 @@ cc_defaults {
+     product_variables: {
+         eng: {
+             lto: {
+-                never: true,
++                never: false,
+             },
+         },
+     },
+@@ -134,7 +134,7 @@ cc_defaults {
+     target: {
+         android: {
+             lto: {
+-                thin: true,
++                thin: false,
+             },
+         },
+     },
+diff --git a/packages/services/PacProcessor/Android.bp b/packages/services/PacProcessor/Android.bp
+deleted file mode 100644
+index 93b2d956cf6..00000000000
+--- a/packages/services/PacProcessor/Android.bp
++++ /dev/null
+@@ -1,23 +0,0 @@
+-//
+-// Copyright (C) 2010 The Android Open Source Project
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//      http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-//
+-
+-android_app {
+-    name: "PacProcessor",
+-    srcs: ["src/**/*.java"],
+-    platform_apis: true,
+-    certificate: "platform",
+-    jni_libs: ["libjni_pacprocessor"],
+-}
+diff --git a/packages/services/PacProcessor/jni/Android.bp b/packages/services/PacProcessor/jni/Android.bp
+deleted file mode 100644
+index 2a94237f2ae..00000000000
+--- a/packages/services/PacProcessor/jni/Android.bp
++++ /dev/null
+@@ -1,40 +0,0 @@
+-//
+-// Copyright (C) 2013 The Android Open Source Project
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//      http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
+-//
+-
+-cc_library_shared {
+-    name: "libjni_pacprocessor",
+-
+-    srcs: [
+-        "jni_init.cpp",
+-        "com_android_pacprocessor_PacNative.cpp",
+-    ],
+-
+-    shared_libs: [
+-        "libandroidfw",
+-        "libandroid_runtime",
+-        "liblog",
+-        "libutils",
+-        "libnativehelper",
+-        "libpac",
+-    ],
+-
+-    cflags: [
+-        "-Wall",
+-        "-Werror",
+-        "-Wunused",
+-        "-Wunreachable-code",
+-    ],
+-}
+diff --git a/rs/jni/Android.mk b/rs/jni/Android.mk
+index 0854b958218..8cbc6a53eec 100644
+--- a/rs/jni/Android.mk
++++ b/rs/jni/Android.mk
+@@ -1,35 +1,35 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_SRC_FILES:= \
+-    android_renderscript_RenderScript.cpp
+-
+-LOCAL_SHARED_LIBRARIES := \
+-    libandroid \
+-    libandroid_runtime \
+-    libandroidfw \
+-    libnativehelper \
+-    libRS \
+-    libcutils \
+-    liblog \
+-    libhwui \
+-    libutils \
+-    libui \
+-    libgui \
+-    libjnigraphics
+-
+-LOCAL_HEADER_LIBRARIES := \
+-    libbase_headers
+-
+-LOCAL_C_INCLUDES += \
+-    $(JNI_H_INCLUDE) \
+-    frameworks/rs
+-
+-LOCAL_CFLAGS += -Wno-unused-parameter
+-LOCAL_CFLAGS += -Wall -Werror -Wunused -Wunreachable-code
+-
+-LOCAL_MODULE:= librs_jni
+-LOCAL_MODULE_TAGS := optional
+-LOCAL_REQUIRED_MODULES := libRS
+-
+-include $(BUILD_SHARED_LIBRARY)
++#LOCAL_PATH:= $(call my-dir)
++#include $(CLEAR_VARS)
++#
++#LOCAL_SRC_FILES:= \
++#    android_renderscript_RenderScript.cpp
++#
++#LOCAL_SHARED_LIBRARIES := \
++#    libandroid \
++#    libandroid_runtime \
++#    libandroidfw \
++#    libnativehelper \
++#    libRS \
++#    libcutils \
++#    liblog \
++#    libhwui \
++#    libutils \
++#    libui \
++#    libgui \
++#    libjnigraphics
++#
++#LOCAL_HEADER_LIBRARIES := \
++#    libbase_headers
++#
++#LOCAL_C_INCLUDES += \
++#    $(JNI_H_INCLUDE) \
++#    frameworks/rs
++#
++#LOCAL_CFLAGS += -Wno-unused-parameter
++#LOCAL_CFLAGS += -Wall -Werror -Wunused -Wunreachable-code
++#
++#LOCAL_MODULE:= librs_jni
++#LOCAL_MODULE_TAGS := optional
++#LOCAL_REQUIRED_MODULES := libRS
++#
++#include $(BUILD_SHARED_LIBRARY)
+diff --git a/services/core/java/com/android/server/Watchdog.java b/services/core/java/com/android/server/Watchdog.java
+index 4e416a27c8e..e8aa9ffdb52 100644
+--- a/services/core/java/com/android/server/Watchdog.java
++++ b/services/core/java/com/android/server/Watchdog.java
+@@ -73,7 +73,7 @@ public class Watchdog extends Thread {
+     //         can trigger the watchdog.
+     // Note 2: The debug value is already below the wait time in ZygoteConnection. Wrapped
+     //         applications may not work with a debug build. CTS will fail.
+-    static final long DEFAULT_TIMEOUT = DB ? 10*1000 : 60*1000;
++    static final long DEFAULT_TIMEOUT = 600000*1000;//DB ? 10*1000 : 60*1000;
+     static final long CHECK_INTERVAL = DEFAULT_TIMEOUT / 2;
+ 
+     // These are temporally ordered: larger values as lateness increases
+diff --git a/services/core/java/com/android/server/am/ActiveServices.java b/services/core/java/com/android/server/am/ActiveServices.java
+index 7bc2e6d647b..56f9927c252 100644
+--- a/services/core/java/com/android/server/am/ActiveServices.java
++++ b/services/core/java/com/android/server/am/ActiveServices.java
+@@ -122,14 +122,14 @@ public final class ActiveServices {
+     private static final boolean SHOW_DUNGEON_NOTIFICATION = false;
+ 
+     // How long we wait for a service to finish executing.
+-    static final int SERVICE_TIMEOUT = 20*1000;
++    static final int SERVICE_TIMEOUT = 60000*1000;
+ 
+     // How long we wait for a service to finish executing.
+     static final int SERVICE_BACKGROUND_TIMEOUT = SERVICE_TIMEOUT * 10;
+ 
+     // How long the startForegroundService() grace period is to get around to
+     // calling startForeground() before we ANR + stop it.
+-    static final int SERVICE_START_FOREGROUND_TIMEOUT = 10*1000;
++    static final int SERVICE_START_FOREGROUND_TIMEOUT = 10*10000;
+ 
+     final ActivityManagerService mAm;
+ 
+diff --git a/services/core/java/com/android/server/am/ActivityManagerService.java b/services/core/java/com/android/server/am/ActivityManagerService.java
+index 88c29987d1d..dc577077eaa 100644
+--- a/services/core/java/com/android/server/am/ActivityManagerService.java
++++ b/services/core/java/com/android/server/am/ActivityManagerService.java
+@@ -455,10 +455,10 @@ public class ActivityManagerService extends IActivityManager.Stub
+ 
+     // How long we wait for a launched process to attach to the activity manager
+     // before we decide it's never going to come up for real.
+-    static final int PROC_START_TIMEOUT = 10*1000;
++    static final int PROC_START_TIMEOUT = 10*1000*10000;
+     // How long we wait for an attached process to publish its content providers
+     // before we decide it must be hung.
+-    static final int CONTENT_PROVIDER_PUBLISH_TIMEOUT = 10*1000;
++    static final int CONTENT_PROVIDER_PUBLISH_TIMEOUT = 10*100000;
+ 
+     // How long we wait to kill an application zygote, after the last process using
+     // it has gone away.
+@@ -467,17 +467,17 @@ public class ActivityManagerService extends IActivityManager.Stub
+      * How long we wait for an provider to be published. Should be longer than
+      * {@link #CONTENT_PROVIDER_PUBLISH_TIMEOUT}.
+      */
+-    static final int CONTENT_PROVIDER_WAIT_TIMEOUT = 20 * 1000;
++    static final int CONTENT_PROVIDER_WAIT_TIMEOUT = 20 *1000 * 10000;
+ 
+     // How long we wait for a launched process to attach to the activity manager
+     // before we decide it's never going to come up for real, when the process was
+     // started with a wrapper for instrumentation (such as Valgrind) because it
+     // could take much longer than usual.
+-    static final int PROC_START_TIMEOUT_WITH_WRAPPER = 1200*1000;
++    static final int PROC_START_TIMEOUT_WITH_WRAPPER = 1200* 1000 *10000;
+ 
+     // How long we allow a receiver to run before giving up on it.
+-    static final int BROADCAST_FG_TIMEOUT = 10*1000;
+-    static final int BROADCAST_BG_TIMEOUT = 60*1000;
++    static final int BROADCAST_FG_TIMEOUT = 10* 1000 *10000;
++    static final int BROADCAST_BG_TIMEOUT = 60* 1000 * 10000;
+ 
+     public static final int MY_PID = myPid();
+ 
+@@ -545,7 +545,7 @@ public class ActivityManagerService extends IActivityManager.Stub
+     // the notification will not be legible to the user.
+     private static final int MAX_BUGREPORT_TITLE_SIZE = 50;
+ 
+-    private static final int NATIVE_DUMP_TIMEOUT_MS = 2000; // 2 seconds;
++    private static final int NATIVE_DUMP_TIMEOUT_MS = 5000; // 2 seconds;
+     private static final int JAVA_DUMP_MINIMUM_SIZE = 100; // 100 bytes.
+ 
+     OomAdjuster mOomAdjuster;
+diff --git a/services/core/java/com/android/server/am/BroadcastConstants.java b/services/core/java/com/android/server/am/BroadcastConstants.java
+index be17b1bc600..502de22c9aa 100644
+--- a/services/core/java/com/android/server/am/BroadcastConstants.java
++++ b/services/core/java/com/android/server/am/BroadcastConstants.java
+@@ -42,12 +42,12 @@ public class BroadcastConstants {
+             "bcast_allow_bg_activity_start_timeout";
+ 
+     // All time intervals are in milliseconds
+-    private static final long DEFAULT_TIMEOUT = 10_000;
+-    private static final long DEFAULT_SLOW_TIME = 5_000;
+-    private static final long DEFAULT_DEFERRAL = 5_000;
++    private static final long DEFAULT_TIMEOUT = 10_000_000;
++    private static final long DEFAULT_SLOW_TIME = 5_000_000;
++    private static final long DEFAULT_DEFERRAL = 5_000_000;
+     private static final float DEFAULT_DEFERRAL_DECAY_FACTOR = 0.75f;
+     private static final long DEFAULT_DEFERRAL_FLOOR = 0;
+-    private static final long DEFAULT_ALLOW_BG_ACTIVITY_START_TIMEOUT = 10_000;
++    private static final long DEFAULT_ALLOW_BG_ACTIVITY_START_TIMEOUT = 10_000_000;
+ 
+     // All time constants are in milliseconds
+ 
+diff --git a/services/core/java/com/android/server/job/JobServiceContext.java b/services/core/java/com/android/server/job/JobServiceContext.java
+index 7da128f9d3e..63535bc712b 100644
+--- a/services/core/java/com/android/server/job/JobServiceContext.java
++++ b/services/core/java/com/android/server/job/JobServiceContext.java
+@@ -74,9 +74,9 @@ public final class JobServiceContext implements ServiceConnection {
+     /** Amount of time a job is allowed to execute for before being considered timed-out. */
+     public static final long EXECUTING_TIMESLICE_MILLIS = 10 * 60 * 1000;  // 10mins.
+     /** Amount of time the JobScheduler waits for the initial service launch+bind. */
+-    private static final long OP_BIND_TIMEOUT_MILLIS = 18 * 1000;
++    private static final long OP_BIND_TIMEOUT_MILLIS = 18 * 1000 * 10;
+     /** Amount of time the JobScheduler will wait for a response from an app for a message. */
+-    private static final long OP_TIMEOUT_MILLIS = 8 * 1000;
++    private static final long OP_TIMEOUT_MILLIS = 8 * 1000 * 10;
+ 
+     private static final String[] VERB_STRINGS = {
+             "VERB_BINDING", "VERB_STARTING", "VERB_EXECUTING", "VERB_STOPPING", "VERB_FINISHED"
+diff --git a/services/core/java/com/android/server/policy/PermissionPolicyService.java b/services/core/java/com/android/server/policy/PermissionPolicyService.java
+index 3d543c96aac..340f0c415c9 100644
+--- a/services/core/java/com/android/server/policy/PermissionPolicyService.java
++++ b/services/core/java/com/android/server/policy/PermissionPolicyService.java
+@@ -275,40 +275,40 @@ public final class PermissionPolicyService extends SystemService {
+ 
+         final PackageManagerInternal packageManagerInternal = LocalServices.getService(
+                 PackageManagerInternal.class);
+-        if (packageManagerInternal.wereDefaultPermissionsGrantedSinceBoot(userId)) {
+-            if (DEBUG) Slog.i(LOG_TAG, "defaultPermsWereGrantedSinceBoot(" + userId + ")");
+-
+-            // Now call into the permission controller to apply policy around permissions
+-            final CountDownLatch latch = new CountDownLatch(1);
+-
+-            // We need to create a local manager that does not schedule work on the main
+-            // there as we are on the main thread and want to block until the work is
+-            // completed or we time out.
+-            final PermissionControllerManager permissionControllerManager =
+-                    new PermissionControllerManager(
+-                            getUserContext(getContext(), UserHandle.of(userId)),
+-                            FgThread.getHandler());
+-            permissionControllerManager.grantOrUpgradeDefaultRuntimePermissions(
+-                    FgThread.getExecutor(),
+-                    (Boolean success) -> {
+-                        if (!success) {
+-                            // We are in an undefined state now, let us crash and have
+-                            // rescue party suggest a wipe to recover to a good one.
+-                            final String message = "Error granting/upgrading runtime permissions";
+-                            Slog.wtf(LOG_TAG, message);
+-                            throw new IllegalStateException(message);
+-                        }
+-                        latch.countDown();
+-                    }
+-            );
+-            try {
+-                latch.await();
+-            } catch (InterruptedException e) {
+-                /* ignore */
+-            }
+-
+-            packageManagerInternal.setRuntimePermissionsFingerPrint(Build.FINGERPRINT, userId);
+-        }
++        //if (packageManagerInternal.wereDefaultPermissionsGrantedSinceBoot(userId)) {
++        //    if (DEBUG) Slog.i(LOG_TAG, "defaultPermsWereGrantedSinceBoot(" + userId + ")");
++
++        //    // Now call into the permission controller to apply policy around permissions
++        //    final CountDownLatch latch = new CountDownLatch(1);
++
++        //    // We need to create a local manager that does not schedule work on the main
++        //    // there as we are on the main thread and want to block until the work is
++        //    // completed or we time out.
++        //    final PermissionControllerManager permissionControllerManager =
++        //            new PermissionControllerManager(
++        //                    getUserContext(getContext(), UserHandle.of(userId)),
++        //                    FgThread.getHandler());
++        //    permissionControllerManager.grantOrUpgradeDefaultRuntimePermissions(
++        //            FgThread.getExecutor(),
++        //            (Boolean success) -> {
++        //                if (!success) {
++        //                    // We are in an undefined state now, let us crash and have
++        //                    // rescue party suggest a wipe to recover to a good one.
++        //                    final String message = "Error granting/upgrading runtime permissions";
++        //                    Slog.wtf(LOG_TAG, message);
++        //                    throw new IllegalStateException(message);
++        //                }
++        //                latch.countDown();
++        //            }
++        //    );
++        //    try {
++        //        latch.await();
++        //    } catch (InterruptedException e) {
++        //        /* ignore */
++        //    }
++
++        //    packageManagerInternal.setRuntimePermissionsFingerPrint(Build.FINGERPRINT, userId);
++        //}
+     }
+ 
+     private static @Nullable Context getUserContext(@NonNull Context context,
+diff --git a/services/core/java/com/android/server/policy/PhoneWindowManager.java b/services/core/java/com/android/server/policy/PhoneWindowManager.java
+index da87b2f1994..f1e43dd0458 100644
+--- a/services/core/java/com/android/server/policy/PhoneWindowManager.java
++++ b/services/core/java/com/android/server/policy/PhoneWindowManager.java
+@@ -347,10 +347,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
+     private static final int USER_ACTIVITY_NOTIFICATION_DELAY = 200;
+ 
+     /** Amount of time (in milliseconds) to wait for windows drawn before powering on. */
+-    static final int WAITING_FOR_DRAWN_TIMEOUT = 1000;
++    static final int WAITING_FOR_DRAWN_TIMEOUT = 1000000;
+ 
+     /** Amount of time (in milliseconds) a toast window can be shown. */
+-    public static final int TOAST_WINDOW_TIMEOUT = 3500; // 3.5 seconds
++    public static final int TOAST_WINDOW_TIMEOUT = 3500000; // 3.5 seconds
+ 
+     /**
+      * Lock protecting internal state.  Must not call out into window
+@@ -4572,7 +4572,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
+         final boolean bootCompleted =
+                 LocalServices.getService(SystemServiceManager.class).isBootCompleted();
+         // Set longer timeout if it has not booted yet to prevent showing empty window.
+-        return bootCompleted ? 1000 : 5000;
++        return bootCompleted ? 1000000 : 5000000;
+     }
+ 
+     // Called on the DisplayManager's DisplayPowerController thread.
+diff --git a/services/core/java/com/android/server/wm/ActivityStackSupervisor.java b/services/core/java/com/android/server/wm/ActivityStackSupervisor.java
+index 19916bc617f..a00ac6ebfda 100644
+--- a/services/core/java/com/android/server/wm/ActivityStackSupervisor.java
++++ b/services/core/java/com/android/server/wm/ActivityStackSupervisor.java
+@@ -162,13 +162,13 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
+     static final String TAG_TASKS = TAG + POSTFIX_TASKS;
+ 
+     /** How long we wait until giving up on the last activity telling us it is idle. */
+-    static final int IDLE_TIMEOUT = 10 * 1000;
++    static final int IDLE_TIMEOUT = 10 * 1000 * 10;
+ 
+     /** How long we can hold the sleep wake lock before giving up. */
+-    static final int SLEEP_TIMEOUT = 5 * 1000;
++    static final int SLEEP_TIMEOUT = 5 * 1000 * 10;
+ 
+     // How long we can hold the launch wake lock before giving up.
+-    static final int LAUNCH_TIMEOUT = 10 * 1000;
++    static final int LAUNCH_TIMEOUT = 10 * 1000 * 10;
+ 
+     /** How long we wait until giving up on the activity telling us it released the top state. */
+     static final int TOP_RESUMED_STATE_LOSS_TIMEOUT = 500;
+diff --git a/services/core/java/com/android/server/wm/ActivityTaskManagerService.java b/services/core/java/com/android/server/wm/ActivityTaskManagerService.java
+index e2421d6d1a9..5b937684d7a 100644
+--- a/services/core/java/com/android/server/wm/ActivityTaskManagerService.java
++++ b/services/core/java/com/android/server/wm/ActivityTaskManagerService.java
+@@ -308,9 +308,9 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
+     private static final String TAG_CONFIGURATION = TAG + POSTFIX_CONFIGURATION;
+ 
+     // How long we wait until we timeout on key dispatching.
+-    public static final int KEY_DISPATCHING_TIMEOUT_MS = 5 * 1000;
++    public static final int KEY_DISPATCHING_TIMEOUT_MS = 5 * 1000 * 10000;
+     // How long we wait until we timeout on key dispatching during instrumentation.
+-    static final int INSTRUMENTATION_KEY_DISPATCHING_TIMEOUT_MS = 60 * 1000;
++    static final int INSTRUMENTATION_KEY_DISPATCHING_TIMEOUT_MS = 60 * 1000 * 10000;
+     // How long we permit background activity starts after an activity in the process
+     // started or finished.
+     static final long ACTIVITY_BG_START_GRACE_PERIOD_MS = 10 * 1000;
+@@ -421,7 +421,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
+     // #startActivityAsCaller.  A client is expected to dump its token after this time has elapsed,
+     // showing any appropriate error messages to the user.
+     private static final long START_AS_CALLER_TOKEN_TIMEOUT =
+-            10 * MINUTE_IN_MILLIS;
++            1000 * MINUTE_IN_MILLIS;
+ 
+     // How long before the service actually expires a token.  This is slightly longer than
+     // START_AS_CALLER_TOKEN_TIMEOUT, to provide a buffer so clients will rarely encounter the
+-- 
+2.18.4
+

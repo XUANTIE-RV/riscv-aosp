@@ -1,0 +1,18 @@
+From d85e45956a95b348b27278538e075346494689f9 Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sat, 16 Jan 2021 21:26:32 +0800
+Subject: [PATCH] Remove bp for riscv64
+
+Change-Id: Ia914be87b99a7cc865d0f9b582b1f731cacfa431
+---
+ src/quipper/{Android.bp => Android.bp.skip} | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ rename src/quipper/{Android.bp => Android.bp.skip} (100%)
+
+diff --git a/src/quipper/Android.bp b/src/quipper/Android.bp.skip
+similarity index 100%
+rename from src/quipper/Android.bp
+rename to src/quipper/Android.bp.skip
+-- 
+2.18.4
+

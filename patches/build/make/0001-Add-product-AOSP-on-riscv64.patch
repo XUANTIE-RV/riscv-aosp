@@ -1,0 +1,599 @@
+From 5eb7680bf598ee421bf71f5137e89954807acc8e Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Wed, 6 Jan 2021 14:11:20 +0800
+Subject: [PATCH] Add product AOSP on riscv64
+
+This patch adds a generic_riscv64 aosp product and some basic architecture
+support for riscv64, including toolchain defination, target variants and
+product configurations. Developers working on riscv can verify their app/
+design on emulator with this configuration.
+
+Signed-off-by: Mao Han <han_mao@linux.alibaba.com>
+Signed-off-by: Lifang Xia <lifang_xia@linux.alibaba.com>
+Change-Id: I21d27d3431c102eb8701e40d1f1d1baeb9973992
+---
+ core/binary.mk                              |  8 +--
+ core/build-system.html                      |  1 +
+ core/clang/TARGET_riscv64.mk                |  7 +++
+ core/combo/TARGET_linux-riscv64.mk          | 50 +++++++++++++++++
+ core/combo/arch/riscv64/riscv64.mk          |  0
+ core/config.mk                              |  4 ++
+ core/definitions.mk                         |  2 +-
+ envsetup.sh                                 |  5 +-
+ target/board/BoardConfigGsiCommon.mk        |  2 +-
+ target/board/generic_riscv64/BoardConfig.mk | 48 +++++++++++++++++
+ target/board/generic_riscv64/README.txt     |  5 ++
+ target/board/generic_riscv64/device.mk      | 19 +++++++
+ target/board/generic_riscv64/system.prop    |  5 ++
+ target/product/AndroidProducts.mk           |  3 ++
+ target/product/aosp_riscv64.mk              | 60 +++++++++++++++++++++
+ target/product/base_system.mk               | 11 ++--
+ target/product/gsi/29.txt                   |  6 ---
+ target/product/gsi_common.mk                |  4 +-
+ target/product/handheld_product.mk          |  6 ++-
+ target/product/handheld_system.mk           |  9 ++--
+ target/product/media_vendor.mk              |  3 +-
+ 21 files changed, 234 insertions(+), 24 deletions(-)
+ create mode 100644 core/clang/TARGET_riscv64.mk
+ create mode 100644 core/combo/TARGET_linux-riscv64.mk
+ create mode 100644 core/combo/arch/riscv64/riscv64.mk
+ create mode 100644 target/board/generic_riscv64/BoardConfig.mk
+ create mode 100644 target/board/generic_riscv64/README.txt
+ create mode 100644 target/board/generic_riscv64/device.mk
+ create mode 100644 target/board/generic_riscv64/system.prop
+ create mode 100644 target/product/aosp_riscv64.mk
+
+diff --git a/core/binary.mk b/core/binary.mk
+index 43063a8cc..b7fd514fa 100644
+--- a/core/binary.mk
++++ b/core/binary.mk
+@@ -132,7 +132,7 @@ ifneq ($(LOCAL_SDK_VERSION),)
+   endif
+ 
+   my_arch := $(TARGET_$(LOCAL_2ND_ARCH_VAR_PREFIX)ARCH)
+-  ifneq (,$(filter arm64 mips64 x86_64,$(my_arch)))
++  ifneq (,$(filter arm64 mips64 riscv64 x86_64,$(my_arch)))
+     my_min_sdk_version := 21
+   else
+     my_min_sdk_version := $(MIN_SUPPORTED_SDK_VERSION)
+@@ -589,7 +589,7 @@ endif
+ 
+ # Turn on all warnings and warnings as errors for RS compiles.
+ # This can be disabled with LOCAL_RENDERSCRIPT_FLAGS := -Wno-error
+-renderscript_flags := -Wall -Werror
++renderscript_flags := -Wall
+ renderscript_flags += $(LOCAL_RENDERSCRIPT_FLAGS)
+ # -m32 or -m64
+ renderscript_flags += -m$(my_32_64_bit_suffix)
+@@ -1470,7 +1470,7 @@ ifneq (HEADER_LIBRARIES,$(LOCAL_MODULE_CLASS))
+       ifeq (,$(filter -Werror,$(my_all_cflags)))
+         # Add -Wall -Werror unless the project is in the WARNING_ALLOWED project list.
+         ifeq (,$(strip $(call find_warning_allowed_projects,$(LOCAL_PATH))))
+-          my_cflags := -Wall -Werror $(my_cflags)
++          my_cflags := -Wall $(my_cflags)
+         else
+           $(eval MODULES_ADDED_WALL := $(MODULES_ADDED_WALL) $(LOCAL_MODULE_MAKEFILE):$(LOCAL_MODULE))
+           my_cflags := -Wall $(my_cflags)
+@@ -1602,7 +1602,7 @@ ifeq ($(my_use_clang_lld),true)
+   my_target_global_ldflags := $($(LOCAL_2ND_ARCH_VAR_PREFIX)CLANG_$(my_prefix)GLOBAL_LLDFLAGS)
+   include $(BUILD_SYSTEM)/pack_dyn_relocs_setup.mk
+   ifeq ($(my_pack_module_relocations),false)
+-    my_target_global_ldflags += -Wl,--pack-dyn-relocs=none
++    //my_target_global_ldflags += -Wl,--pack-dyn-relocs=none
+   endif
+ else
+   my_target_global_ldflags := $($(LOCAL_2ND_ARCH_VAR_PREFIX)CLANG_$(my_prefix)GLOBAL_LDFLAGS)
+diff --git a/core/build-system.html b/core/build-system.html
+index 3a11a477d..2f395aa9c 100644
+--- a/core/build-system.html
++++ b/core/build-system.html
+@@ -469,6 +469,7 @@ set to and some examples.</p>
+         arm64<br/>
+         mips<br/>
+         mips64<br/>
++        riscv64<br/>
+         x86<br/>
+         x86_64
+     </td>
+diff --git a/core/clang/TARGET_riscv64.mk b/core/clang/TARGET_riscv64.mk
+new file mode 100644
+index 000000000..bb42e4fe4
+--- /dev/null
++++ b/core/clang/TARGET_riscv64.mk
+@@ -0,0 +1,7 @@
++RS_TRIPLE := renderscript64-linux-android
++RS_TRIPLE_CFLAGS :=
++RS_COMPAT_TRIPLE := riscv64-linux-android
++
++# Address sanitizer clang config
++$(clang_2nd_arch_prefix)ADDRESS_SANITIZER_LINKER := /system/bin/linker_asan64
++$(clang_2nd_arch_prefix)ADDRESS_SANITIZER_LINKER_FILE := /system/bin/bootstrap/linker_asan64
+diff --git a/core/combo/TARGET_linux-riscv64.mk b/core/combo/TARGET_linux-riscv64.mk
+new file mode 100644
+index 000000000..d31781bd3
+--- /dev/null
++++ b/core/combo/TARGET_linux-riscv64.mk
+@@ -0,0 +1,50 @@
++#
++# Copyright (C) 2020 The Android Open Source Project
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++#
++
++# Configuration for Linux on RISC-V.
++# Included by combo/select.mk
++
++# You can set TARGET_ARCH_VARIANT to use an arch version other
++# than ARMv5TE. Each value should correspond to a file named
++# $(BUILD_COMBOS)/arch/<name>.mk which must contain
++# makefile variable definitions. Their
++# purpose is to allow module Android.mk files to selectively compile
++# different versions of code based upon the funtionality and
++# instructions available in a given architecture version.
++#
++# The blocks also define specific arch_variant_cflags, which
++# include defines, and compiler settings for the given architecture
++# version.
++#
++ifeq ($(strip $(TARGET_ARCH_VARIANT)),)
++TARGET_ARCH_VARIANT := imafdc
++endif
++
++TARGET_ARCH_SPECIFIC_MAKEFILE := $(BUILD_COMBOS)/arch/$(TARGET_ARCH)/$(TARGET_ARCH_VARIANT).mk
++ifeq ($(strip $(wildcard $(TARGET_ARCH_SPECIFIC_MAKEFILE))),)
++$(error Unknown RISC-V architecture version: $(TARGET_ARCH_VARIANT))
++endif
++
++#include $(TARGET_ARCH_SPECIFIC_MAKEFILE)
++#include $(BUILD_SYSTEM)/combo/fdo.mk
++#
++define $(combo_var_prefix)transform-shared-lib-to-toc
++$(call _gen_toc_command_for_elf,$(1),$(2))
++endef
++
++TARGET_PACK_MODULE_RELOCATIONS := true
++
++TARGET_LINKER := /system/bin/linker64
+diff --git a/core/combo/arch/riscv64/riscv64.mk b/core/combo/arch/riscv64/riscv64.mk
+new file mode 100644
+index 000000000..e69de29bb
+diff --git a/core/config.mk b/core/config.mk
+index 109957ff5..bf3508a8e 100644
+--- a/core/config.mk
++++ b/core/config.mk
+@@ -312,7 +312,11 @@ TARGET_PREFER_32_BIT_EXECUTABLES := true
+ endif
+ 
+ # GCC version selection
++ifeq ($(TARGET_ARCH),riscv64)
++TARGET_GCC_VERSION := 8.1
++else
+ TARGET_GCC_VERSION := 4.9
++endif
+ ifdef TARGET_2ND_ARCH
+ 2ND_TARGET_GCC_VERSION := 4.9
+ endif
+diff --git a/core/definitions.mk b/core/definitions.mk
+index 59aeb1663..727ff2e96 100644
+--- a/core/definitions.mk
++++ b/core/definitions.mk
+@@ -1785,8 +1785,8 @@ $(hide) $(PRIVATE_CXX) \
+ 	-Wl,--whole-archive \
+ 	$(PRIVATE_ALL_WHOLE_STATIC_LIBRARIES) \
+ 	-Wl,--no-whole-archive \
+-	$(filter-out %libcompiler_rt.hwasan.a %libc_nomalloc.hwasan.a %libc.hwasan.a %libcompiler_rt.a %libc_nomalloc.a %libc.a,$(PRIVATE_ALL_STATIC_LIBRARIES)) \
+ 	-Wl,--start-group \
++	$(filter-out %libcompiler_rt.hwasan.a %libc_nomalloc.hwasan.a %libc.hwasan.a %libcompiler_rt.a %libc_nomalloc.a %libc.a,$(PRIVATE_ALL_STATIC_LIBRARIES)) \
+ 	$(filter %libc.a %libc.hwasan.a,$(PRIVATE_ALL_STATIC_LIBRARIES)) \
+ 	$(filter %libc_nomalloc.a %libc_nomalloc.hwasan.a,$(PRIVATE_ALL_STATIC_LIBRARIES)) \
+ 	$(if $(filter true,$(NATIVE_COVERAGE)),$(PRIVATE_TARGET_COVERAGE_LIB)) \
+diff --git a/envsetup.sh b/envsetup.sh
+index 9e381a23e..106b1bffc 100644
+--- a/envsetup.sh
++++ b/envsetup.sh
+@@ -8,7 +8,7 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
+               Selects <product_name> as the product to build, and <build_variant> as the variant to
+               build, and stores those selections in the environment to be read by subsequent
+               invocations of 'm' etc.
+-- tapas:      tapas [<App1> <App2> ...] [arm|x86|mips|arm64|x86_64|mips64] [eng|userdebug|user]
++- tapas:      tapas [<App1> <App2> ...] [arm|x86|mips|arm64|x86_64|mips64|riscv64] [eng|userdebug|user]
+ - croot:      Changes directory to the top of the tree, or a subdirectory thereof.
+ - m:          Makes from the top of the tree.
+ - mm:         Builds all of the modules in the current directory, but not their dependencies.
+@@ -218,6 +218,8 @@ function setpaths()
+             ;;
+         mips|mips64) toolchaindir=mips/mips64el-linux-android-$targetgccversion/bin
+             ;;
++        riscv64) toolchaindir=riscv64/riscv64-linux-$targetgccversion/bin
++            ;;
+         *)
+             echo "Can't find toolchain for unknown architecture: $ARCH"
+             toolchaindir=xxxxxxxxx
+@@ -715,6 +717,7 @@ function tapas()
+       arm64)  product=aosp_arm64;;
+       x86_64) product=aosp_x86_64;;
+       mips64)  product=aosp_mips64;;
++      riscv64)  product=aosp_riscv64;;
+     esac
+     if [ -z "$variant" ]; then
+         variant=eng
+diff --git a/target/board/BoardConfigGsiCommon.mk b/target/board/BoardConfigGsiCommon.mk
+index 702ef3c66..40e3368c4 100644
+--- a/target/board/BoardConfigGsiCommon.mk
++++ b/target/board/BoardConfigGsiCommon.mk
+@@ -48,7 +48,7 @@ endif
+ # Set this to create /cache mount point for non-A/B devices that mounts /cache.
+ # The partition size doesn't matter, just to make build pass.
+ BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
+-BOARD_CACHEIMAGE_PARTITION_SIZE := 16777216
++BOARD_CACHEIMAGE_PARTITION_SIZE := 268435456
+ 
+ # Setup a vendor image to let PRODUCT_PROPERTY_OVERRIDES does not affect GSI
+ BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
+diff --git a/target/board/generic_riscv64/BoardConfig.mk b/target/board/generic_riscv64/BoardConfig.mk
+new file mode 100644
+index 000000000..e5c9cddc5
+--- /dev/null
++++ b/target/board/generic_riscv64/BoardConfig.mk
+@@ -0,0 +1,48 @@
++# Copyright (C) 2020 The Android Open Source Project
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++#
++
++# riscv64 emulator specific definitions
++TARGET_ARCH := riscv64
++TARGET_ARCH_VARIANT := riscv64
++TARGET_CPU_VARIANT := generic
++TARGET_CPU_ABI := riscv64
++
++include build/make/target/board/BoardConfigGsiCommon.mk
++include build/make/target/board/BoardConfigEmuCommon.mk
++
++BOARD_USERDATAIMAGE_PARTITION_SIZE := 576716800
++
++# Emulator system image is going to be used as GSI and some vendor still hasn't
++# cleaned up all device specific directories under root!
++
++# TODO(b/111434759, b/111287060) SoC specific hacks
++#BOARD_ROOT_EXTRA_SYMLINKS += /vendor/lib/dsp:/dsp
++#BOARD_ROOT_EXTRA_SYMLINKS += /mnt/vendor/persist:/persist
++#BOARD_ROOT_EXTRA_SYMLINKS += /vendor/firmware_mnt:/firmware
++
++# TODO(b/36764215): remove this setting when the generic system image
++# no longer has QCOM-specific directories under /.
++BOARD_SEPOLICY_DIRS += build/target/board/generic_riscv64_ab/sepolicy
++
++# Wifi.
++BOARD_WLAN_DEVICE           := emulator
++BOARD_HOSTAPD_DRIVER        := NL80211
++BOARD_WPA_SUPPLICANT_DRIVER := NL80211
++BOARD_HOSTAPD_PRIVATE_LIB   := lib_driver_cmd_simulated
++BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_simulated
++WPA_SUPPLICANT_VERSION      := VER_0_8_X
++WIFI_DRIVER_FW_PATH_PARAM   := "/dev/null"
++WIFI_DRIVER_FW_PATH_STA     := "/dev/null"
++WIFI_DRIVER_FW_PATH_AP      := "/dev/null"
+diff --git a/target/board/generic_riscv64/README.txt b/target/board/generic_riscv64/README.txt
+new file mode 100644
+index 000000000..e6cf3da17
+--- /dev/null
++++ b/target/board/generic_riscv64/README.txt
+@@ -0,0 +1,5 @@
++The "generic_riscv64" product defines a non-hardware-specific riscv64 target
++without a kernel or bootloader.
++
++It is not a product "base class"; no other products inherit
++from it or use it in any way.
+diff --git a/target/board/generic_riscv64/device.mk b/target/board/generic_riscv64/device.mk
+new file mode 100644
+index 000000000..e5d8e61d0
+--- /dev/null
++++ b/target/board/generic_riscv64/device.mk
+@@ -0,0 +1,19 @@
++#
++# Copyright (C) 2013 The Android Open Source Project
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++#
++
++# Adjust the Dalvik heap to be appropriate for a tablet.
++$(call inherit-product-if-exists, frameworks/base/build/tablet-dalvik-heap.mk)
++$(call inherit-product-if-exists, frameworks/native/build/tablet-dalvik-heap.mk)
+diff --git a/target/board/generic_riscv64/system.prop b/target/board/generic_riscv64/system.prop
+new file mode 100644
+index 000000000..42c4ef520
+--- /dev/null
++++ b/target/board/generic_riscv64/system.prop
+@@ -0,0 +1,5 @@
++#
++# system.prop for generic riscv64 sdk
++#
++
++rild.libpath=/vendor/lib64/libreference-ril.so
+diff --git a/target/product/AndroidProducts.mk b/target/product/AndroidProducts.mk
+index cfb893082..a71f3208d 100644
+--- a/target/product/AndroidProducts.mk
++++ b/target/product/AndroidProducts.mk
+@@ -36,6 +36,7 @@ ifneq ($(TARGET_BUILD_APPS),)
+ PRODUCT_MAKEFILES := \
+     $(LOCAL_DIR)/aosp_arm64.mk \
+     $(LOCAL_DIR)/aosp_arm.mk \
++    $(LOCAL_DIR)/aosp_riscv64.mk \
+     $(LOCAL_DIR)/aosp_x86_64.mk \
+     $(LOCAL_DIR)/aosp_x86.mk \
+     $(LOCAL_DIR)/full.mk \
+@@ -47,6 +48,7 @@ PRODUCT_MAKEFILES := \
+     $(LOCAL_DIR)/aosp_arm64.mk \
+     $(LOCAL_DIR)/aosp_arm_ab.mk \
+     $(LOCAL_DIR)/aosp_arm.mk \
++    $(LOCAL_DIR)/aosp_riscv64.mk \
+     $(LOCAL_DIR)/aosp_x86_64_ab.mk \
+     $(LOCAL_DIR)/aosp_x86_64.mk \
+     $(LOCAL_DIR)/aosp_x86_ab.mk \
+@@ -73,5 +75,6 @@ endif
+ COMMON_LUNCH_CHOICES := \
+     aosp_arm64-eng \
+     aosp_arm-eng \
++    aosp_riscv64-eng \
+     aosp_x86_64-eng \
+     aosp_x86-eng \
+diff --git a/target/product/aosp_riscv64.mk b/target/product/aosp_riscv64.mk
+new file mode 100644
+index 000000000..3bec05459
+--- /dev/null
++++ b/target/product/aosp_riscv64.mk
+@@ -0,0 +1,60 @@
++#
++# Copyright 2020 The Android Open-Source Project
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++#
++
++PRODUCT_USE_DYNAMIC_PARTITIONS := true
++
++# The system image of aosp_riscv64-userdebug is a GSI for the devices with:
++# - RISCV 64 bits user space
++# - 64 bits binder interface
++# - system-as-root
++# - VNDK enforcement
++# - compatible property override enabled
++
++# This is a build configuration for a full-featured build of the
++# Open-Source part of the tree. It's geared toward a US-centric
++# build quite specifically for the emulator, and might not be
++# entirely appropriate to inherit from for on-device configurations.
++
++# GSI for system/product
++$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
++$(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_common.mk)
++
++# Emulator for vendor
++$(call inherit-product-if-exists, device/generic/goldfish/riscv64-vendor.mk)
++$(call inherit-product, $(SRC_TARGET_DIR)/product/emulator_vendor.mk)
++$(call inherit-product, $(SRC_TARGET_DIR)/board/generic_riscv64/device.mk)
++
++# Enable mainline checking for excat this product name
++ifeq (aosp_riscv64,$(TARGET_PRODUCT))
++PRODUCT_ENFORCE_ARTIFACT_PATH_REQUIREMENTS := relaxed
++endif
++
++PRODUCT_ARTIFACT_PATH_REQUIREMENT_WHITELIST += \
++    root/init.zygote32_64.rc \
++    root/init.zygote64_32.rc \
++
++# Copy different zygote settings for vendor.img to select by setting property
++# ro.zygote=zygote64_32 or ro.zygote=zygote32_64:
++#   1. 64-bit primary, 32-bit secondary OR
++#   2. 32-bit primary, 64-bit secondary
++# init.zygote64_32.rc is in the core_64_bit.mk below
++PRODUCT_COPY_FILES += \
++    system/core/rootdir/init.zygote32_64.rc:root/init.zygote32_64.rc
++
++PRODUCT_NAME := aosp_riscv64
++PRODUCT_DEVICE := generic_riscv64
++PRODUCT_BRAND := Android
++PRODUCT_MODEL := AOSP on RISCV64
+diff --git a/target/product/base_system.mk b/target/product/base_system.mk
+index 822d2ead8..85a590f32 100644
+--- a/target/product/base_system.mk
++++ b/target/product/base_system.mk
+@@ -14,6 +14,10 @@
+ # limitations under the License.
+ #
+ 
++#FIXME: T-HEAD disable modules for missing dependence
++#PRODUCT_PACKAGES += \
++    com.android.media.swcodec \
++
+ # Base modules and settings for the system partition.
+ PRODUCT_PACKAGES += \
+     abb \
+@@ -53,7 +57,6 @@ PRODUCT_PACKAGES += \
+     com.android.conscrypt \
+     com.android.location.provider \
+     com.android.media \
+-    com.android.media.swcodec \
+     com.android.resolv \
+     com.android.tzdata \
+     ContactsProvider \
+@@ -274,13 +277,14 @@ PRODUCT_PACKAGES += \
+     system_manifest.xml \
+     system_compatibility_matrix.xml \
+ 
+-# Host tools to install
++#FIXME: T-HEAD disable modules for missing dependence
++#    ld.mc \
++#    bcc
+ PRODUCT_HOST_PACKAGES += \
+     BugReport \
+     adb \
+     art-tools \
+     atest \
+-    bcc \
+     bit \
+     e2fsck \
+     fastboot \
+@@ -288,7 +292,6 @@ PRODUCT_HOST_PACKAGES += \
+     icu-data_host_runtime_apex \
+     idmap2 \
+     incident_report \
+-    ld.mc \
+     lpdump \
+     mdnsd \
+     minigzip \
+diff --git a/target/product/gsi/29.txt b/target/product/gsi/29.txt
+index 14faba558..681d9809f 100644
+--- a/target/product/gsi/29.txt
++++ b/target/product/gsi/29.txt
+@@ -2,7 +2,6 @@ LLNDK: libEGL.so
+ LLNDK: libGLESv1_CM.so
+ LLNDK: libGLESv2.so
+ LLNDK: libGLESv3.so
+-LLNDK: libRS.so
+ LLNDK: libandroid_net.so
+ LLNDK: libc.so
+ LLNDK: libcgrouprc.so
+@@ -12,7 +11,6 @@ LLNDK: liblog.so
+ LLNDK: libm.so
+ LLNDK: libmediandk.so
+ LLNDK: libnativewindow.so
+-LLNDK: libneuralnetworks.so
+ LLNDK: libsync.so
+ LLNDK: libvndksupport.so
+ LLNDK: libvulkan.so
+@@ -27,12 +25,8 @@ VNDK-SP: android.hidl.memory.token@1.0.so
+ VNDK-SP: android.hidl.memory@1.0.so
+ VNDK-SP: android.hidl.memory@1.0-impl.so
+ VNDK-SP: android.hidl.safe_union@1.0.so
+-VNDK-SP: libRSCpuRef.so
+-VNDK-SP: libRSDriver.so
+-VNDK-SP: libRS_internal.so
+ VNDK-SP: libbacktrace.so
+ VNDK-SP: libbase.so
+-VNDK-SP: libbcinfo.so
+ VNDK-SP: libbinderthreadstate.so
+ VNDK-SP: libblas.so
+ VNDK-SP: libc++.so
+diff --git a/target/product/gsi_common.mk b/target/product/gsi_common.mk
+index 0428d759a..a49ea18bf 100644
+--- a/target/product/gsi_common.mk
++++ b/target/product/gsi_common.mk
+@@ -73,9 +73,11 @@ PRODUCT_COPY_FILES += \
+ # Support addtional P vendor interface
+ PRODUCT_EXTRA_VNDK_VERSIONS := 28
+ 
++#FIXME: T-HEAD disable modules for missing dependence
++#PRODUCT_PACKAGES += \
++    messaging \
+ # More AOSP packages
+ PRODUCT_PACKAGES += \
+-    messaging \
+     PhotoTable \
+     WAPPushManager \
+     WallpaperPicker \
+diff --git a/target/product/handheld_product.mk b/target/product/handheld_product.mk
+index 0d100b267..04dad3419 100644
+--- a/target/product/handheld_product.mk
++++ b/target/product/handheld_product.mk
+@@ -20,15 +20,17 @@
+ # does, use base_vendor.mk).
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/media_product.mk)
+ 
++#FIXME: T-HEAD disable modules for missing dependence
++#PRODUCT_PACKAGES += \
++    Camera2 \
++    Gallery2 \
+ # /product packages
+ PRODUCT_PACKAGES += \
+     Browser2 \
+     Calendar \
+-    Camera2 \
+     Contacts \
+     DeskClock \
+     Email \
+-    Gallery2 \
+     LatinIME \
+     Launcher3QuickStep \
+     Music \
+diff --git a/target/product/handheld_system.mk b/target/product/handheld_system.mk
+index 6463a541b..a590b08e5 100644
+--- a/target/product/handheld_system.mk
++++ b/target/product/handheld_system.mk
+@@ -31,13 +31,16 @@ $(call inherit-product-if-exists, external/hyphenation-patterns/patterns.mk)
+ $(call inherit-product-if-exists, frameworks/base/data/keyboards/keyboards.mk)
+ $(call inherit-product-if-exists, frameworks/webview/chromium/chromium.mk)
+ 
++#FIXME: T-HEAD disable modules for missing dependence
++#PRODUCT_PACKAGES += \
++    Bluetooth \
++    BluetoothMidiService \
++    BuiltInPrintService \
++
+ PRODUCT_PACKAGES += \
+     BasicDreams \
+     BlockedNumberProvider \
+-    Bluetooth \
+-    BluetoothMidiService \
+     BookmarkProvider \
+-    BuiltInPrintService \
+     CalendarProvider \
+     cameraserver \
+     CaptivePortalLogin \
+diff --git a/target/product/media_vendor.mk b/target/product/media_vendor.mk
+index 7d4af64bd..79b8cbf1e 100644
+--- a/target/product/media_vendor.mk
++++ b/target/product/media_vendor.mk
+@@ -20,7 +20,8 @@
+ # base_vendor.mk.
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/base_vendor.mk)
+ 
++#FIXME: T-HEAD disable modules for missing dependence
+ # /vendor packages
+-PRODUCT_PACKAGES += \
++#PRODUCT_PACKAGES += \
+     libaudiopreprocessing \
+     libwebrtc_audio_preprocessing \
+-- 
+2.18.4
+

@@ -1,0 +1,3863 @@
+From 4134082bd66336514263dd8ea9eb6c7a01e055a0 Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Tue, 19 Jan 2021 14:26:19 +0800
+Subject: [PATCH] New arch riscv64 and some patch pick
+
+Change-Id: I05babb7ece5a3073ff23cced5676577716095ee8
+---
+ apps/BluetoothDebug/Android.bp                |  9 ++++
+ apps/BluetoothDebug/Android.mk                | 16 -------
+ apps/BuildWidget/Android.bp                   |  6 +++
+ apps/BuildWidget/Android.mk                   | 16 -------
+ apps/CustomLocale/Android.bp                  |  6 +++
+ apps/CustomLocale/Android.mk                  | 12 -----
+ apps/DevelopmentSettings/Android.bp           |  7 +++
+ apps/DevelopmentSettings/Android.mk           |  7 ---
+ apps/Fallback/Android.bp                      |  5 ++
+ apps/Fallback/Android.mk                      | 11 -----
+ apps/GestureBuilder/Android.bp                | 21 +++++++++
+ apps/GestureBuilder/Android.mk                | 27 -----------
+ apps/NinePatchLab/Android.bp                  |  5 ++
+ apps/NinePatchLab/Android.mk                  | 11 -----
+ apps/OBJViewer/Android.bp                     |  6 +++
+ apps/OBJViewer/Android.mk                     | 13 ------
+ apps/PushApiAuthenticator/Android.bp          | 15 ++++++
+ apps/PushApiAuthenticator/Android.mk          | 20 --------
+ apps/PushApiTestAppOne/Android.bp             | 15 ++++++
+ apps/PushApiTestAppOne/Android.mk             | 20 --------
+ apps/PushApiTestAppTwo/Android.bp             | 15 ++++++
+ apps/PushApiTestAppTwo/Android.mk             | 20 --------
+ apps/SdkSetup/Android.bp.skip                 | 10 ++++
+ apps/SdkSetup/Android.mk                      | 14 ------
+ apps/SettingInjectorSample/Android.bp         |  6 +++
+ apps/SettingInjectorSample/Android.mk         | 16 -------
+ apps/WidgetPreview/Android.bp                 | 21 +++++++++
+ apps/launchperf/Android.bp                    |  6 +++
+ apps/launchperf/Android.mk                    | 13 ------
+ python-packages/gdbrunner/__init__.py         |  2 +
+ samples/AccelerometerPlay/Android.bp          | 29 ++++++++++++
+ samples/AccelerometerPlay/Android.mk          | 35 --------------
+ samples/AdaptiveIconSample/Android.bp         |  9 ++++
+ samples/AdaptiveIconSample/Android.mk         | 18 --------
+ samples/AliasActivity/Android.bp              |  9 ++++
+ samples/AliasActivity/Android.mk              | 14 ------
+ samples/AndroidBeamDemo/Android.bp            |  9 ++++
+ samples/AndroidBeamDemo/Android.mk            | 15 ------
+ samples/AppNavigation/Android.bp              |  8 ++++
+ samples/AppNavigation/Android.mk              | 19 --------
+ samples/BackupRestore/Android.bp              | 12 +++++
+ samples/BackupRestore/Android.mk              | 17 -------
+ samples/BasicGLSurfaceView/Android.bp         |  9 ++++
+ samples/BasicGLSurfaceView/Android.mk         | 15 ------
+ samples/BluetoothChat/Android.bp              |  9 ++++
+ samples/BluetoothChat/Android.mk              | 18 --------
+ samples/BrokenKeyDerivation/Android.bp        |  6 +++
+ samples/BrokenKeyDerivation/Android.mk        | 16 -------
+ samples/BrokenKeyDerivation/tests/Android.bp  | 11 +++++
+ samples/BrokenKeyDerivation/tests/Android.mk  | 18 --------
+ samples/BusinessCard/Android.bp               | 12 +++++
+ samples/BusinessCard/Android.mk               | 17 -------
+ samples/Compass/Android.bp                    |  9 ++++
+ samples/Compass/Android.mk                    | 18 --------
+ samples/ContactManager/Android.bp             |  9 ++++
+ samples/ContactManager/Android.mk             | 18 --------
+ samples/CubeLiveWallpaper/Android.bp          | 25 ++++++++++
+ samples/CubeLiveWallpaper/Android.mk          | 30 ------------
+ samples/DataWiper/Android.bp                  | 24 ++++++++++
+ samples/DataWiper/Android.mk                  | 33 -------------
+ .../DeviceAdminWhitelistedAccount/Android.bp  | 24 ++++++++++
+ .../DeviceAdminWhitelistedAccount/Android.mk  | 33 -------------
+ samples/FixedGridLayout/Android.bp            |  8 ++++
+ samples/FixedGridLayout/Android.mk            | 14 ------
+ samples/HeavyWeight/Android.bp                | 10 ++++
+ samples/HeavyWeight/Android.mk                | 19 --------
+ samples/HelloActivity/Android.bp              |  9 ++++
+ samples/HelloActivity/Android.mk              | 18 --------
+ samples/HelloActivity/tests/Android.bp        | 11 +++++
+ samples/HelloActivity/tests/Android.mk        | 18 --------
+ samples/HelloEffects/Android.bp               |  8 ++++
+ samples/HelloEffects/Android.mk               | 14 ------
+ samples/Home/Android.bp                       |  8 ++++
+ samples/Home/Android.mk                       | 14 ------
+ samples/HoneycombGallery/Android.bp           |  9 ++++
+ samples/HoneycombGallery/Android.mk           | 18 --------
+ samples/JetBoy/Android.bp                     |  8 ++++
+ samples/JetBoy/Android.mk                     | 14 ------
+ samples/KeyChainDemo/Android.bp               |  9 ++++
+ samples/KeyChainDemo/Android.mk               | 18 --------
+ samples/LceDemo/Android.bp                    |  6 +++
+ samples/LceDemo/Android.mk                    | 19 --------
+ samples/LunarLander/Android.bp                |  9 ++++
+ samples/LunarLander/Android.mk                | 18 --------
+ samples/LunarLander/tests/Android.bp          | 11 +++++
+ samples/LunarLander/tests/Android.mk          | 18 --------
+ samples/MultiResolution/Android.bp            |  9 ++++
+ samples/MultiResolution/Android.mk            | 18 --------
+ samples/MultiWindow/Android.bp                |  6 +++
+ samples/MultiWindow/Android.mk                | 16 -------
+ samples/MySampleRss/Android.bp                |  9 ++++
+ samples/MySampleRss/Android.mk                | 14 ------
+ samples/NotePad/Android.bp                    |  9 ++++
+ samples/NotePad/Android.mk                    | 18 --------
+ samples/Obb/Android.bp                        |  9 ++++
+ samples/Obb/Android.mk                        | 18 --------
+ samples/RSSReader/Android.bp                  |  8 ++++
+ samples/RSSReader/Android.mk                  | 14 ------
+ samples/ReceiveShareDemo/Android.bp           |  9 ++++
+ samples/ReceiveShareDemo/Android.mk           | 18 --------
+ samples/SampleSyncAdapter/Android.bp          |  9 ++++
+ samples/SampleSyncAdapter/Android.mk          | 18 --------
+ samples/SearchableDictionary/Android.bp       |  8 ++++
+ samples/SearchableDictionary/Android.mk       | 14 ------
+ samples/SimpleJNI/Android.bp                  | 31 +++++++++++++
+ samples/SimpleJNI/Android.mk                  | 46 -------------------
+ samples/SimpleJNI/jni/Android.bp              | 34 ++++++++++++++
+ samples/SimpleJNI/jni/Android.mk              | 45 ------------------
+ samples/SipDemo/Android.bp                    |  9 ++++
+ samples/SipDemo/Android.mk                    | 18 --------
+ samples/SkeletonApp/Android.bp                |  9 ++++
+ samples/SkeletonApp/Android.mk                | 18 --------
+ samples/SkeletonApp/tests/Android.bp          | 11 +++++
+ samples/SkeletonApp/tests/Android.mk          | 18 --------
+ samples/Snake/Android.bp                      |  9 ++++
+ samples/Snake/Android.mk                      | 18 --------
+ samples/Snake/tests/Android.bp                | 11 +++++
+ samples/Snake/tests/Android.mk                | 18 --------
+ samples/SoftKeyboard/Android.bp               |  8 ++++
+ samples/SoftKeyboard/Android.mk               | 14 ------
+ samples/SpellChecker/Android.mk               |  1 -
+ .../SpellChecker/HelloSpellChecker/Android.bp |  6 +++
+ .../SpellChecker/HelloSpellChecker/Android.mk | 13 ------
+ .../SampleSpellCheckerService/Android.bp      |  6 +++
+ .../SampleSpellCheckerService/Android.mk      | 13 ------
+ samples/StackWidget/Android.bp                |  9 ++++
+ samples/StackWidget/Android.mk                | 18 --------
+ samples/ThemedNavBarKeyboard/Android.bp       | 24 ++++++++++
+ samples/ThemedNavBarKeyboard/Android.mk       | 30 ------------
+ samples/ToyVpn/Android.bp                     |  9 ++++
+ samples/ToyVpn/Android.mk                     | 18 --------
+ samples/TtsEngine/Android.bp                  |  8 ++++
+ samples/TtsEngine/Android.mk                  | 15 ------
+ samples/USB/AdbTest/Android.bp                |  5 ++
+ samples/USB/AdbTest/Android.mk                | 12 -----
+ samples/USB/Android.mk                        |  1 -
+ samples/USB/MissileLauncher/Android.bp        |  5 ++
+ samples/USB/MissileLauncher/Android.mk        | 12 -----
+ samples/Vault/Android.bp                      | 16 +++++++
+ samples/Vault/Android.mk                      | 21 ---------
+ samples/Vault/tests/Android.bp                | 10 ++++
+ samples/Vault/tests/Android.mk                | 13 ------
+ samples/VoiceRecognitionService/Android.bp    |  8 ++++
+ samples/VoiceRecognitionService/Android.mk    | 14 ------
+ samples/VoicemailProviderDemo/Android.bp      | 25 ++++++++++
+ samples/VoicemailProviderDemo/Android.mk      | 34 --------------
+ samples/WeatherListWidget/Android.bp          |  9 ++++
+ samples/WeatherListWidget/Android.mk          | 18 --------
+ samples/WiFiDirectDemo/Android.bp             | 10 ++++
+ samples/WiFiDirectDemo/Android.mk             | 21 ---------
+ samples/WiFiDirectServiceDiscovery/Android.bp |  9 ++++
+ samples/WiFiDirectServiceDiscovery/Android.mk | 18 --------
+ samples/Wiktionary/Android.bp                 |  9 ++++
+ samples/Wiktionary/Android.mk                 | 18 --------
+ samples/WiktionarySimple/Android.bp           |  9 ++++
+ samples/WiktionarySimple/Android.mk           | 18 --------
+ samples/XmlAdapters/Android.bp                | 12 +++++
+ samples/XmlAdapters/Android.mk                | 20 --------
+ samples/apkcachetest/Android.bp               | 25 ++++++++++
+ samples/apkcachetest/Android.mk               | 31 -------------
+ samples/training/NsdChat/Android.bp           |  9 ++++
+ samples/training/NsdChat/Android.mk           | 18 --------
+ .../tools/header-checker/android/envsetup.sh  | 22 +++------
+ .../src/dumper/abi_wrappers.cpp               |  1 -
+ .../src/dumper/ast_processing.cpp             |  3 +-
+ .../src/dumper/fake_decl_source.cpp           |  3 +-
+ .../src/dumper/frontend_action.cpp            |  4 +-
+ .../src/dumper/frontend_action_factory.cpp    |  7 ++-
+ .../src/dumper/frontend_action_factory.h      |  2 +-
+ .../src/repr/symbol/so_file_parser.cpp        |  4 +-
+ 170 files changed, 916 insertions(+), 1498 deletions(-)
+ create mode 100644 apps/BluetoothDebug/Android.bp
+ delete mode 100644 apps/BluetoothDebug/Android.mk
+ create mode 100644 apps/BuildWidget/Android.bp
+ delete mode 100644 apps/BuildWidget/Android.mk
+ create mode 100644 apps/CustomLocale/Android.bp
+ delete mode 100644 apps/CustomLocale/Android.mk
+ create mode 100644 apps/DevelopmentSettings/Android.bp
+ delete mode 100644 apps/DevelopmentSettings/Android.mk
+ create mode 100644 apps/Fallback/Android.bp
+ delete mode 100644 apps/Fallback/Android.mk
+ create mode 100644 apps/GestureBuilder/Android.bp
+ delete mode 100644 apps/GestureBuilder/Android.mk
+ create mode 100644 apps/NinePatchLab/Android.bp
+ delete mode 100644 apps/NinePatchLab/Android.mk
+ create mode 100644 apps/OBJViewer/Android.bp
+ delete mode 100644 apps/OBJViewer/Android.mk
+ create mode 100644 apps/PushApiAuthenticator/Android.bp
+ delete mode 100644 apps/PushApiAuthenticator/Android.mk
+ create mode 100644 apps/PushApiTestAppOne/Android.bp
+ delete mode 100644 apps/PushApiTestAppOne/Android.mk
+ create mode 100644 apps/PushApiTestAppTwo/Android.bp
+ delete mode 100644 apps/PushApiTestAppTwo/Android.mk
+ create mode 100644 apps/SdkSetup/Android.bp.skip
+ delete mode 100644 apps/SdkSetup/Android.mk
+ create mode 100644 apps/SettingInjectorSample/Android.bp
+ delete mode 100644 apps/SettingInjectorSample/Android.mk
+ create mode 100644 apps/WidgetPreview/Android.bp
+ create mode 100644 apps/launchperf/Android.bp
+ delete mode 100644 apps/launchperf/Android.mk
+ create mode 100644 samples/AccelerometerPlay/Android.bp
+ delete mode 100644 samples/AccelerometerPlay/Android.mk
+ create mode 100644 samples/AdaptiveIconSample/Android.bp
+ delete mode 100644 samples/AdaptiveIconSample/Android.mk
+ create mode 100644 samples/AliasActivity/Android.bp
+ delete mode 100644 samples/AliasActivity/Android.mk
+ create mode 100644 samples/AndroidBeamDemo/Android.bp
+ delete mode 100644 samples/AndroidBeamDemo/Android.mk
+ create mode 100644 samples/AppNavigation/Android.bp
+ delete mode 100644 samples/AppNavigation/Android.mk
+ create mode 100644 samples/BackupRestore/Android.bp
+ delete mode 100644 samples/BackupRestore/Android.mk
+ create mode 100644 samples/BasicGLSurfaceView/Android.bp
+ delete mode 100644 samples/BasicGLSurfaceView/Android.mk
+ create mode 100644 samples/BluetoothChat/Android.bp
+ delete mode 100644 samples/BluetoothChat/Android.mk
+ create mode 100644 samples/BrokenKeyDerivation/Android.bp
+ delete mode 100644 samples/BrokenKeyDerivation/Android.mk
+ create mode 100644 samples/BrokenKeyDerivation/tests/Android.bp
+ delete mode 100644 samples/BrokenKeyDerivation/tests/Android.mk
+ create mode 100644 samples/BusinessCard/Android.bp
+ delete mode 100644 samples/BusinessCard/Android.mk
+ create mode 100644 samples/Compass/Android.bp
+ delete mode 100644 samples/Compass/Android.mk
+ create mode 100644 samples/ContactManager/Android.bp
+ delete mode 100644 samples/ContactManager/Android.mk
+ create mode 100644 samples/CubeLiveWallpaper/Android.bp
+ delete mode 100644 samples/CubeLiveWallpaper/Android.mk
+ create mode 100644 samples/DataWiper/Android.bp
+ delete mode 100644 samples/DataWiper/Android.mk
+ create mode 100644 samples/DeviceAdminWhitelistedAccount/Android.bp
+ delete mode 100644 samples/DeviceAdminWhitelistedAccount/Android.mk
+ create mode 100644 samples/FixedGridLayout/Android.bp
+ delete mode 100644 samples/FixedGridLayout/Android.mk
+ create mode 100644 samples/HeavyWeight/Android.bp
+ delete mode 100644 samples/HeavyWeight/Android.mk
+ create mode 100644 samples/HelloActivity/Android.bp
+ delete mode 100644 samples/HelloActivity/Android.mk
+ create mode 100644 samples/HelloActivity/tests/Android.bp
+ delete mode 100644 samples/HelloActivity/tests/Android.mk
+ create mode 100644 samples/HelloEffects/Android.bp
+ delete mode 100644 samples/HelloEffects/Android.mk
+ create mode 100644 samples/Home/Android.bp
+ delete mode 100644 samples/Home/Android.mk
+ create mode 100644 samples/HoneycombGallery/Android.bp
+ delete mode 100644 samples/HoneycombGallery/Android.mk
+ create mode 100644 samples/JetBoy/Android.bp
+ delete mode 100755 samples/JetBoy/Android.mk
+ create mode 100644 samples/KeyChainDemo/Android.bp
+ delete mode 100644 samples/KeyChainDemo/Android.mk
+ create mode 100644 samples/LceDemo/Android.bp
+ delete mode 100644 samples/LceDemo/Android.mk
+ create mode 100644 samples/LunarLander/Android.bp
+ delete mode 100644 samples/LunarLander/Android.mk
+ create mode 100644 samples/LunarLander/tests/Android.bp
+ delete mode 100644 samples/LunarLander/tests/Android.mk
+ create mode 100644 samples/MultiResolution/Android.bp
+ delete mode 100644 samples/MultiResolution/Android.mk
+ create mode 100644 samples/MultiWindow/Android.bp
+ delete mode 100644 samples/MultiWindow/Android.mk
+ create mode 100644 samples/MySampleRss/Android.bp
+ delete mode 100644 samples/MySampleRss/Android.mk
+ create mode 100644 samples/NotePad/Android.bp
+ delete mode 100644 samples/NotePad/Android.mk
+ create mode 100644 samples/Obb/Android.bp
+ delete mode 100644 samples/Obb/Android.mk
+ create mode 100644 samples/RSSReader/Android.bp
+ delete mode 100644 samples/RSSReader/Android.mk
+ create mode 100644 samples/ReceiveShareDemo/Android.bp
+ delete mode 100644 samples/ReceiveShareDemo/Android.mk
+ create mode 100644 samples/SampleSyncAdapter/Android.bp
+ delete mode 100644 samples/SampleSyncAdapter/Android.mk
+ create mode 100644 samples/SearchableDictionary/Android.bp
+ delete mode 100755 samples/SearchableDictionary/Android.mk
+ create mode 100644 samples/SimpleJNI/Android.bp
+ delete mode 100644 samples/SimpleJNI/Android.mk
+ create mode 100644 samples/SimpleJNI/jni/Android.bp
+ delete mode 100644 samples/SimpleJNI/jni/Android.mk
+ create mode 100644 samples/SipDemo/Android.bp
+ delete mode 100644 samples/SipDemo/Android.mk
+ create mode 100644 samples/SkeletonApp/Android.bp
+ delete mode 100644 samples/SkeletonApp/Android.mk
+ create mode 100644 samples/SkeletonApp/tests/Android.bp
+ delete mode 100644 samples/SkeletonApp/tests/Android.mk
+ create mode 100644 samples/Snake/Android.bp
+ delete mode 100644 samples/Snake/Android.mk
+ create mode 100644 samples/Snake/tests/Android.bp
+ delete mode 100644 samples/Snake/tests/Android.mk
+ create mode 100644 samples/SoftKeyboard/Android.bp
+ delete mode 100755 samples/SoftKeyboard/Android.mk
+ delete mode 100644 samples/SpellChecker/Android.mk
+ create mode 100644 samples/SpellChecker/HelloSpellChecker/Android.bp
+ delete mode 100755 samples/SpellChecker/HelloSpellChecker/Android.mk
+ create mode 100644 samples/SpellChecker/SampleSpellCheckerService/Android.bp
+ delete mode 100755 samples/SpellChecker/SampleSpellCheckerService/Android.mk
+ create mode 100644 samples/StackWidget/Android.bp
+ delete mode 100644 samples/StackWidget/Android.mk
+ create mode 100644 samples/ThemedNavBarKeyboard/Android.bp
+ delete mode 100755 samples/ThemedNavBarKeyboard/Android.mk
+ create mode 100644 samples/ToyVpn/Android.bp
+ delete mode 100644 samples/ToyVpn/Android.mk
+ create mode 100644 samples/TtsEngine/Android.bp
+ delete mode 100644 samples/TtsEngine/Android.mk
+ create mode 100644 samples/USB/AdbTest/Android.bp
+ delete mode 100644 samples/USB/AdbTest/Android.mk
+ delete mode 100644 samples/USB/Android.mk
+ create mode 100644 samples/USB/MissileLauncher/Android.bp
+ delete mode 100644 samples/USB/MissileLauncher/Android.mk
+ create mode 100644 samples/Vault/Android.bp
+ delete mode 100644 samples/Vault/Android.mk
+ create mode 100644 samples/Vault/tests/Android.bp
+ delete mode 100644 samples/Vault/tests/Android.mk
+ create mode 100644 samples/VoiceRecognitionService/Android.bp
+ delete mode 100755 samples/VoiceRecognitionService/Android.mk
+ create mode 100644 samples/VoicemailProviderDemo/Android.bp
+ delete mode 100644 samples/VoicemailProviderDemo/Android.mk
+ create mode 100644 samples/WeatherListWidget/Android.bp
+ delete mode 100644 samples/WeatherListWidget/Android.mk
+ create mode 100644 samples/WiFiDirectDemo/Android.bp
+ delete mode 100644 samples/WiFiDirectDemo/Android.mk
+ create mode 100644 samples/WiFiDirectServiceDiscovery/Android.bp
+ delete mode 100644 samples/WiFiDirectServiceDiscovery/Android.mk
+ create mode 100644 samples/Wiktionary/Android.bp
+ delete mode 100644 samples/Wiktionary/Android.mk
+ create mode 100644 samples/WiktionarySimple/Android.bp
+ delete mode 100644 samples/WiktionarySimple/Android.mk
+ create mode 100644 samples/XmlAdapters/Android.bp
+ delete mode 100644 samples/XmlAdapters/Android.mk
+ create mode 100644 samples/apkcachetest/Android.bp
+ delete mode 100644 samples/apkcachetest/Android.mk
+ create mode 100644 samples/training/NsdChat/Android.bp
+ delete mode 100644 samples/training/NsdChat/Android.mk
+ rename apps/WidgetPreview/Android.mk => vndk/tools/header-checker/android/envsetup.sh (60%)
+
+diff --git a/apps/BluetoothDebug/Android.bp b/apps/BluetoothDebug/Android.bp
+new file mode 100644
+index 000000000..9ab3d7adb
+--- /dev/null
++++ b/apps/BluetoothDebug/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "BluetoothDebug",
++    srcs: ["**/*.java"],
++    platform_apis: true,
++    certificate: "platform",
++    optimize: {
++        enabled: false,
++    },
++}
+diff --git a/apps/BluetoothDebug/Android.mk b/apps/BluetoothDebug/Android.mk
+deleted file mode 100644
+index 08c4911c6..000000000
+--- a/apps/BluetoothDebug/Android.mk
++++ /dev/null
+@@ -1,16 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := optional
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_JAVA_LIBRARIES :=
+-
+-LOCAL_PACKAGE_NAME := BluetoothDebug
+-LOCAL_PRIVATE_PLATFORM_APIS := true
+-LOCAL_CERTIFICATE := platform
+-
+-LOCAL_PROGUARD_ENABLED := disabled
+-
+-include $(BUILD_PACKAGE)
+diff --git a/apps/BuildWidget/Android.bp b/apps/BuildWidget/Android.bp
+new file mode 100644
+index 000000000..32e84cd3a
+--- /dev/null
++++ b/apps/BuildWidget/Android.bp
+@@ -0,0 +1,6 @@
++android_test {
++    name: "BuildWidget",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++}
+diff --git a/apps/BuildWidget/Android.mk b/apps/BuildWidget/Android.mk
+deleted file mode 100644
+index 22de423b7..000000000
+--- a/apps/BuildWidget/Android.mk
++++ /dev/null
+@@ -1,16 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples tests
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := BuildWidget
+-
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/apps/CustomLocale/Android.bp b/apps/CustomLocale/Android.bp
+new file mode 100644
+index 000000000..bd6e462ab
+--- /dev/null
++++ b/apps/CustomLocale/Android.bp
+@@ -0,0 +1,6 @@
++android_app {
++    name: "CustomLocale",
++    srcs: ["**/*.java"],
++    platform_apis: true,
++    certificate: "platform",
++}
+diff --git a/apps/CustomLocale/Android.mk b/apps/CustomLocale/Android.mk
+deleted file mode 100644
+index 6bda04065..000000000
+--- a/apps/CustomLocale/Android.mk
++++ /dev/null
+@@ -1,12 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := optional
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := CustomLocale
+-LOCAL_PRIVATE_PLATFORM_APIS := true
+-LOCAL_CERTIFICATE := platform
+-
+-include $(BUILD_PACKAGE)
+diff --git a/apps/DevelopmentSettings/Android.bp b/apps/DevelopmentSettings/Android.bp
+new file mode 100644
+index 000000000..ab19383c3
+--- /dev/null
++++ b/apps/DevelopmentSettings/Android.bp
+@@ -0,0 +1,7 @@
++android_app {
++    name: "DevelopmentSettings",
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/apps/DevelopmentSettings/Android.mk b/apps/DevelopmentSettings/Android.mk
+deleted file mode 100644
+index ee4860276..000000000
+--- a/apps/DevelopmentSettings/Android.mk
++++ /dev/null
+@@ -1,7 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_PACKAGE_NAME := DevelopmentSettings
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_PACKAGE)
+diff --git a/apps/Fallback/Android.bp b/apps/Fallback/Android.bp
+new file mode 100644
+index 000000000..7107ec8cb
+--- /dev/null
++++ b/apps/Fallback/Android.bp
+@@ -0,0 +1,5 @@
++android_app {
++    name: "Fallback",
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++}
+diff --git a/apps/Fallback/Android.mk b/apps/Fallback/Android.mk
+deleted file mode 100644
+index f3463efe1..000000000
+--- a/apps/Fallback/Android.mk
++++ /dev/null
+@@ -1,11 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := optional
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := Fallback
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_PACKAGE)
+diff --git a/apps/GestureBuilder/Android.bp b/apps/GestureBuilder/Android.bp
+new file mode 100644
+index 000000000..b7f2cb768
+--- /dev/null
++++ b/apps/GestureBuilder/Android.bp
+@@ -0,0 +1,21 @@
++//
++// Copyright (C) 2009 The Android Open Source Project
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++//
++
++android_test {
++    name: "GestureBuilder",
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++}
+diff --git a/apps/GestureBuilder/Android.mk b/apps/GestureBuilder/Android.mk
+deleted file mode 100644
+index 424844394..000000000
+--- a/apps/GestureBuilder/Android.mk
++++ /dev/null
+@@ -1,27 +0,0 @@
+-#
+-# Copyright (C) 2009 The Android Open Source Project
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#      http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-#
+-
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples tests
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := GestureBuilder
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_PACKAGE)
+diff --git a/apps/NinePatchLab/Android.bp b/apps/NinePatchLab/Android.bp
+new file mode 100644
+index 000000000..57e550978
+--- /dev/null
++++ b/apps/NinePatchLab/Android.bp
+@@ -0,0 +1,5 @@
++android_test {
++    name: "NinePatchLab",
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++}
+diff --git a/apps/NinePatchLab/Android.mk b/apps/NinePatchLab/Android.mk
+deleted file mode 100644
+index 701c16e64..000000000
+--- a/apps/NinePatchLab/Android.mk
++++ /dev/null
+@@ -1,11 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := NinePatchLab
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_PACKAGE)
+diff --git a/apps/OBJViewer/Android.bp b/apps/OBJViewer/Android.bp
+new file mode 100644
+index 000000000..19758f283
+--- /dev/null
++++ b/apps/OBJViewer/Android.bp
+@@ -0,0 +1,6 @@
++// currently disabled because of API changes. won't be fixed for 1.0
++//
++//android_test {
++//    name: "OBJViewer",
++//    srcs: ["**/*.java"],
++//}
+diff --git a/apps/OBJViewer/Android.mk b/apps/OBJViewer/Android.mk
+deleted file mode 100644
+index 3d5786c13..000000000
+--- a/apps/OBJViewer/Android.mk
++++ /dev/null
+@@ -1,13 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := OBJViewer
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-# currently disabled because of API changes. won't be fixed for 1.0
+-#include $(BUILD_PACKAGE)
+diff --git a/apps/PushApiAuthenticator/Android.bp b/apps/PushApiAuthenticator/Android.bp
+new file mode 100644
+index 000000000..edab9a1a7
+--- /dev/null
++++ b/apps/PushApiAuthenticator/Android.bp
+@@ -0,0 +1,15 @@
++android_app_certificate {
++    name: "development_apps_pushapiauthenticator",
++    certificate: "cert",
++}
++
++android_test {
++    name: "PushApiAuthenticator",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++    certificate: ":development_apps_pushapiauthenticator",
++}
+diff --git a/apps/PushApiAuthenticator/Android.mk b/apps/PushApiAuthenticator/Android.mk
+deleted file mode 100644
+index 58e2e51c0..000000000
+--- a/apps/PushApiAuthenticator/Android.mk
++++ /dev/null
+@@ -1,20 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := PushApiAuthenticator
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-LOCAL_CERTIFICATE := $(LOCAL_PATH)/cert
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+\ No newline at end of file
+diff --git a/apps/PushApiTestAppOne/Android.bp b/apps/PushApiTestAppOne/Android.bp
+new file mode 100644
+index 000000000..b74fcef6d
+--- /dev/null
++++ b/apps/PushApiTestAppOne/Android.bp
+@@ -0,0 +1,15 @@
++android_app_certificate {
++    name: "development_apps_pushapitestappone_cert",
++    certificate: "cert",
++}
++
++android_test {
++    name: "PushApiTestAppOne",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++    certificate: ":development_apps_pushapitestappone_cert",
++}
+diff --git a/apps/PushApiTestAppOne/Android.mk b/apps/PushApiTestAppOne/Android.mk
+deleted file mode 100644
+index 35d596c12..000000000
+--- a/apps/PushApiTestAppOne/Android.mk
++++ /dev/null
+@@ -1,20 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := PushApiTestAppOne
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-LOCAL_CERTIFICATE := $(LOCAL_PATH)/cert
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+\ No newline at end of file
+diff --git a/apps/PushApiTestAppTwo/Android.bp b/apps/PushApiTestAppTwo/Android.bp
+new file mode 100644
+index 000000000..b1ce9c4ac
+--- /dev/null
++++ b/apps/PushApiTestAppTwo/Android.bp
+@@ -0,0 +1,15 @@
++android_app_certificate {
++    name: "development_apps_pushapitestapptwo_cert",
++    certificate: "cert",
++}
++
++android_test {
++    name: "PushApiTestAppTwo",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++    certificate: ":development_apps_pushapitestapptwo_cert",
++}
+diff --git a/apps/PushApiTestAppTwo/Android.mk b/apps/PushApiTestAppTwo/Android.mk
+deleted file mode 100644
+index fe76b2c16..000000000
+--- a/apps/PushApiTestAppTwo/Android.mk
++++ /dev/null
+@@ -1,20 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := PushApiTestAppTwo
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-LOCAL_CERTIFICATE := $(LOCAL_PATH)/cert
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/apps/SdkSetup/Android.bp.skip b/apps/SdkSetup/Android.bp.skip
+new file mode 100644
+index 000000000..2e0d14f3f
+--- /dev/null
++++ b/apps/SdkSetup/Android.bp.skip
+@@ -0,0 +1,10 @@
++android_app {
++    name: "SdkSetup",
++    privileged: true,
++    srcs: ["**/*.java"],
++    platform_apis: true,
++    certificate: "platform",
++    optimize: {
++        enabled: false,
++    },
++}
+diff --git a/apps/SdkSetup/Android.mk b/apps/SdkSetup/Android.mk
+deleted file mode 100644
+index 833de03aa..000000000
+--- a/apps/SdkSetup/Android.mk
++++ /dev/null
+@@ -1,14 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := optional
+-LOCAL_PRIVILEGED_MODULE := true
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := SdkSetup
+-LOCAL_PRIVATE_PLATFORM_APIS := true
+-LOCAL_CERTIFICATE := platform
+-
+-LOCAL_PROGUARD_ENABLED := disabled
+-
+-include $(BUILD_PACKAGE)
+diff --git a/apps/SettingInjectorSample/Android.bp b/apps/SettingInjectorSample/Android.bp
+new file mode 100644
+index 000000000..33cb42e43
+--- /dev/null
++++ b/apps/SettingInjectorSample/Android.bp
+@@ -0,0 +1,6 @@
++android_test {
++    name: "SettingInjectorSample",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++}
+diff --git a/apps/SettingInjectorSample/Android.mk b/apps/SettingInjectorSample/Android.mk
+deleted file mode 100644
+index 8cc0c5ef2..000000000
+--- a/apps/SettingInjectorSample/Android.mk
++++ /dev/null
+@@ -1,16 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := SettingInjectorSample
+-
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/apps/WidgetPreview/Android.bp b/apps/WidgetPreview/Android.bp
+new file mode 100644
+index 000000000..080080f92
+--- /dev/null
++++ b/apps/WidgetPreview/Android.bp
+@@ -0,0 +1,21 @@
++//
++// Copyright (C) 2010 The Android Open Source Project
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++//
++
++android_app {
++    name: "WidgetPreview",
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++}
+diff --git a/apps/launchperf/Android.bp b/apps/launchperf/Android.bp
+new file mode 100644
+index 000000000..861980bd8
+--- /dev/null
++++ b/apps/launchperf/Android.bp
+@@ -0,0 +1,6 @@
++android_test {
++    name: "launchperf",
++    srcs: ["**/*.java"],
++    libs: ["android.test.runner"],
++    platform_apis: true,
++}
+diff --git a/apps/launchperf/Android.mk b/apps/launchperf/Android.mk
+deleted file mode 100644
+index 60530ca58..000000000
+--- a/apps/launchperf/Android.mk
++++ /dev/null
+@@ -1,13 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_JAVA_LIBRARIES := android.test.runner
+-
+-LOCAL_PACKAGE_NAME := launchperf
+-LOCAL_PRIVATE_PLATFORM_APIS := true
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-include $(BUILD_PACKAGE)
+diff --git a/python-packages/gdbrunner/__init__.py b/python-packages/gdbrunner/__init__.py
+index 17b98337e..44e9ea0d1 100644
+--- a/python-packages/gdbrunner/__init__.py
++++ b/python-packages/gdbrunner/__init__.py
+@@ -309,6 +309,8 @@ def get_binary_arch(binary_file):
+     elif e_machine == 0x3E:
+         assert ei_class == 2
+         return "x86_64"
++    elif e_machine == 0xf3:
++        return "riscv64"
+     elif e_machine == 0x08:
+         if ei_class == 1:
+             return "mips"
+diff --git a/samples/AccelerometerPlay/Android.bp b/samples/AccelerometerPlay/Android.bp
+new file mode 100644
+index 000000000..a33899431
+--- /dev/null
++++ b/samples/AccelerometerPlay/Android.bp
+@@ -0,0 +1,29 @@
++// Copyright (C) 2010 The Android Open Source Project
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++//
++
++android_app {
++    name: "AccelerometerPlay",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    aaptflags: [
++        "-c 120dpi",
++        "-c 240dpi",
++        "-c 160dpi",
++    ],
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/AccelerometerPlay/Android.mk b/samples/AccelerometerPlay/Android.mk
+deleted file mode 100644
+index 8558f09fe..000000000
+--- a/samples/AccelerometerPlay/Android.mk
++++ /dev/null
+@@ -1,35 +0,0 @@
+-# Copyright (C) 2010 The Android Open Source Project
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#      http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-#
+-
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := AccelerometerPlay
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_AAPT_FLAGS = -c 120dpi -c 240dpi -c 160dpi
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/AdaptiveIconSample/Android.bp b/samples/AdaptiveIconSample/Android.bp
+new file mode 100644
+index 000000000..c0ca25552
+--- /dev/null
++++ b/samples/AdaptiveIconSample/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "AdaptiveIconSample",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/AdaptiveIconSample/Android.mk b/samples/AdaptiveIconSample/Android.mk
+deleted file mode 100644
+index 986b072e8..000000000
+--- a/samples/AdaptiveIconSample/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := AdaptiveIconSample
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/AliasActivity/Android.bp b/samples/AliasActivity/Android.bp
+new file mode 100644
+index 000000000..8e7f8cbdc
+--- /dev/null
++++ b/samples/AliasActivity/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "AliasActivity",
++    installable: false,
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/AliasActivity/Android.mk b/samples/AliasActivity/Android.mk
+deleted file mode 100644
+index 9244659ab..000000000
+--- a/samples/AliasActivity/Android.mk
++++ /dev/null
+@@ -1,14 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := AliasActivity
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/AndroidBeamDemo/Android.bp b/samples/AndroidBeamDemo/Android.bp
+new file mode 100644
+index 000000000..09df349aa
+--- /dev/null
++++ b/samples/AndroidBeamDemo/Android.bp
+@@ -0,0 +1,9 @@
++android_test {
++    name: "AndroidBeamDemo",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/AndroidBeamDemo/Android.mk b/samples/AndroidBeamDemo/Android.mk
+deleted file mode 100644
+index 0b762798f..000000000
+--- a/samples/AndroidBeamDemo/Android.mk
++++ /dev/null
+@@ -1,15 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples tests
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := AndroidBeamDemo
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/AppNavigation/Android.bp b/samples/AppNavigation/Android.bp
+new file mode 100644
+index 000000000..1b360a4c3
+--- /dev/null
++++ b/samples/AppNavigation/Android.bp
+@@ -0,0 +1,8 @@
++android_test {
++    name: "AppNavigation",
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/AppNavigation/Android.mk b/samples/AppNavigation/Android.mk
+deleted file mode 100644
+index c7dde81c5..000000000
+--- a/samples/AppNavigation/Android.mk
++++ /dev/null
+@@ -1,19 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples tests
+-
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := AppNavigation
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-LOCAL_PROGUARD_FLAG_FILES := proguard.flags
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/BackupRestore/Android.bp b/samples/BackupRestore/Android.bp
+new file mode 100644
+index 000000000..b605a8fb5
+--- /dev/null
++++ b/samples/BackupRestore/Android.bp
+@@ -0,0 +1,12 @@
++android_app {
++    name: "BackupRestore",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++    optimize: {
++        proguard_flags_files: ["proguard.flags"],
++    },
++}
+diff --git a/samples/BackupRestore/Android.mk b/samples/BackupRestore/Android.mk
+deleted file mode 100644
+index d5f636c1b..000000000
+--- a/samples/BackupRestore/Android.mk
++++ /dev/null
+@@ -1,17 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := BackupRestore
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-LOCAL_PROGUARD_FLAG_FILES := proguard.flags
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/BasicGLSurfaceView/Android.bp b/samples/BasicGLSurfaceView/Android.bp
+new file mode 100644
+index 000000000..0384cf29c
+--- /dev/null
++++ b/samples/BasicGLSurfaceView/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "BasicGLSurfaceView",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/BasicGLSurfaceView/Android.mk b/samples/BasicGLSurfaceView/Android.mk
+deleted file mode 100644
+index 0400ac65c..000000000
+--- a/samples/BasicGLSurfaceView/Android.mk
++++ /dev/null
+@@ -1,15 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := BasicGLSurfaceView
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/BluetoothChat/Android.bp b/samples/BluetoothChat/Android.bp
+new file mode 100644
+index 000000000..f15127e74
+--- /dev/null
++++ b/samples/BluetoothChat/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "BluetoothChat",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/BluetoothChat/Android.mk b/samples/BluetoothChat/Android.mk
+deleted file mode 100644
+index a959878cb..000000000
+--- a/samples/BluetoothChat/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := BluetoothChat
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/BrokenKeyDerivation/Android.bp b/samples/BrokenKeyDerivation/Android.bp
+new file mode 100644
+index 000000000..54bceb8d9
+--- /dev/null
++++ b/samples/BrokenKeyDerivation/Android.bp
+@@ -0,0 +1,6 @@
++android_app {
++    name: "BrokenKeyDerivation",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++}
+diff --git a/samples/BrokenKeyDerivation/Android.mk b/samples/BrokenKeyDerivation/Android.mk
+deleted file mode 100644
+index df767c3bb..000000000
+--- a/samples/BrokenKeyDerivation/Android.mk
++++ /dev/null
+@@ -1,16 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := BrokenKeyDerivation
+-
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/BrokenKeyDerivation/tests/Android.bp b/samples/BrokenKeyDerivation/tests/Android.bp
+new file mode 100644
+index 000000000..158ae3d34
+--- /dev/null
++++ b/samples/BrokenKeyDerivation/tests/Android.bp
+@@ -0,0 +1,11 @@
++android_test {
++    name: "BrokenKeyDerivationTests",
++    srcs: ["**/*.java"],
++    libs: [
++        "android.test.runner.stubs",
++        "android.test.base.stubs",
++    ],
++    static_libs: ["junit"],
++    instrumentation_for: "BrokenKeyDerivation",
++    sdk_version: "current",
++}
+diff --git a/samples/BrokenKeyDerivation/tests/Android.mk b/samples/BrokenKeyDerivation/tests/Android.mk
+deleted file mode 100644
+index 56bbaf8cd..000000000
+--- a/samples/BrokenKeyDerivation/tests/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_JAVA_LIBRARIES := android.test.runner.stubs android.test.base.stubs
+-
+-LOCAL_STATIC_JAVA_LIBRARIES := junit
+-
+-LOCAL_PACKAGE_NAME := BrokenKeyDerivationTests
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-LOCAL_INSTRUMENTATION_FOR := BrokenKeyDerivation
+-
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/BusinessCard/Android.bp b/samples/BusinessCard/Android.bp
+new file mode 100644
+index 000000000..8af6cbdcd
+--- /dev/null
++++ b/samples/BusinessCard/Android.bp
+@@ -0,0 +1,12 @@
++android_app {
++    name: "BusinessCard",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++    optimize: {
++        enabled: false,
++    },
++}
+diff --git a/samples/BusinessCard/Android.mk b/samples/BusinessCard/Android.mk
+deleted file mode 100644
+index c2187d6c4..000000000
+--- a/samples/BusinessCard/Android.mk
++++ /dev/null
+@@ -1,17 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := BusinessCard
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-LOCAL_PROGUARD_ENABLED := disabled
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/Compass/Android.bp b/samples/Compass/Android.bp
+new file mode 100644
+index 000000000..68e8a6b84
+--- /dev/null
++++ b/samples/Compass/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "Compass",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/Compass/Android.mk b/samples/Compass/Android.mk
+deleted file mode 100644
+index 8f0050f7c..000000000
+--- a/samples/Compass/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := Compass
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/ContactManager/Android.bp b/samples/ContactManager/Android.bp
+new file mode 100644
+index 000000000..ea551bed4
+--- /dev/null
++++ b/samples/ContactManager/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "ContactManager",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/ContactManager/Android.mk b/samples/ContactManager/Android.mk
+deleted file mode 100644
+index d8e28561c..000000000
+--- a/samples/ContactManager/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := ContactManager
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/CubeLiveWallpaper/Android.bp b/samples/CubeLiveWallpaper/Android.bp
+new file mode 100644
+index 000000000..6f4df0a46
+--- /dev/null
++++ b/samples/CubeLiveWallpaper/Android.bp
+@@ -0,0 +1,25 @@
++//
++// Copyright (C) 2009 The Android Open Source Project
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++//
++
++android_app {
++    name: "CubeLiveWallpapers",
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++    installable: false,
++}
+diff --git a/samples/CubeLiveWallpaper/Android.mk b/samples/CubeLiveWallpaper/Android.mk
+deleted file mode 100644
+index d2bb1540b..000000000
+--- a/samples/CubeLiveWallpaper/Android.mk
++++ /dev/null
+@@ -1,30 +0,0 @@
+-#
+-# Copyright (C) 2009 The Android Open Source Project
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#      http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-#
+-
+-LOCAL_PATH := $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := CubeLiveWallpapers
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/DataWiper/Android.bp b/samples/DataWiper/Android.bp
+new file mode 100644
+index 000000000..c1e5f5759
+--- /dev/null
++++ b/samples/DataWiper/Android.bp
+@@ -0,0 +1,24 @@
++//
++// Copyright (C) 2017 The Android Open Source Project
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++//
++
++// We build two apps from the same source
++
++android_test {
++    name: "DataWiper",
++    srcs: ["src/**/*.java"],
++    resource_dirs: ["res"],
++    sdk_version: "16",
++}
+diff --git a/samples/DataWiper/Android.mk b/samples/DataWiper/Android.mk
+deleted file mode 100644
+index 8f1825c49..000000000
+--- a/samples/DataWiper/Android.mk
++++ /dev/null
+@@ -1,33 +0,0 @@
+-#
+-# Copyright (C) 2017 The Android Open Source Project
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#      http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-#
+-
+-# We build two apps from the same source
+-
+-LOCAL_PATH:= $(call my-dir)
+-
+-include $(CLEAR_VARS)
+-
+-LOCAL_PACKAGE_NAME := DataWiper
+-
+-LOCAL_MODULE_TAGS := samples tests
+-
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+-
+-LOCAL_SDK_VERSION := 16
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/DeviceAdminWhitelistedAccount/Android.bp b/samples/DeviceAdminWhitelistedAccount/Android.bp
+new file mode 100644
+index 000000000..b58d366f5
+--- /dev/null
++++ b/samples/DeviceAdminWhitelistedAccount/Android.bp
+@@ -0,0 +1,24 @@
++//
++// Copyright (C) 2017 The Android Open Source Project
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++//
++
++// We build two apps from the same source
++
++android_test {
++    name: "DeviceAdminWhitelistedAccount",
++    srcs: ["src/**/*.java"],
++    resource_dirs: ["res"],
++    sdk_version: "current",
++}
+diff --git a/samples/DeviceAdminWhitelistedAccount/Android.mk b/samples/DeviceAdminWhitelistedAccount/Android.mk
+deleted file mode 100644
+index 03d618c3e..000000000
+--- a/samples/DeviceAdminWhitelistedAccount/Android.mk
++++ /dev/null
+@@ -1,33 +0,0 @@
+-#
+-# Copyright (C) 2017 The Android Open Source Project
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#      http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-#
+-
+-# We build two apps from the same source
+-
+-LOCAL_PATH:= $(call my-dir)
+-
+-include $(CLEAR_VARS)
+-
+-LOCAL_PACKAGE_NAME := DeviceAdminWhitelistedAccount
+-
+-LOCAL_MODULE_TAGS := samples tests
+-
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+-
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/FixedGridLayout/Android.bp b/samples/FixedGridLayout/Android.bp
+new file mode 100644
+index 000000000..909599909
+--- /dev/null
++++ b/samples/FixedGridLayout/Android.bp
+@@ -0,0 +1,8 @@
++android_app {
++    name: "FixedGridLayout",
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/FixedGridLayout/Android.mk b/samples/FixedGridLayout/Android.mk
+deleted file mode 100644
+index 4b046c190..000000000
+--- a/samples/FixedGridLayout/Android.mk
++++ /dev/null
+@@ -1,14 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := FixedGridLayout
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/HeavyWeight/Android.bp b/samples/HeavyWeight/Android.bp
+new file mode 100644
+index 000000000..1910b1999
+--- /dev/null
++++ b/samples/HeavyWeight/Android.bp
+@@ -0,0 +1,10 @@
++//    Currently doesn't build
++//android_app {
++//    name: "HeavyWeight",
++//    // Only compile source java files in this apk.
++//    srcs: ["src/**/*.java"],
++//    sdk_version: "current",
++//    dex_preopt: {
++//        enabled: false,
++//    },
++//}
+diff --git a/samples/HeavyWeight/Android.mk b/samples/HeavyWeight/Android.mk
+deleted file mode 100644
+index 8eca2c530..000000000
+--- a/samples/HeavyWeight/Android.mk
++++ /dev/null
+@@ -1,19 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := HeavyWeight
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-# Currently doesn't build
+-#include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-#include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/HelloActivity/Android.bp b/samples/HelloActivity/Android.bp
+new file mode 100644
+index 000000000..03f26b330
+--- /dev/null
++++ b/samples/HelloActivity/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "HelloActivity",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/HelloActivity/Android.mk b/samples/HelloActivity/Android.mk
+deleted file mode 100644
+index caa86d158..000000000
+--- a/samples/HelloActivity/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := HelloActivity
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/HelloActivity/tests/Android.bp b/samples/HelloActivity/tests/Android.bp
+new file mode 100644
+index 000000000..f9346caf2
+--- /dev/null
++++ b/samples/HelloActivity/tests/Android.bp
+@@ -0,0 +1,11 @@
++android_test {
++    name: "HelloActivityTests",
++    srcs: ["**/*.java"],
++    libs: [
++        "android.test.runner.stubs",
++        "android.test.base.stubs",
++    ],
++    static_libs: ["junit"],
++    instrumentation_for: "HelloActivity",
++    sdk_version: "current",
++}
+diff --git a/samples/HelloActivity/tests/Android.mk b/samples/HelloActivity/tests/Android.mk
+deleted file mode 100644
+index 2d981b197..000000000
+--- a/samples/HelloActivity/tests/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_JAVA_LIBRARIES := android.test.runner.stubs android.test.base.stubs
+-
+-LOCAL_STATIC_JAVA_LIBRARIES := junit
+-
+-LOCAL_PACKAGE_NAME := HelloActivityTests
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-LOCAL_INSTRUMENTATION_FOR := HelloActivity
+-
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/HelloEffects/Android.bp b/samples/HelloEffects/Android.bp
+new file mode 100644
+index 000000000..23887bb79
+--- /dev/null
++++ b/samples/HelloEffects/Android.bp
+@@ -0,0 +1,8 @@
++android_app {
++    name: "HelloEffects",
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/HelloEffects/Android.mk b/samples/HelloEffects/Android.mk
+deleted file mode 100644
+index a3aa38a2f..000000000
+--- a/samples/HelloEffects/Android.mk
++++ /dev/null
+@@ -1,14 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_PACKAGE_NAME := HelloEffects
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/Home/Android.bp b/samples/Home/Android.bp
+new file mode 100644
+index 000000000..0d1bb775a
+--- /dev/null
++++ b/samples/Home/Android.bp
+@@ -0,0 +1,8 @@
++android_app {
++    name: "Home",
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/Home/Android.mk b/samples/Home/Android.mk
+deleted file mode 100644
+index 748e8c2fd..000000000
+--- a/samples/Home/Android.mk
++++ /dev/null
+@@ -1,14 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := Home
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/HoneycombGallery/Android.bp b/samples/HoneycombGallery/Android.bp
+new file mode 100644
+index 000000000..238bcd931
+--- /dev/null
++++ b/samples/HoneycombGallery/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "HoneycombGallery",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/HoneycombGallery/Android.mk b/samples/HoneycombGallery/Android.mk
+deleted file mode 100644
+index 1a9f0f522..000000000
+--- a/samples/HoneycombGallery/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := HoneycombGallery
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/JetBoy/Android.bp b/samples/JetBoy/Android.bp
+new file mode 100644
+index 000000000..9600510f5
+--- /dev/null
++++ b/samples/JetBoy/Android.bp
+@@ -0,0 +1,8 @@
++android_app {
++    name: "JETBoy",
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/JetBoy/Android.mk b/samples/JetBoy/Android.mk
+deleted file mode 100755
+index 8c885caf1..000000000
+--- a/samples/JetBoy/Android.mk
++++ /dev/null
+@@ -1,14 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := JETBoy
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/KeyChainDemo/Android.bp b/samples/KeyChainDemo/Android.bp
+new file mode 100644
+index 000000000..da407b250
+--- /dev/null
++++ b/samples/KeyChainDemo/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "KeyChainDemo",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/KeyChainDemo/Android.mk b/samples/KeyChainDemo/Android.mk
+deleted file mode 100644
+index 47495f714..000000000
+--- a/samples/KeyChainDemo/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := KeyChainDemo
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/LceDemo/Android.bp b/samples/LceDemo/Android.bp
+new file mode 100644
+index 000000000..2140d36e0
+--- /dev/null
++++ b/samples/LceDemo/Android.bp
+@@ -0,0 +1,6 @@
++android_app {
++    name: "LceDemo",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++}
+diff --git a/samples/LceDemo/Android.mk b/samples/LceDemo/Android.mk
+deleted file mode 100644
+index 96d2385cb..000000000
+--- a/samples/LceDemo/Android.mk
++++ /dev/null
+@@ -1,19 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := LceDemo
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+-
+diff --git a/samples/LunarLander/Android.bp b/samples/LunarLander/Android.bp
+new file mode 100644
+index 000000000..382f312d8
+--- /dev/null
++++ b/samples/LunarLander/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "LunarLander",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/LunarLander/Android.mk b/samples/LunarLander/Android.mk
+deleted file mode 100644
+index 9fd0f4d44..000000000
+--- a/samples/LunarLander/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := LunarLander
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/LunarLander/tests/Android.bp b/samples/LunarLander/tests/Android.bp
+new file mode 100644
+index 000000000..0adb26b68
+--- /dev/null
++++ b/samples/LunarLander/tests/Android.bp
+@@ -0,0 +1,11 @@
++android_test {
++    name: "LunarLanderTests",
++    srcs: ["**/*.java"],
++    libs: [
++        "android.test.runner.stubs",
++        "android.test.base.stubs",
++    ],
++    static_libs: ["junit"],
++    instrumentation_for: "LunarLander",
++    sdk_version: "current",
++}
+diff --git a/samples/LunarLander/tests/Android.mk b/samples/LunarLander/tests/Android.mk
+deleted file mode 100644
+index a84b5d967..000000000
+--- a/samples/LunarLander/tests/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_JAVA_LIBRARIES := android.test.runner.stubs android.test.base.stubs
+-
+-LOCAL_STATIC_JAVA_LIBRARIES := junit
+-
+-LOCAL_PACKAGE_NAME := LunarLanderTests
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-LOCAL_INSTRUMENTATION_FOR := LunarLander
+-
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/MultiResolution/Android.bp b/samples/MultiResolution/Android.bp
+new file mode 100644
+index 000000000..878be59e8
+--- /dev/null
++++ b/samples/MultiResolution/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "MultiResolution",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/MultiResolution/Android.mk b/samples/MultiResolution/Android.mk
+deleted file mode 100644
+index 58e75ae6c..000000000
+--- a/samples/MultiResolution/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := MultiResolution
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/MultiWindow/Android.bp b/samples/MultiWindow/Android.bp
+new file mode 100644
+index 000000000..12f160f9b
+--- /dev/null
++++ b/samples/MultiWindow/Android.bp
+@@ -0,0 +1,6 @@
++android_app {
++    name: "MultiWindow",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++}
+diff --git a/samples/MultiWindow/Android.mk b/samples/MultiWindow/Android.mk
+deleted file mode 100644
+index 8827b30cf..000000000
+--- a/samples/MultiWindow/Android.mk
++++ /dev/null
+@@ -1,16 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := MultiWindow
+-
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/MySampleRss/Android.bp b/samples/MySampleRss/Android.bp
+new file mode 100644
+index 000000000..25e0ecb1b
+--- /dev/null
++++ b/samples/MySampleRss/Android.bp
+@@ -0,0 +1,9 @@
++// Broken
++//android_app {
++//  name: "MyRSSReader",
++//  srcs: ["**/*.java"],
++//  sdk_version: "current",
++//  dex_preopt: {
++//    enabled: false,
++//  },
++//}
+diff --git a/samples/MySampleRss/Android.mk b/samples/MySampleRss/Android.mk
+deleted file mode 100644
+index 93d6e7277..000000000
+--- a/samples/MySampleRss/Android.mk
++++ /dev/null
+@@ -1,14 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := MyRSSReader
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-##include $(BUILD_PACKAGE)
+diff --git a/samples/NotePad/Android.bp b/samples/NotePad/Android.bp
+new file mode 100644
+index 000000000..adbe9ea38
+--- /dev/null
++++ b/samples/NotePad/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "NotePad",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/NotePad/Android.mk b/samples/NotePad/Android.mk
+deleted file mode 100644
+index bf8db91d4..000000000
+--- a/samples/NotePad/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := NotePad
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/Obb/Android.bp b/samples/Obb/Android.bp
+new file mode 100644
+index 000000000..65a5861e1
+--- /dev/null
++++ b/samples/Obb/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "ObbApp",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/Obb/Android.mk b/samples/Obb/Android.mk
+deleted file mode 100644
+index c61613fbe..000000000
+--- a/samples/Obb/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := ObbApp
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/RSSReader/Android.bp b/samples/RSSReader/Android.bp
+new file mode 100644
+index 000000000..671519baa
+--- /dev/null
++++ b/samples/RSSReader/Android.bp
+@@ -0,0 +1,8 @@
++android_app {
++    name: "RSSReader",
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/RSSReader/Android.mk b/samples/RSSReader/Android.mk
+deleted file mode 100644
+index 78232c793..000000000
+--- a/samples/RSSReader/Android.mk
++++ /dev/null
+@@ -1,14 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := RSSReader
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/ReceiveShareDemo/Android.bp b/samples/ReceiveShareDemo/Android.bp
+new file mode 100644
+index 000000000..aac100e9b
+--- /dev/null
++++ b/samples/ReceiveShareDemo/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "ReceiveShareDemo",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/ReceiveShareDemo/Android.mk b/samples/ReceiveShareDemo/Android.mk
+deleted file mode 100644
+index 84759ab70..000000000
+--- a/samples/ReceiveShareDemo/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := ReceiveShareDemo
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/SampleSyncAdapter/Android.bp b/samples/SampleSyncAdapter/Android.bp
+new file mode 100644
+index 000000000..09cc11491
+--- /dev/null
++++ b/samples/SampleSyncAdapter/Android.bp
+@@ -0,0 +1,9 @@
++android_test {
++    name: "SampleSyncAdapter",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "15",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/SampleSyncAdapter/Android.mk b/samples/SampleSyncAdapter/Android.mk
+deleted file mode 100644
+index 07ee0a7c0..000000000
+--- a/samples/SampleSyncAdapter/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples tests
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := SampleSyncAdapter
+-
+-LOCAL_SDK_VERSION := 15
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the folloing include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/SearchableDictionary/Android.bp b/samples/SearchableDictionary/Android.bp
+new file mode 100644
+index 000000000..2b39bcfe1
+--- /dev/null
++++ b/samples/SearchableDictionary/Android.bp
+@@ -0,0 +1,8 @@
++android_app {
++    name: "SearchableDictionary",
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/SearchableDictionary/Android.mk b/samples/SearchableDictionary/Android.mk
+deleted file mode 100755
+index a18d23c15..000000000
+--- a/samples/SearchableDictionary/Android.mk
++++ /dev/null
+@@ -1,14 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_PACKAGE_NAME := SearchableDictionary
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/SimpleJNI/Android.bp b/samples/SimpleJNI/Android.bp
+new file mode 100644
+index 000000000..5a01b572b
+--- /dev/null
++++ b/samples/SimpleJNI/Android.bp
+@@ -0,0 +1,31 @@
++//
++// Copyright (C) 2008 The Android Open Source Project
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++//
++
++// This makefile shows how to build a shared library and an activity that
++// bundles the shared library and calls it using JNI.
++
++android_app {
++    name: "SimpleJNI",
++    srcs: ["**/*.java"],
++    jni_libs: ["libsimplejni"],
++    optimize: {
++        enabled: false,
++    },
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/SimpleJNI/Android.mk b/samples/SimpleJNI/Android.mk
+deleted file mode 100644
+index c69dd3a2d..000000000
+--- a/samples/SimpleJNI/Android.mk
++++ /dev/null
+@@ -1,46 +0,0 @@
+-#
+-# Copyright (C) 2008 The Android Open Source Project
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#      http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-#
+-
+-# This makefile shows how to build a shared library and an activity that
+-# bundles the shared library and calls it using JNI.
+-
+-TOP_LOCAL_PATH:= $(call my-dir)
+-
+-# Build activity
+-
+-LOCAL_PATH:= $(TOP_LOCAL_PATH)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := SimpleJNI
+-
+-LOCAL_JNI_SHARED_LIBRARIES := libsimplejni
+-
+-LOCAL_PROGUARD_ENABLED := disabled
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# ============================================================
+-
+-# Also build all of the sub-targets under this one: the shared library.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/SimpleJNI/jni/Android.bp b/samples/SimpleJNI/jni/Android.bp
+new file mode 100644
+index 000000000..d920b4bba
+--- /dev/null
++++ b/samples/SimpleJNI/jni/Android.bp
+@@ -0,0 +1,34 @@
++//
++// Copyright (C) 2008 The Android Open Source Project
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++//
++
++// This makefile supplies the rules for building a library of JNI code for
++// use by our example of how to bundle a shared library with an APK.
++
++cc_library_shared {
++    name: "libsimplejni",
++    // All of the source files that we will compile.
++    srcs: ["native.cpp"],
++    // All of the shared libraries we link against.
++    shared_libs: ["liblog"],
++    // No static libraries.
++    static_libs: [],
++    cflags: [
++        "-Wall",
++        "-Werror",
++    ],
++    stl: "none",
++    sdk_version: "current",
++}
+diff --git a/samples/SimpleJNI/jni/Android.mk b/samples/SimpleJNI/jni/Android.mk
+deleted file mode 100644
+index dc6390f01..000000000
+--- a/samples/SimpleJNI/jni/Android.mk
++++ /dev/null
+@@ -1,45 +0,0 @@
+-#
+-# Copyright (C) 2008 The Android Open Source Project
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#      http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-#
+-
+-# This makefile supplies the rules for building a library of JNI code for
+-# use by our example of how to bundle a shared library with an APK.
+-
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# This is the target being built.
+-LOCAL_MODULE:= libsimplejni
+-
+-
+-# All of the source files that we will compile.
+-LOCAL_SRC_FILES:= \
+-    native.cpp
+-
+-# All of the shared libraries we link against.
+-LOCAL_LDLIBS := -llog
+-
+-# No static libraries.
+-LOCAL_STATIC_LIBRARIES :=
+-
+-LOCAL_CFLAGS := -Wall -Werror
+-
+-LOCAL_NDK_STL_VARIANT := none
+-
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_SHARED_LIBRARY)
+diff --git a/samples/SipDemo/Android.bp b/samples/SipDemo/Android.bp
+new file mode 100644
+index 000000000..ddde98242
+--- /dev/null
++++ b/samples/SipDemo/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "SipDemo",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/SipDemo/Android.mk b/samples/SipDemo/Android.mk
+deleted file mode 100644
+index 515b1afca..000000000
+--- a/samples/SipDemo/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := SipDemo
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/SkeletonApp/Android.bp b/samples/SkeletonApp/Android.bp
+new file mode 100644
+index 000000000..c8704479a
+--- /dev/null
++++ b/samples/SkeletonApp/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "SkeletonApp",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/SkeletonApp/Android.mk b/samples/SkeletonApp/Android.mk
+deleted file mode 100644
+index fd4fbd7a0..000000000
+--- a/samples/SkeletonApp/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := SkeletonApp
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/SkeletonApp/tests/Android.bp b/samples/SkeletonApp/tests/Android.bp
+new file mode 100644
+index 000000000..77229279c
+--- /dev/null
++++ b/samples/SkeletonApp/tests/Android.bp
+@@ -0,0 +1,11 @@
++android_test {
++    name: "SkeletonAppTests",
++    srcs: ["**/*.java"],
++    libs: [
++        "android.test.runner.stubs",
++        "android.test.base.stubs",
++    ],
++    static_libs: ["junit"],
++    instrumentation_for: "SkeletonApp",
++    sdk_version: "current",
++}
+diff --git a/samples/SkeletonApp/tests/Android.mk b/samples/SkeletonApp/tests/Android.mk
+deleted file mode 100644
+index 9f8e03bf3..000000000
+--- a/samples/SkeletonApp/tests/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_JAVA_LIBRARIES := android.test.runner.stubs android.test.base.stubs
+-
+-LOCAL_STATIC_JAVA_LIBRARIES := junit
+-
+-LOCAL_PACKAGE_NAME := SkeletonAppTests
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-LOCAL_INSTRUMENTATION_FOR := SkeletonApp
+-
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/Snake/Android.bp b/samples/Snake/Android.bp
+new file mode 100644
+index 000000000..645f4d27c
+--- /dev/null
++++ b/samples/Snake/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "Snake",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/Snake/Android.mk b/samples/Snake/Android.mk
+deleted file mode 100644
+index 33c7931f8..000000000
+--- a/samples/Snake/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := Snake
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/Snake/tests/Android.bp b/samples/Snake/tests/Android.bp
+new file mode 100644
+index 000000000..82c541f62
+--- /dev/null
++++ b/samples/Snake/tests/Android.bp
+@@ -0,0 +1,11 @@
++android_test {
++    name: "SnakeTests",
++    srcs: ["**/*.java"],
++    libs: [
++        "android.test.runner.stubs",
++        "android.test.base.stubs",
++    ],
++    static_libs: ["junit"],
++    instrumentation_for: "Snake",
++    sdk_version: "current",
++}
+diff --git a/samples/Snake/tests/Android.mk b/samples/Snake/tests/Android.mk
+deleted file mode 100644
+index 972483f1d..000000000
+--- a/samples/Snake/tests/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_JAVA_LIBRARIES := android.test.runner.stubs android.test.base.stubs
+-
+-LOCAL_STATIC_JAVA_LIBRARIES := junit
+-
+-LOCAL_PACKAGE_NAME := SnakeTests
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-LOCAL_INSTRUMENTATION_FOR := Snake
+-
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/SoftKeyboard/Android.bp b/samples/SoftKeyboard/Android.bp
+new file mode 100644
+index 000000000..8662b6038
+--- /dev/null
++++ b/samples/SoftKeyboard/Android.bp
+@@ -0,0 +1,8 @@
++android_app {
++    name: "SoftKeyboard",
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/SoftKeyboard/Android.mk b/samples/SoftKeyboard/Android.mk
+deleted file mode 100755
+index f727dcf21..000000000
+--- a/samples/SoftKeyboard/Android.mk
++++ /dev/null
+@@ -1,14 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_PACKAGE_NAME := SoftKeyboard
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/SpellChecker/Android.mk b/samples/SpellChecker/Android.mk
+deleted file mode 100644
+index 5053e7d64..000000000
+--- a/samples/SpellChecker/Android.mk
++++ /dev/null
+@@ -1 +0,0 @@
+-include $(call all-subdir-makefiles)
+diff --git a/samples/SpellChecker/HelloSpellChecker/Android.bp b/samples/SpellChecker/HelloSpellChecker/Android.bp
+new file mode 100644
+index 000000000..248908e90
+--- /dev/null
++++ b/samples/SpellChecker/HelloSpellChecker/Android.bp
+@@ -0,0 +1,6 @@
++android_app {
++    name: "HelloSpellChecker",
++    srcs: ["**/*.java"],
++    // TODO: Change sdk version to 16
++    sdk_version: "current",
++}
+diff --git a/samples/SpellChecker/HelloSpellChecker/Android.mk b/samples/SpellChecker/HelloSpellChecker/Android.mk
+deleted file mode 100755
+index 5138ce92a..000000000
+--- a/samples/SpellChecker/HelloSpellChecker/Android.mk
++++ /dev/null
+@@ -1,13 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-# TODO: Change sdk version to 16
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_PACKAGE_NAME := HelloSpellChecker
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/SpellChecker/SampleSpellCheckerService/Android.bp b/samples/SpellChecker/SampleSpellCheckerService/Android.bp
+new file mode 100644
+index 000000000..b140932ce
+--- /dev/null
++++ b/samples/SpellChecker/SampleSpellCheckerService/Android.bp
+@@ -0,0 +1,6 @@
++android_app {
++    name: "SampleSpellCheckerService",
++    srcs: ["**/*.java"],
++    // TODO: Change sdk version to 16
++    sdk_version: "current",
++}
+diff --git a/samples/SpellChecker/SampleSpellCheckerService/Android.mk b/samples/SpellChecker/SampleSpellCheckerService/Android.mk
+deleted file mode 100755
+index 4f6b4219d..000000000
+--- a/samples/SpellChecker/SampleSpellCheckerService/Android.mk
++++ /dev/null
+@@ -1,13 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-# TODO: Change sdk version to 16
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_PACKAGE_NAME := SampleSpellCheckerService
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/StackWidget/Android.bp b/samples/StackWidget/Android.bp
+new file mode 100644
+index 000000000..5ec823af1
+--- /dev/null
++++ b/samples/StackWidget/Android.bp
+@@ -0,0 +1,9 @@
++android_test {
++    name: "StackWidget",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/StackWidget/Android.mk b/samples/StackWidget/Android.mk
+deleted file mode 100644
+index 5a8ef6535..000000000
+--- a/samples/StackWidget/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := StackWidget
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/ThemedNavBarKeyboard/Android.bp b/samples/ThemedNavBarKeyboard/Android.bp
+new file mode 100644
+index 000000000..2c6bb4502
+--- /dev/null
++++ b/samples/ThemedNavBarKeyboard/Android.bp
+@@ -0,0 +1,24 @@
++//
++// Copyright (C) 2017 The Android Open Source Project
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++//
++
++android_app {
++    name: "ThemedNavBarKeyboard",
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/ThemedNavBarKeyboard/Android.mk b/samples/ThemedNavBarKeyboard/Android.mk
+deleted file mode 100755
+index c0f8d2e25..000000000
+--- a/samples/ThemedNavBarKeyboard/Android.mk
++++ /dev/null
+@@ -1,30 +0,0 @@
+-#
+-# Copyright (C) 2017 The Android Open Source Project
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#      http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-#
+-
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_PACKAGE_NAME := ThemedNavBarKeyboard
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/ToyVpn/Android.bp b/samples/ToyVpn/Android.bp
+new file mode 100644
+index 000000000..430fccba0
+--- /dev/null
++++ b/samples/ToyVpn/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "ToyVpn",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/ToyVpn/Android.mk b/samples/ToyVpn/Android.mk
+deleted file mode 100644
+index f84702ec5..000000000
+--- a/samples/ToyVpn/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := ToyVpn
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/TtsEngine/Android.bp b/samples/TtsEngine/Android.bp
+new file mode 100644
+index 000000000..5aff36397
+--- /dev/null
++++ b/samples/TtsEngine/Android.bp
+@@ -0,0 +1,8 @@
++android_app {
++    name: "TtsEngine",
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/TtsEngine/Android.mk b/samples/TtsEngine/Android.mk
+deleted file mode 100644
+index 74a56144e..000000000
+--- a/samples/TtsEngine/Android.mk
++++ /dev/null
+@@ -1,15 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := TtsEngine
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+diff --git a/samples/USB/AdbTest/Android.bp b/samples/USB/AdbTest/Android.bp
+new file mode 100644
+index 000000000..c812f8017
+--- /dev/null
++++ b/samples/USB/AdbTest/Android.bp
+@@ -0,0 +1,5 @@
++android_app {
++    name: "AdbTest",
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++}
+diff --git a/samples/USB/AdbTest/Android.mk b/samples/USB/AdbTest/Android.mk
+deleted file mode 100644
+index bfb9fa83e..000000000
+--- a/samples/USB/AdbTest/Android.mk
++++ /dev/null
+@@ -1,12 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := AdbTest
+-
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/USB/Android.mk b/samples/USB/Android.mk
+deleted file mode 100644
+index 5053e7d64..000000000
+--- a/samples/USB/Android.mk
++++ /dev/null
+@@ -1 +0,0 @@
+-include $(call all-subdir-makefiles)
+diff --git a/samples/USB/MissileLauncher/Android.bp b/samples/USB/MissileLauncher/Android.bp
+new file mode 100644
+index 000000000..249349ed4
+--- /dev/null
++++ b/samples/USB/MissileLauncher/Android.bp
+@@ -0,0 +1,5 @@
++android_app {
++    name: "MissileLauncher",
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++}
+diff --git a/samples/USB/MissileLauncher/Android.mk b/samples/USB/MissileLauncher/Android.mk
+deleted file mode 100644
+index daabb0c3a..000000000
+--- a/samples/USB/MissileLauncher/Android.mk
++++ /dev/null
+@@ -1,12 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := MissileLauncher
+-
+-LOCAL_SDK_VERSION := current
+-
+-include $(BUILD_PACKAGE)
+\ No newline at end of file
+diff --git a/samples/Vault/Android.bp b/samples/Vault/Android.bp
+new file mode 100644
+index 000000000..65276dffc
+--- /dev/null
++++ b/samples/Vault/Android.bp
+@@ -0,0 +1,16 @@
++android_test_helper_app {
++    name: "Vault",
++    srcs: ["**/*.java"],
++    static_libs: ["junit"],
++    libs: [
++        "android.test.runner.stubs",
++        "android.test.base.stubs",
++    ],
++    sdk_version: "current",
++    optimize: {
++        enabled: false,
++    },
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/Vault/Android.mk b/samples/Vault/Android.mk
+deleted file mode 100644
+index 965bae570..000000000
+--- a/samples/Vault/Android.mk
++++ /dev/null
+@@ -1,21 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := optional
+-LOCAL_MODULE_PATH := $(TARGET_OUT_DATA_APPS)
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_STATIC_JAVA_LIBRARIES := junit
+-
+-LOCAL_JAVA_LIBRARIES := android.test.runner.stubs android.test.base.stubs
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_PROGUARD_ENABLED := disabled
+-
+-LOCAL_PACKAGE_NAME := Vault
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/Vault/tests/Android.bp b/samples/Vault/tests/Android.bp
+new file mode 100644
+index 000000000..6b28d6e03
+--- /dev/null
++++ b/samples/Vault/tests/Android.bp
+@@ -0,0 +1,10 @@
++android_test {
++    name: "VaultTests",
++    libs: [
++        "android.test.runner.stubs",
++        "android.test.base.stubs",
++    ],
++    srcs: ["src/**/*.java"],
++    instrumentation_for: "Vault",
++    static_libs: ["androidx.test.rules"],
++}
+diff --git a/samples/Vault/tests/Android.mk b/samples/Vault/tests/Android.mk
+deleted file mode 100644
+index ac04b39cb..000000000
+--- a/samples/Vault/tests/Android.mk
++++ /dev/null
+@@ -1,13 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-LOCAL_JAVA_LIBRARIES := android.test.runner.stubs
+-
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := VaultTests
+-LOCAL_INSTRUMENTATION_FOR := Vault
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/VoiceRecognitionService/Android.bp b/samples/VoiceRecognitionService/Android.bp
+new file mode 100644
+index 000000000..9ad9811d2
+--- /dev/null
++++ b/samples/VoiceRecognitionService/Android.bp
+@@ -0,0 +1,8 @@
++android_app {
++    name: "VoiceRecognitionService",
++    srcs: ["**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/VoiceRecognitionService/Android.mk b/samples/VoiceRecognitionService/Android.mk
+deleted file mode 100755
+index 0873b3a3a..000000000
+--- a/samples/VoiceRecognitionService/Android.mk
++++ /dev/null
+@@ -1,14 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-LOCAL_PACKAGE_NAME := VoiceRecognitionService
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/VoicemailProviderDemo/Android.bp b/samples/VoicemailProviderDemo/Android.bp
+new file mode 100644
+index 000000000..2b98c0809
+--- /dev/null
++++ b/samples/VoicemailProviderDemo/Android.bp
+@@ -0,0 +1,25 @@
++//
++// Copyright (C) 2011 The Android Open Source Project
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++//  You may obtain a copy of the License at
++//
++//       http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++//
++
++android_app {
++    name: "VoicemailProviderDemo",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/VoicemailProviderDemo/Android.mk b/samples/VoicemailProviderDemo/Android.mk
+deleted file mode 100644
+index d4ebb4ea1..000000000
+--- a/samples/VoicemailProviderDemo/Android.mk
++++ /dev/null
+@@ -1,34 +0,0 @@
+-#
+-# Copyright (C) 2011 The Android Open Source Project
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-#  You may obtain a copy of the License at
+-#
+-#       http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-#
+-
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := VoicemailProviderDemo
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/WeatherListWidget/Android.bp b/samples/WeatherListWidget/Android.bp
+new file mode 100644
+index 000000000..23cc35288
+--- /dev/null
++++ b/samples/WeatherListWidget/Android.bp
+@@ -0,0 +1,9 @@
++android_test {
++    name: "WeatherListWidget",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/WeatherListWidget/Android.mk b/samples/WeatherListWidget/Android.mk
+deleted file mode 100644
+index ab02116c6..000000000
+--- a/samples/WeatherListWidget/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := WeatherListWidget
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/WiFiDirectDemo/Android.bp b/samples/WiFiDirectDemo/Android.bp
+new file mode 100644
+index 000000000..e6bcc652e
+--- /dev/null
++++ b/samples/WiFiDirectDemo/Android.bp
+@@ -0,0 +1,10 @@
++android_app {
++    name: "WiFiDirectDemo",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    static_libs: ["android-support-v4"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/WiFiDirectDemo/Android.mk b/samples/WiFiDirectDemo/Android.mk
+deleted file mode 100644
+index 5a76260f3..000000000
+--- a/samples/WiFiDirectDemo/Android.mk
++++ /dev/null
+@@ -1,21 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_STATIC_ANDROID_LIBRARIES += \
+-        android-support-v4
+-
+-LOCAL_PACKAGE_NAME := WiFiDirectDemo
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/WiFiDirectServiceDiscovery/Android.bp b/samples/WiFiDirectServiceDiscovery/Android.bp
+new file mode 100644
+index 000000000..bb41aecb1
+--- /dev/null
++++ b/samples/WiFiDirectServiceDiscovery/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "WiFiDirectServiceDiscovery",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/WiFiDirectServiceDiscovery/Android.mk b/samples/WiFiDirectServiceDiscovery/Android.mk
+deleted file mode 100644
+index d675ad589..000000000
+--- a/samples/WiFiDirectServiceDiscovery/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := WiFiDirectServiceDiscovery
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/Wiktionary/Android.bp b/samples/Wiktionary/Android.bp
+new file mode 100644
+index 000000000..48995e92d
+--- /dev/null
++++ b/samples/Wiktionary/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "Wiktionary",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "8",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/Wiktionary/Android.mk b/samples/Wiktionary/Android.mk
+deleted file mode 100644
+index 08f57ffdc..000000000
+--- a/samples/Wiktionary/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := Wiktionary
+-
+-LOCAL_SDK_VERSION := 8
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/WiktionarySimple/Android.bp b/samples/WiktionarySimple/Android.bp
+new file mode 100644
+index 000000000..0cc9c98eb
+--- /dev/null
++++ b/samples/WiktionarySimple/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "WiktionarySimple",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "8",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/WiktionarySimple/Android.mk b/samples/WiktionarySimple/Android.mk
+deleted file mode 100644
+index 59dc332c9..000000000
+--- a/samples/WiktionarySimple/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := WiktionarySimple
+-
+-LOCAL_SDK_VERSION := 8
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/XmlAdapters/Android.bp b/samples/XmlAdapters/Android.bp
+new file mode 100644
+index 000000000..8ca721826
+--- /dev/null
++++ b/samples/XmlAdapters/Android.bp
+@@ -0,0 +1,12 @@
++android_app {
++    name: "xmladapters",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    optimize: {
++        enabled: false,
++    },
++    sdk_version: "8",
++    dex_preopt: {
++        enabled: false,
++    },
++}
+diff --git a/samples/XmlAdapters/Android.mk b/samples/XmlAdapters/Android.mk
+deleted file mode 100644
+index ebf90b2e2..000000000
+--- a/samples/XmlAdapters/Android.mk
++++ /dev/null
+@@ -1,20 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := xmladapters
+-
+-LOCAL_PROGUARD_ENABLED := disabled
+-
+-LOCAL_SDK_VERSION := 8
+-
+-LOCAL_DEX_PREOPT := false
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-#include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/samples/apkcachetest/Android.bp b/samples/apkcachetest/Android.bp
+new file mode 100644
+index 000000000..67ffeb9e6
+--- /dev/null
++++ b/samples/apkcachetest/Android.bp
+@@ -0,0 +1,25 @@
++//
++// Copyright (C) 2016 The Android Open Source Project
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++//
++
++android_test {
++    name: "ApkCacheTest",
++    srcs: ["src/**/*.java"],
++    platform_apis: true,
++    certificate: "shared",
++    optimize: {
++        enabled: false,
++    },
++}
+diff --git a/samples/apkcachetest/Android.mk b/samples/apkcachetest/Android.mk
+deleted file mode 100644
+index a6f9481f4..000000000
+--- a/samples/apkcachetest/Android.mk
++++ /dev/null
+@@ -1,31 +0,0 @@
+-#
+-# Copyright (C) 2016 The Android Open Source Project
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#      http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-#
+-
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := tests
+-
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := ApkCacheTest
+-LOCAL_PRIVATE_PLATFORM_APIS := true
+-
+-LOCAL_CERTIFICATE := shared
+-
+-LOCAL_PROGUARD_ENABLED := disabled
+-
+-include $(BUILD_PACKAGE)
+diff --git a/samples/training/NsdChat/Android.bp b/samples/training/NsdChat/Android.bp
+new file mode 100644
+index 000000000..574553c66
+--- /dev/null
++++ b/samples/training/NsdChat/Android.bp
+@@ -0,0 +1,9 @@
++android_app {
++    name: "NsdChat",
++    // Only compile source java files in this apk.
++    srcs: ["src/**/*.java"],
++    sdk_version: "current",
++    optimize: {
++        proguard_flags_files: ["proguard.cfg"],
++    },
++}
+diff --git a/samples/training/NsdChat/Android.mk b/samples/training/NsdChat/Android.mk
+deleted file mode 100644
+index 8cea77b15..000000000
+--- a/samples/training/NsdChat/Android.mk
++++ /dev/null
+@@ -1,18 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-# Only compile source java files in this apk.
+-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+-
+-LOCAL_PACKAGE_NAME := NsdChat
+-
+-LOCAL_SDK_VERSION := current
+-
+-LOCAL_PROGUARD_FLAG_FILES := proguard.cfg
+-
+-include $(BUILD_PACKAGE)
+-
+-# Use the following include to make our test apk.
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+diff --git a/apps/WidgetPreview/Android.mk b/vndk/tools/header-checker/android/envsetup.sh
+similarity index 60%
+rename from apps/WidgetPreview/Android.mk
+rename to vndk/tools/header-checker/android/envsetup.sh
+index 04a492798..9603abccf 100644
+--- a/apps/WidgetPreview/Android.mk
++++ b/vndk/tools/header-checker/android/envsetup.sh
+@@ -1,27 +1,19 @@
+-#
+-# Copyright (C) 2010 The Android Open Source Project
++#!/bin/bash -ex
++
++# Copyright 2019 Google Inc. All rights reserved.
+ #
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+-#      http://www.apache.org/licenses/LICENSE-2.0
++#     http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#
+-
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := samples
+-
+-LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-
+-LOCAL_PACKAGE_NAME := WidgetPreview
+-LOCAL_SDK_VERSION := current
+ 
+-include $(BUILD_PACKAGE)
++export LLVM_BUILD_HOST_TOOLS=true
++export LLVM_PREBUILTS_VERSION=clang-r377782
++export LLVM_RELEASE_VERSION=10.0.3
+diff --git a/vndk/tools/header-checker/src/dumper/abi_wrappers.cpp b/vndk/tools/header-checker/src/dumper/abi_wrappers.cpp
+index b17a7fc22..0696b9cfb 100644
+--- a/vndk/tools/header-checker/src/dumper/abi_wrappers.cpp
++++ b/vndk/tools/header-checker/src/dumper/abi_wrappers.cpp
+@@ -18,7 +18,6 @@
+ #include "utils/header_abi_util.h"
+ 
+ #include <clang/AST/QualTypeNames.h>
+-#include <clang/Index/CodegenNameGenerator.h>
+ 
+ #include <string>
+ 
+diff --git a/vndk/tools/header-checker/src/dumper/ast_processing.cpp b/vndk/tools/header-checker/src/dumper/ast_processing.cpp
+index 3df360cca..4474b1819 100644
+--- a/vndk/tools/header-checker/src/dumper/ast_processing.cpp
++++ b/vndk/tools/header-checker/src/dumper/ast_processing.cpp
+@@ -19,7 +19,6 @@
+ 
+ #include <clang/Lex/Token.h>
+ #include <clang/AST/QualTypeNames.h>
+-#include <clang/Index/CodegenNameGenerator.h>
+ 
+ #include <fstream>
+ #include <iostream>
+@@ -136,7 +135,7 @@ bool HeaderASTVisitor::VisitFunctionDecl(const clang::FunctionDecl *decl) {
+   auto function_wrapper = function_decl_wrapper.GetFunctionDecl();
+   // Destructors and Constructors can have more than 1 symbol generated from the
+   // same Decl.
+-  clang::index::CodegenNameGenerator cg(*ast_contextp_);
++  clang::ASTNameGenerator cg(*ast_contextp_);
+   std::vector<std::string> manglings = cg.getAllManglings(decl);
+   if (!manglings.empty()) {
+     return AddMangledFunctions(function_wrapper.get(), module_, manglings);
+diff --git a/vndk/tools/header-checker/src/dumper/fake_decl_source.cpp b/vndk/tools/header-checker/src/dumper/fake_decl_source.cpp
+index 4930a39c9..57cd1e389 100644
+--- a/vndk/tools/header-checker/src/dumper/fake_decl_source.cpp
++++ b/vndk/tools/header-checker/src/dumper/fake_decl_source.cpp
+@@ -57,8 +57,7 @@ FakeDeclSource::CreateClassTemplateDecl(clang::CXXRecordDecl *cxx_record_decl,
+   clang::ClassTemplateDecl *class_template_decl =
+       clang::ClassTemplateDecl::Create(
+           ast, decl_context, clang::SourceLocation(),
+-          cxx_record_decl->getDeclName(), parm_list, cxx_record_decl,
+-          /* AssociatedConstraints */ nullptr);
++          cxx_record_decl->getDeclName(), parm_list, cxx_record_decl);
+ 
+   cxx_record_decl->setDescribedClassTemplate(class_template_decl);
+   class_template_decl->setInvalidDecl(true);
+diff --git a/vndk/tools/header-checker/src/dumper/frontend_action.cpp b/vndk/tools/header-checker/src/dumper/frontend_action.cpp
+index 6b773267b..b4d6ebfa9 100644
+--- a/vndk/tools/header-checker/src/dumper/frontend_action.cpp
++++ b/vndk/tools/header-checker/src/dumper/frontend_action.cpp
+@@ -24,7 +24,7 @@
+ #include <clang/Frontend/CompilerInstance.h>
+ #include <clang/Lex/Preprocessor.h>
+ 
+-#include <llvm/ADT/STLExtras.h>
++#include <utility>
+ 
+ 
+ namespace header_checker {
+@@ -39,7 +39,7 @@ std::unique_ptr<clang::ASTConsumer>
+ HeaderCheckerFrontendAction::CreateASTConsumer(clang::CompilerInstance &ci,
+                                                llvm::StringRef header_file) {
+   // Create AST consumers.
+-  return llvm::make_unique<HeaderASTConsumer>(&ci, options_);
++  return std::make_unique<HeaderASTConsumer>(&ci, options_);
+ }
+ 
+ bool HeaderCheckerFrontendAction::BeginInvocation(clang::CompilerInstance &ci) {
+diff --git a/vndk/tools/header-checker/src/dumper/frontend_action_factory.cpp b/vndk/tools/header-checker/src/dumper/frontend_action_factory.cpp
+index 307b9160d..06f60ade8 100644
+--- a/vndk/tools/header-checker/src/dumper/frontend_action_factory.cpp
++++ b/vndk/tools/header-checker/src/dumper/frontend_action_factory.cpp
+@@ -18,6 +18,8 @@
+ 
+ #include <clang/Frontend/FrontendActions.h>
+ 
++#include <utility>
++
+ 
+ namespace header_checker {
+ namespace dumper {
+@@ -27,8 +29,9 @@ HeaderCheckerFrontendActionFactory::HeaderCheckerFrontendActionFactory(
+     HeaderCheckerOptions &options)
+     : options_(options) {}
+ 
+-clang::FrontendAction *HeaderCheckerFrontendActionFactory::create() {
+-  return new HeaderCheckerFrontendAction(options_);
++std::unique_ptr<clang::FrontendAction>
++HeaderCheckerFrontendActionFactory::create() {
++  return std::make_unique<HeaderCheckerFrontendAction>(options_);
+ }
+ 
+ 
+diff --git a/vndk/tools/header-checker/src/dumper/frontend_action_factory.h b/vndk/tools/header-checker/src/dumper/frontend_action_factory.h
+index 0a7d4094c..61ce4f30d 100644
+--- a/vndk/tools/header-checker/src/dumper/frontend_action_factory.h
++++ b/vndk/tools/header-checker/src/dumper/frontend_action_factory.h
+@@ -35,7 +35,7 @@ class HeaderCheckerFrontendActionFactory
+  public:
+   HeaderCheckerFrontendActionFactory(HeaderCheckerOptions &options);
+ 
+-  clang::FrontendAction *create() override;
++  std::unique_ptr<clang::FrontendAction> create() override;
+ };
+ 
+ 
+diff --git a/vndk/tools/header-checker/src/repr/symbol/so_file_parser.cpp b/vndk/tools/header-checker/src/repr/symbol/so_file_parser.cpp
+index 451c139f1..9320a5480 100644
+--- a/vndk/tools/header-checker/src/repr/symbol/so_file_parser.cpp
++++ b/vndk/tools/header-checker/src/repr/symbol/so_file_parser.cpp
+@@ -21,6 +21,8 @@
+ #include <llvm/Object/ELFTypes.h>
+ #include <llvm/Object/SymbolSize.h>
+ 
++#include <utility>
++
+ 
+ namespace header_checker {
+ namespace repr {
+@@ -112,7 +114,7 @@ ELFSoFileParser<T>::ELFSoFileParser(const llvm::object::ELFObjectFile<T> *obj) {
+ template <typename T>
+ static std::unique_ptr<SoFileParser> CreateELFSoFileParser(
+     const llvm::object::ELFObjectFile<T> *elfo) {
+-  return llvm::make_unique<ELFSoFileParser<T>>(elfo);
++  return std::make_unique<ELFSoFileParser<T>>(elfo);
+ }
+ 
+ 
+-- 
+2.18.4
+

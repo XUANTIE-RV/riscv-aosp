@@ -1,0 +1,597 @@
+From 1d06cf164c2e91c36f25ac55f77e3b51bd3ea0ca Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Wed, 6 Jan 2021 15:42:18 +0800
+Subject: [PATCH] Add build infrastructure for riscv64
+
+This patch adds basic soong build infrastructure for riscv64, including
+target naming, library path and compile flags.
+
+Signed-off-by: Mao Han <han_mao@linux.alibaba.com>
+Signed-off-by: Lifang Xia <lifang_xia@linux.alibaba.com>
+Change-Id: I051a0197b02cd3f6f853b030111362bf4caa126c
+---
+ Android.bp                         |  14 +++
+ android/arch.go                    |  17 +++-
+ androidmk/cmd/androidmk/android.go |   1 +
+ apex/apex.go                       |   5 +
+ cc/cc.go                           |   6 ++
+ cc/config/clang.go                 |   2 +-
+ cc/config/global.go                |  17 +++-
+ cc/config/riscv64_device.go        | 150 +++++++++++++++++++++++++++++
+ cc/gen_stub_libs.py                |   1 +
+ cc/library.go                      |  52 +++++-----
+ cc/linker.go                       |   8 +-
+ cc/ndk_headers.go                  |   3 +
+ cc/ndk_library.go                  |   1 +
+ cc/sanitize.go                     |   2 +-
+ scripts/strip.sh                   |   5 +-
+ 15 files changed, 246 insertions(+), 38 deletions(-)
+ create mode 100644 cc/config/riscv64_device.go
+
+diff --git a/Android.bp b/Android.bp
+index 1d65dff0..2065e616 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -112,6 +112,7 @@ bootstrap_go_package {
+         "cc/config/arm64_fuchsia_device.go",
+         "cc/config/mips_device.go",
+         "cc/config/mips64_device.go",
++        "cc/config/riscv64_device.go",
+         "cc/config/x86_device.go",
+         "cc/config/x86_64_device.go",
+         "cc/config/x86_64_fuchsia_device.go",
+@@ -450,6 +451,9 @@ toolchain_library {
+         arm64: {
+             src: "prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/aarch64-linux-android/lib64/libatomic.a",
+         },
++        riscv64: {
++            src: "prebuilts/gcc/linux-x86/riscv64/riscv64-linux-android-8.1/riscv64-linux-android/lib64/libatomic.a",
++        },
+         x86: {
+             src: "prebuilts/gcc/linux-x86/x86/x86_64-linux-android-4.9/x86_64-linux-android/lib/libatomic.a",
+         },
+@@ -472,6 +476,9 @@ toolchain_library {
+         arm64: {
+             src: "prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/lib/gcc/aarch64-linux-android/4.9.x/libgcc.a",
+         },
++        riscv64: {
++            src: "prebuilts/gcc/linux-x86/riscv64/riscv64-linux-android-8.1/lib/gcc/riscv64-linux-android/8.4.0/libgcc.a",
++        },
+         x86: {
+             src: "prebuilts/gcc/linux-x86/x86/x86_64-linux-android-4.9/lib/gcc/x86_64-linux-android/4.9.x/32/libgcc.a",
+         },
+@@ -539,6 +546,7 @@ toolchain_library {
+                     "_Unwind_GetTextRelBase",
+                     "__gnu_unwind_execute",
+                     "__gnu_unwind_frame",
++                    "__lttf2",
+                 ],
+                 use_gnu_strip: true,
+             },
+@@ -546,6 +554,9 @@ toolchain_library {
+         arm64: {
+             src: "prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/lib/gcc/aarch64-linux-android/4.9.x/libgcc.a",
+         },
++        riscv64: {
++            src: "prebuilts/gcc/linux-x86/riscv64/riscv64-linux-android-8.1/lib/gcc/riscv64-linux-android/8.4.0/libgcc.a",
++        },
+         x86: {
+             src: "prebuilts/gcc/linux-x86/x86/x86_64-linux-android-4.9/lib/gcc/x86_64-linux-android/4.9.x/32/libgcc.a",
+ 
+@@ -621,6 +632,9 @@ toolchain_library {
+         arm64: {
+             src: "prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/lib/gcc/aarch64-linux-android/4.9.x/libgcov.a",
+         },
++        riscv64: {
++            src: "prebuilts/gcc/linux-x86/riscv64/riscv64-linux-android-8.1/lib/gcc/riscv64-linux-android/8.4.0/libgcov.a",
++        },
+         x86: {
+             src: "prebuilts/gcc/linux-x86/x86/x86_64-linux-android-4.9/lib/gcc/x86_64-linux-android/4.9.x/32/libgcov.a",
+         },
+diff --git a/android/arch.go b/android/arch.go
+index 957a659c..5ff3eb01 100644
+--- a/android/arch.go
++++ b/android/arch.go
+@@ -32,6 +32,7 @@ var (
+ 	Arm64  = newArch("arm64", "lib64")
+ 	Mips   = newArch("mips", "lib32")
+ 	Mips64 = newArch("mips64", "lib64")
++	Riscv64  = newArch("riscv64", "lib64")
+ 	X86    = newArch("x86", "lib32")
+ 	X86_64 = newArch("x86_64", "lib64")
+ 
+@@ -45,6 +46,7 @@ var archTypeMap = map[string]ArchType{
+ 	"arm64":  Arm64,
+ 	"mips":   Mips,
+ 	"mips64": Mips64,
++	"riscv64":  Riscv64,
+ 	"x86":    X86,
+ 	"x86_64": X86_64,
+ }
+@@ -67,6 +69,9 @@ module {
+         mips64: {
+             // Host or device variants with mips64 architecture
+         },
++        riscv64: {
++            // Host or device variants with riscv64 architecture
++        },
+         x86: {
+             // Host or device variants with x86 architecture
+         },
+@@ -154,6 +159,9 @@ var archVariants = map[ArchType][]string{
+ 		"mips64r2",
+ 		"mips64r6",
+ 	},
++	Riscv64: {
++		"c910",
++	},
+ 	X86: {
+ 		"amberlake",
+ 		"atom",
+@@ -606,7 +614,7 @@ var (
+ 		LinuxBionic: []ArchType{X86_64},
+ 		Darwin:      []ArchType{X86_64},
+ 		Windows:     []ArchType{X86, X86_64},
+-		Android:     []ArchType{Arm, Arm64, Mips, Mips64, X86, X86_64},
++		Android:     []ArchType{Arm, Arm64, Mips, Mips64, Riscv64, X86, X86_64},
+ 		Fuchsia:     []ArchType{Arm64, X86_64},
+ 	}
+ )
+@@ -705,7 +713,7 @@ func (target Target) String() string {
+ //      target.host.compile_multilib).
+ //    - The default multilib passed to InitAndroidArchModule if compile_multilib was not set.
+ // Valid multilib values include:
+-//    "both": compile for all Targets supported by the OsClass (generally x86_64 and x86, or arm64 and arm).
++//    "both": compile for all Targets supported by the OsClass (generally x86_64 and x86, or arm64 and arm, or riscv64).
+ //    "first": compile for only a single preferred Target supported by the OsClass.  This is generally x86_64 or arm64,
+ //        but may be arm for a 32-bit only build or a build with TARGET_PREFER_32_BIT=true set.
+ //    "32": compile for only a single 32-bit Target supported by the OsClass.
+@@ -1539,6 +1547,10 @@ func getMegaDeviceConfig() []archConfig {
+ 		// mips64r2 is mismatching 64r2 and 64r6 libraries during linking to libgcc
+ 		//{"mips64", "mips64r2", "", []string{"mips64"}},
+ 		{"mips64", "mips64r6", "", []string{"mips64"}},
++		{"riscv64", "", "", []string{"riscv64"}},
++		{"riscv64", "rv64imafc", "", []string{"riscv64"}},
++		{"riscv64", "rv64imafdc", "", []string{"riscv64"}},
++		{"riscv64", "rv64imac", "c910", []string{"riscv64"}},
+ 		{"x86", "", "", []string{"x86"}},
+ 		{"x86", "atom", "", []string{"x86"}},
+ 		{"x86", "haswell", "", []string{"x86"}},
+@@ -1560,6 +1572,7 @@ func getNdkAbisConfig() []archConfig {
+ 	return []archConfig{
+ 		{"arm", "armv7-a", "", []string{"armeabi"}},
+ 		{"arm64", "armv8-a", "", []string{"arm64-v8a"}},
++		{"riscv64", "", "", []string{"riscv64"}},
+ 		{"x86", "", "", []string{"x86"}},
+ 		{"x86_64", "", "", []string{"x86_64"}},
+ 	}
+diff --git a/androidmk/cmd/androidmk/android.go b/androidmk/cmd/androidmk/android.go
+index 52bcf9c9..e26f9435 100644
+--- a/androidmk/cmd/androidmk/android.go
++++ b/androidmk/cmd/androidmk/android.go
+@@ -826,6 +826,7 @@ var propertyPrefixes = []struct{ mk, bp string }{
+ 	{"mips64", "arch.mips64"},
+ 	{"x86", "arch.x86"},
+ 	{"x86_64", "arch.x86_64"},
++	{"riscv64", "arch.riscv64"},
+ 	{"32", "multilib.lib32"},
+ 	// 64 must be after x86_64
+ 	{"64", "multilib.lib64"},
+diff --git a/apex/apex.go b/apex/apex.go
+index 87c54f3b..a9318138 100644
+--- a/apex/apex.go
++++ b/apex/apex.go
+@@ -1308,6 +1308,9 @@ type PrebuiltProperties struct {
+ 		Arm64 struct {
+ 			Src *string
+ 		}
++		Riscv64 struct {
++			Src *string
++		}
+ 		X86 struct {
+ 			Src *string
+ 		}
+@@ -1357,6 +1360,8 @@ func (p *Prebuilt) DepsMutator(ctx android.BottomUpMutatorContext) {
+ 		src = String(p.properties.Arch.Arm.Src)
+ 	case android.Arm64:
+ 		src = String(p.properties.Arch.Arm64.Src)
++	case android.Riscv64:
++		src = String(p.properties.Arch.Riscv64.Src)
+ 	case android.X86:
+ 		src = String(p.properties.Arch.X86.Src)
+ 	case android.X86_64:
+diff --git a/cc/cc.go b/cc/cc.go
+index 0668fd9a..90ff63dd 100644
+--- a/cc/cc.go
++++ b/cc/cc.go
+@@ -968,6 +968,12 @@ func (c *Module) GenerateAndroidBuildActions(actx android.ModuleContext) {
+ 	}
+ 	// Optimization to reduce size of build.ninja
+ 	// Replace the long list of flags for each file with a module-local variable
++	/* FIXME: T-HEAD Skip Werror for riscv64.  */
++        for i := 0; i < len(flags.CFlags); i++ {
++                flags.CFlags[i] = strings.Replace(flags.CFlags[i], "-Werror", "-Wno-error", -1)
++                flags.CFlags[i] = strings.Replace(flags.CFlags[i], "-Wall", "", -1)
++        }
++
+ 	ctx.Variable(pctx, "cflags", strings.Join(flags.CFlags, " "))
+ 	ctx.Variable(pctx, "cppflags", strings.Join(flags.CppFlags, " "))
+ 	ctx.Variable(pctx, "asflags", strings.Join(flags.AsFlags, " "))
+diff --git a/cc/config/clang.go b/cc/config/clang.go
+index a87d5695..2b5bedbe 100644
+--- a/cc/config/clang.go
++++ b/cc/config/clang.go
+@@ -102,7 +102,7 @@ func init() {
+ 		"-faddrsig",
+ 
+ 		// -Wimplicit-fallthrough is not enabled by -Wall.
+-		"-Wimplicit-fallthrough",
++		//"-Wimplicit-fallthrough",
+ 
+ 		// Help catch common 32/64-bit errors.
+ 		"-Werror=int-conversion",
+diff --git a/cc/config/global.go b/cc/config/global.go
+index 815c31d8..0d3a0155 100644
+--- a/cc/config/global.go
++++ b/cc/config/global.go
+@@ -46,6 +46,17 @@ var (
+ 		"-g",
+ 
+ 		"-fno-strict-aliasing",
++		"-Wno-implicit-int-float-conversion",
++		"-Wno-deprecated-copy",
++		"-Wno-implicit-fallthrough",
++		"-Wno-unused-parameter",
++		"-Wno-deprecated-copy",
++		"-Wno-int-in-bool-context",
++		"-Wno-tautological-overlap-compare",
++		"-Wno-c99-designator",
++		"-Wno-reorder-init-list",
++		"-Wno-int-in-bool-context",
++		"-Wno-bool-operation",
+ 	}
+ 
+ 	commonGlobalConlyflags = []string{}
+@@ -122,8 +133,10 @@ var (
+ 
+ 	// prebuilts/clang default settings.
+ 	ClangDefaultBase         = "prebuilts/clang/host"
+-	ClangDefaultVersion      = "clang-r353983c"
+-	ClangDefaultShortVersion = "9.0.3"
++        //ClangDefaultVersion      = "clang-r353983c"
++        //ClangDefaultShortVersion = "9.0.3"
++	ClangDefaultVersion      = "clang-dev"
++	ClangDefaultShortVersion = "11.0.3"
+ 
+ 	// Directories with warnings from Android.bp files.
+ 	WarningAllowedProjects = []string{
+diff --git a/cc/config/riscv64_device.go b/cc/config/riscv64_device.go
+new file mode 100644
+index 00000000..2da543ab
+--- /dev/null
++++ b/cc/config/riscv64_device.go
+@@ -0,0 +1,150 @@
++// Copyright 2015 Google Inc. All rights reserved.
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//     http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++
++package config
++
++import (
++	"strings"
++
++	"android/soong/android"
++)
++
++var (
++	riscv64Cflags = []string{
++		// Help catch common 32/64-bit errors.
++		"-Werror=implicit-function-declaration",
++		"-Wno-implicit-int-float-conversion",
++		"-Wno-deprecated-copy",
++		"-Wno-implicit-fallthrough",
++	}
++
++	riscv64ClangCflags = append(riscv64Cflags, []string{
++		"-fintegrated-as",
++		"-Wno-implicit-fallthrough",
++	}...)
++
++	riscv64Cppflags = []string{
++		"-Wno-implicit-int-float-conversion",
++		"-Wno-deprecated-copy",
++		"-Wno-implicit-fallthrough",
++	}
++
++	riscv64Ldflags = []string{
++		"-Wl,--allow-shlib-undefined",
++	}
++
++	riscv64ArchVariantCflags = map[string][]string{
++		"imafdc": []string{
++			"-march=rv64imafdc",
++		},
++	}
++)
++
++const (
++	riscv64GccVersion = "8.1"
++)
++
++func init() {
++	pctx.StaticVariable("riscv64GccVersion", riscv64GccVersion)
++
++	pctx.SourcePathVariable("Riscv64GccRoot",
++		"prebuilts/gcc/${HostPrebuiltTag}/riscv64/riscv64-linux-android-${riscv64GccVersion}")
++
++	pctx.StaticVariable("Riscv64IncludeFlags", bionicHeaders("riscv"))
++
++	// Clang cflags
++	pctx.StaticVariable("Riscv64ClangCflags", strings.Join(ClangFilterUnknownCflags(riscv64ClangCflags), " "))
++	pctx.StaticVariable("Riscv64ClangLdflags", strings.Join(ClangFilterUnknownCflags(riscv64Ldflags), " "))
++	pctx.StaticVariable("Riscv64ClangCppflags", strings.Join(ClangFilterUnknownCflags(riscv64Cppflags), " "))
++
++	// Extended cflags
++
++	// Architecture variant cflags
++	pctx.StaticVariable("Riscv64VariantClangCflags",
++			strings.Join(ClangFilterUnknownCflags(riscv64ClangCflags), " "))
++	for variant, cflags := range riscv64ArchVariantCflags {
++		pctx.StaticVariable("Riscv64"+variant+"VariantClangCflags",
++			strings.Join(ClangFilterUnknownCflags(cflags), " "))
++	}
++}
++
++type toolchainRiscv64 struct {
++	toolchain64Bit
++	clangCflags          string
++	toolchainClangCflags string
++}
++
++func (t *toolchainRiscv64) Name() string {
++	return "riscv64"
++}
++
++func (t *toolchainRiscv64) GccRoot() string {
++	return "${config.Riscv64GccRoot}"
++}
++
++func (t *toolchainRiscv64) GccTriple() string {
++	return "riscv64-linux-android"
++}
++
++func (t *toolchainRiscv64) GccVersion() string {
++	return riscv64GccVersion
++}
++
++func (t *toolchainRiscv64) IncludeFlags() string {
++	return "${config.Riscv64IncludeFlags}"
++}
++
++func (t *toolchainRiscv64) ClangTriple() string {
++	return t.GccTriple()
++}
++
++func (t *toolchainRiscv64) ToolchainClangCflags() string {
++	return t.toolchainClangCflags
++}
++
++func (t *toolchainRiscv64) ClangAsflags() string {
++	return "-fno-integrated-as"
++}
++
++func (t *toolchainRiscv64) ClangCflags() string {
++	return t.clangCflags
++}
++
++func (t *toolchainRiscv64) ClangCppflags() string {
++	return "${config.Riscv64ClangCppflags}"
++}
++
++func (t *toolchainRiscv64) ClangLdflags() string {
++	return "${config.Riscv64ClangLdflags}"
++}
++
++func (t *toolchainRiscv64) ClangLldflags() string {
++	// TODO: define and use Riscv64ClangLldflags
++	return "${config.Riscv64ClangLdflags}"
++}
++
++func (toolchainRiscv64) LibclangRuntimeLibraryArch() string {
++	return "riscv64"
++}
++
++func riscv64ToolchainFactory(arch android.Arch) Toolchain {
++	return &toolchainRiscv64{
++		clangCflags:          "${config.Riscv64ClangCflags}",
++		toolchainClangCflags: "${config.Riscv64" + arch.ArchVariant + "VariantClangCflags}",
++	}
++}
++
++func init() {
++	registerToolchainFactory(android.Android, android.Riscv64, riscv64ToolchainFactory)
++}
+diff --git a/cc/gen_stub_libs.py b/cc/gen_stub_libs.py
+index 81bc398a..be1f20ec 100755
+--- a/cc/gen_stub_libs.py
++++ b/cc/gen_stub_libs.py
+@@ -28,6 +28,7 @@ ALL_ARCHITECTURES = (
+     'arm64',
+     'mips',
+     'mips64',
++    'riscv64',
+     'x86',
+     'x86_64',
+ )
+diff --git a/cc/library.go b/cc/library.go
+index ca1c1be0..a371912b 100644
+--- a/cc/library.go
++++ b/cc/library.go
+@@ -780,32 +780,32 @@ func getRefAbiDumpFile(ctx ModuleContext, vndkVersion, fileName string) android.
+ }
+ 
+ func (library *libraryDecorator) linkSAbiDumpFiles(ctx ModuleContext, objs Objects, fileName string, soFile android.Path) {
+-	if len(objs.sAbiDumpFiles) > 0 && ctx.shouldCreateVndkSourceAbiDump() {
+-		vndkVersion := ctx.DeviceConfig().PlatformVndkVersion()
+-		if ver := ctx.DeviceConfig().VndkVersion(); ver != "" && ver != "current" {
+-			vndkVersion = ver
+-		}
+-
+-		exportIncludeDirs := library.flagExporter.exportedIncludes(ctx)
+-		var SourceAbiFlags []string
+-		for _, dir := range exportIncludeDirs.Strings() {
+-			SourceAbiFlags = append(SourceAbiFlags, "-I"+dir)
+-		}
+-		for _, reexportedInclude := range extractExportIncludesFromFlags(library.sabi.Properties.ReexportedIncludeFlags) {
+-			SourceAbiFlags = append(SourceAbiFlags, reexportedInclude)
+-		}
+-		exportedHeaderFlags := strings.Join(SourceAbiFlags, " ")
+-		library.sAbiOutputFile = TransformDumpToLinkedDump(ctx, objs.sAbiDumpFiles, soFile, fileName, exportedHeaderFlags,
+-			android.OptionalPathForModuleSrc(ctx, library.Properties.Header_abi_checker.Symbol_file),
+-			library.Properties.Header_abi_checker.Exclude_symbol_versions,
+-			library.Properties.Header_abi_checker.Exclude_symbol_tags)
+-
+-		refAbiDumpFile := getRefAbiDumpFile(ctx, vndkVersion, fileName)
+-		if refAbiDumpFile != nil {
+-			library.sAbiDiff = SourceAbiDiff(ctx, library.sAbiOutputFile.Path(),
+-				refAbiDumpFile, fileName, exportedHeaderFlags, ctx.isLlndk(), ctx.isVndkExt())
+-		}
+-	}
++	//if len(objs.sAbiDumpFiles) > 0 && ctx.shouldCreateVndkSourceAbiDump() {
++	//	vndkVersion := ctx.DeviceConfig().PlatformVndkVersion()
++	//	if ver := ctx.DeviceConfig().VndkVersion(); ver != "" && ver != "current" {
++	//		vndkVersion = ver
++	//	}
++
++	//	exportIncludeDirs := library.flagExporter.exportedIncludes(ctx)
++	//	var SourceAbiFlags []string
++	//	for _, dir := range exportIncludeDirs.Strings() {
++	//		SourceAbiFlags = append(SourceAbiFlags, "-I"+dir)
++	//	}
++	//	for _, reexportedInclude := range extractExportIncludesFromFlags(library.sabi.Properties.ReexportedIncludeFlags) {
++	//		SourceAbiFlags = append(SourceAbiFlags, reexportedInclude)
++	//	}
++	//	exportedHeaderFlags := strings.Join(SourceAbiFlags, " ")
++	//	library.sAbiOutputFile = TransformDumpToLinkedDump(ctx, objs.sAbiDumpFiles, soFile, fileName, exportedHeaderFlags,
++	//		android.OptionalPathForModuleSrc(ctx, library.Properties.Header_abi_checker.Symbol_file),
++	//		library.Properties.Header_abi_checker.Exclude_symbol_versions,
++	//		library.Properties.Header_abi_checker.Exclude_symbol_tags)
++
++	//	//refAbiDumpFile := getRefAbiDumpFile(ctx, vndkVersion, fileName)
++	//	//if refAbiDumpFile != nil {
++	//	//	library.sAbiDiff = SourceAbiDiff(ctx, library.sAbiOutputFile.Path(),
++	//	//		refAbiDumpFile, fileName, exportedHeaderFlags, ctx.isLlndk(), ctx.isVndkExt())
++	//	//}
++	//}
+ }
+ 
+ func (library *libraryDecorator) link(ctx ModuleContext,
+diff --git a/cc/linker.go b/cc/linker.go
+index e063e441..b4c07e3d 100644
+--- a/cc/linker.go
++++ b/cc/linker.go
+@@ -341,7 +341,7 @@ func (linker *baseLinker) linkerFlags(ctx ModuleContext, flags Flags) Flags {
+ 	if linker.useClangLld(ctx) {
+ 		flags.LdFlags = append(flags.LdFlags, fmt.Sprintf("${config.%sGlobalLldflags}", hod))
+ 		if !BoolDefault(linker.Properties.Pack_relocations, true) {
+-			flags.LdFlags = append(flags.LdFlags, "-Wl,--pack-dyn-relocs=none")
++			//flags.LdFlags = append(flags.LdFlags, "-Wl,--pack-dyn-relocs=none")
+ 		} else if ctx.Device() {
+ 			// The SHT_RELR relocations is only supported by API level >= 28.
+ 			// Do not turn this on if older version NDK is used.
+@@ -396,7 +396,7 @@ func (linker *baseLinker) linkerFlags(ctx ModuleContext, flags Flags) Flags {
+ 	flags.LdFlags = append(flags.LdFlags, proptools.NinjaAndShellEscapeList(linker.Properties.Ldflags)...)
+ 
+ 	if ctx.Host() {
+-		rpath_prefix := `\$$ORIGIN/`
++		rpath_prefix := `$$ORIGIN/`
+ 		if ctx.Darwin() {
+ 			rpath_prefix = "@loader_path/"
+ 		}
+@@ -456,8 +456,8 @@ func (linker *baseLinker) linkerFlags(ctx ModuleContext, flags Flags) Flags {
+ 		symbolOrderingFile := ctx.ExpandOptionalSource(
+ 			linker.Properties.Symbol_ordering_file, "Symbol_ordering_file")
+ 		if symbolOrderingFile.Valid() {
+-			flags.LdFlags = append(flags.LdFlags,
+-				"-Wl,--symbol-ordering-file,"+symbolOrderingFile.String())
++			//flags.LdFlags = append(flags.LdFlags,
++			//	"-Wl,--symbol-ordering-file,"+symbolOrderingFile.String())
+ 			flags.LdFlagsDeps = append(flags.LdFlagsDeps, symbolOrderingFile.Path())
+ 		}
+ 	}
+diff --git a/cc/ndk_headers.go b/cc/ndk_headers.go
+index 5e45c1ac..ee391fe7 100644
+--- a/cc/ndk_headers.go
++++ b/cc/ndk_headers.go
+@@ -139,6 +139,9 @@ func (m *headerModule) GenerateAndroidBuildActions(ctx android.ModuleContext) {
+ 	if ctx.Config().NdkAbis() && strings.Contains(ctx.ModuleName(), "mips") {
+ 		return
+ 	}
++	if ctx.Config().NdkAbis() && strings.Contains(ctx.ModuleName(), "riscv") {
++		return
++        }
+ 
+ 	srcFiles := android.PathsForModuleSrcExcludes(ctx, m.properties.Srcs, m.properties.Exclude_srcs)
+ 	for _, header := range srcFiles {
+diff --git a/cc/ndk_library.go b/cc/ndk_library.go
+index 7199467b..a2a9c06c 100644
+--- a/cc/ndk_library.go
++++ b/cc/ndk_library.go
+@@ -130,6 +130,7 @@ func normalizeNdkApiLevel(ctx android.BaseContext, apiLevel string,
+ 		android.Arm64:  21,
+ 		android.Mips:   minVersion,
+ 		android.Mips64: 21,
++		android.Riscv64:  21,
+ 		android.X86:    minVersion,
+ 		android.X86_64: 21,
+ 	}
+diff --git a/cc/sanitize.go b/cc/sanitize.go
+index b7a36a60..c737df91 100644
+--- a/cc/sanitize.go
++++ b/cc/sanitize.go
+@@ -392,7 +392,7 @@ func (sanitize *sanitize) deps(ctx BaseModuleContext, deps Deps) Deps {
+ 
+ 	if ctx.Device() {
+ 		if Bool(sanitize.Properties.Sanitize.Address) {
+-			deps.StaticLibs = append(deps.StaticLibs, asanLibs...)
++			//deps.StaticLibs = append(deps.StaticLibs, asanLibs...)
+ 			// Compiling asan and having libc_scudo in the same
+ 			// executable will cause the executable to crash.
+ 			// Remove libc_scudo since it is only used to override
+diff --git a/scripts/strip.sh b/scripts/strip.sh
+index 0f77da8a..90c62959 100755
+--- a/scripts/strip.sh
++++ b/scripts/strip.sh
+@@ -56,8 +56,9 @@ EOF
+ do_strip() {
+     # ${CROSS_COMPILE}strip --strip-all does not strip .ARM.attributes,
+     # so we tell llvm-strip to keep it too.
++    # FIXME: T-HEAD Skip keep-section.  */
+     if [ -z "${use_gnu_strip}" ]; then
+-        "${CLANG_BIN}/llvm-strip" --strip-all -keep-section=.ARM.attributes "${infile}" -o "${outfile}.tmp"
++        "${CLANG_BIN}/llvm-strip" --strip-all  "${infile}" -o "${outfile}.tmp"
+     else
+         "${CROSS_COMPILE}strip" --strip-all "${infile}" -o "${outfile}.tmp"
+     fi
+@@ -90,7 +91,7 @@ do_strip_keep_mini_debug_info() {
+     rm -f "${outfile}.dynsyms" "${outfile}.funcsyms" "${outfile}.keep_symbols" "${outfile}.debug" "${outfile}.mini_debuginfo" "${outfile}.mini_debuginfo.xz"
+     local fail=
+     if [ -z "${use_gnu_strip}" ]; then
+-        "${CLANG_BIN}/llvm-strip" --strip-all -keep-section=.ARM.attributes -remove-section=.comment "${infile}" -o "${outfile}.tmp" || fail=true
++        "${CLANG_BIN}/llvm-strip" --strip-all "${infile}" -o "${outfile}.tmp" || fail=true
+     else
+         "${CROSS_COMPILE}strip" --strip-all -R .comment "${infile}" -o "${outfile}.tmp" || fail=true
+     fi
+-- 
+2.18.4
+
