@@ -1,6 +1,3 @@
-AOSP_BUILD_TOP=/home/maoh/aosp
-AOSP_PATCH_TOP=/home/maoh/aosp_on_riscv/patches/
-
 apply_patch(){
 	echo apply patch for $1
 	pushd . >> /dev/null
@@ -23,7 +20,7 @@ apply_patch art
 apply_patch bionic
 apply_patch build/make
 apply_patch build/soong
-apply_patch_diff cts
+apply_patch cts
 apply_patch dalvik
 apply_patch development
 apply_patch device/generic/goldfish

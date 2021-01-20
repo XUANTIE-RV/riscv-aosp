@@ -59,16 +59,17 @@ if [ ! -f ${AOSP_RISCV_TOP}/stages/.stamp_aosp_build ]; then
     source ./build/envsetup.sh
     lunch aosp_riscv64-eng
     export LD_LIBRARY_PATH="${AOSP_RISCV_BUILD_TOP}/out/soong/host/linux-x86/lib64:${AOSP_RISCV_BUILD_TOP}/prebuilts/build-tools/linux-x86/lib64:${AOSP_RISCV_BUILD_TOP}/prebuilts/clang/host/linux-x86/clang-dev/lib64:${AOSP_RISCV_BUILD_TOP}/out/soong/host/linux-x86/lib:/${AOSP_RISCV_BUILD_TOP}/out/host/linux-x86/lib64:${AOSP_RISCV_BUILD_TOP}/prebuilts/clang/host/linux-x86/clang-dev/lib64/"
-    m -j 10
+    m -j
     cp ${AOSP_RISCV_BUILD_TOP}/out/target/product/generic_riscv64/system/lib64/vndk-sp-29/libcompiler_rt.so ${AOSP_RISCV_BUILD_TOP}/out/target/product/generic_riscv64/system/lib64/libcompiler_rt.so
-    make snod
+    rm ${AOSP_RISCV_BUILD_TOP}/out/target/product/generic_riscv64/obj/PACKAGING/ -rf
+    m -j
     cd ${AOSP_RISCV_TOP}/
     touch ${AOSP_RISCV_TOP}/stages/.stamp_aosp_build
 fi
 
 #run aosp
 echo "Start emulator with cmd:"
-echo cd {AOSP_RISCV_BUILD_TOP}
+echo cd ${AOSP_RISCV_BUILD_TOP}
 echo "source ./build/envsetup.sh"
 echo "lunch aosp_riscv64-eng"
 echo "emulator -selinux permissive -qemu -smp 2 -m 3800M -bios ${AOSP_RISCV_BUILD_TOP}/prebuilts/qemu-kernel/riscv64/ranchu/fw_jump.bin"
