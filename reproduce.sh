@@ -36,6 +36,12 @@ if ! check_tools gcc ld zip unzip curl git java repo; then
     exit -1
 fi
 
+#download prebuilts
+if [ ! -f ${AOSP_RISCV_TOP}/stages/.stamp_download_pre ]; then
+    ${AOSP_RISCV_TOP}/script/download_prebuilts.sh
+    touch ${AOSP_RISCV_TOP}/stages/.stamp_download_pre
+fi
+
 #download aosp
 if [ ! -f ${AOSP_RISCV_TOP}/stages/.stamp_repo_sync ]; then
     mkdir -p ${AOSP_RISCV_BUILD_TOP}
