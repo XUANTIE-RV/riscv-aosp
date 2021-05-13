@@ -69,3 +69,8 @@ apply_zip prebuilts/android-emulator
 apply_zip prebuilts/clang-tools
 apply_zip prebuilts/clang/host/linux-x86
 apply_zip prebuilts/vndk/v28
+
+if [ ! -d ${AOSP_RISCV_BUILD_TOP}/device/thead/thead_ice910/ ]; then
+mkdir -p ${AOSP_RISCV_BUILD_TOP}/device/thead/
+cp ${AOSP_RISCV_PATCH_TOP}/device/thead/thead_ice910/ ${AOSP_RISCV_BUILD_TOP}/device/thead/thead_ice910/ -r
+fi
