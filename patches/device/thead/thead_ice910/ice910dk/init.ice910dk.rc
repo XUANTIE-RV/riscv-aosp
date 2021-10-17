@@ -1,0 +1,9 @@
+on init
+import init.common.usb.rc
+
+on boot
+	insmod /vendor/lib64/modules/galcore.ko
+	chmod 666 /dev/galcore
+
+on fs
+	mount_all /vendor/etc/fstab.${ro.board.platform}

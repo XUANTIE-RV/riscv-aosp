@@ -74,7 +74,7 @@ if [ ! -f ${AOSP_RISCV_TOP}/stages/.stamp_aosp_build ]; then
     source ./build/envsetup.sh
     export LD_LIBRARY_PATH="${AOSP_RISCV_BUILD_TOP}/out/soong/host/linux-x86/lib64:${AOSP_RISCV_BUILD_TOP}/prebuilts/build-tools/linux-x86/lib64:${AOSP_RISCV_BUILD_TOP}/prebuilts/clang/host/linux-x86/clang-dev/lib64:${AOSP_RISCV_BUILD_TOP}/out/soong/host/linux-x86/lib:/${AOSP_RISCV_BUILD_TOP}/out/host/linux-x86/lib64:${AOSP_RISCV_BUILD_TOP}/prebuilts/clang/host/linux-x86/clang-dev/lib64/"
   if [ ${DEVICE} == "ice" ]; then
-        lunch ice910-userdebug
+        lunch ice910dk-userdebug
         m -j
         cp ${AOSP_RISCV_BUILD_TOP}/prebuilts/vndk/v28/riscv64/arch-riscv64-riscv64/shared/vndk-sp/libcompiler_rt.so ${AOSP_RISCV_BUILD_TOP}/out/target/product/ice910/system/lib64/libcompiler_rt.so
   else
@@ -90,7 +90,7 @@ fi
 
 #run aosp
 if [ ${DEVICE} == "ice" ]; then
-    echo "The output images are under ${AOSP_RISCV_BUILD_TOP}/out/target/product/ice910/, you can program them into ICE evb and reboot Android system."
+    echo "The output images are under ${AOSP_RISCV_BUILD_TOP}/out/target/product/ice910dk/, you can program them into ICE evb and reboot Android system."
 else
     echo "Start emulator with cmd:"
     echo cd ${AOSP_RISCV_BUILD_TOP}

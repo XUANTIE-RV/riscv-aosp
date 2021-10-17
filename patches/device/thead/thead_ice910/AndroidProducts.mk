@@ -1,5 +1,5 @@
 PRODUCT_MAKEFILES := \
-	$(LOCAL_DIR)/ice910.mk
+	$(LOCAL_DIR)/ice910dk.mk
 
 COMMON_LUNCH_CHOICES := \
-	ice910-userdebug
+	ice910dk-userdebug
