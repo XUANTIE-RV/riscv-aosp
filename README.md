@@ -5,6 +5,8 @@ Graph 1. AOSP on RISC-V 64(XuanTie 910)
 
 [Video for Android on XuanTie910](https://occ-oss-prod.oss-cn-hangzhou.aliyuncs.com/share/riscv_android_demo.mp4)
 
+[News and related resources](https://occ.t-head.cn/community/risc_v_android/en)
+
 # Chip
 ICE is a XuanTie C910 based high performance SoC board developed by T-Head. The ICE SoC has integrated 3 XuanTie C910 cores (RISC-V 64) and 1 GPU core; featuring speed and intelligence with a high cost-effective ratio. The chip can provide 4K@60 HEVC/AVC/JPEG decoding ability, and varieties of high-speed interfaces and peripherals for controlling and data exchange; suits for 3D graphics, visual AI and multimedia processing.
 
