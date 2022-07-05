@@ -89,7 +89,7 @@ Connect the power socket to 5V power supply, and the USB Type-C connector to hos
 ![rvb_ice_port.jpg](https://github.com/T-head-Semi/aosp-riscv/blob/main/resources/rvb_ice_port.jpg?raw=true)
 
 You can program the device with the files under fastboot directory or prebuilt images downloaded from this link:
-[**Prebuilt images**](https://rosp-riscv.oss-cn-hangzhou.aliyuncs.com/prebuilts/images/ice/android-rvb-ice-images_20210113.tar.bz2)
+[**Prebuilt images**](https://aosp-riscv.oss-cn-hangzhou.aliyuncs.com/prebuilts/images/ice/android-rvb-ice-images_20210113.tar.bz2)
 
 Press the reboot button on the board; type in any key to get into console mode when the following prompt shows on the terminal.
 
