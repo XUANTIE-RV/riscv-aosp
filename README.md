@@ -227,7 +227,7 @@ https://github.com/google/android-riscv64/issues
 We do not require any formal copyright assignment or contributor license agreement. Any contributions intentionally sent upstream are presumed to be offered under terms of the OSI-approved Apache License 2.0. See LICENSE file for details.
 
 ## About Us
-This repository is maintained by Alibaba T-Head.
+This repository is maintained by Alibaba Damo Academy Xuantie Team.
 
 If you need technical support, you can submit a work order through OCC: 
 https://www.xrvm.cn/people/workorder-submit
