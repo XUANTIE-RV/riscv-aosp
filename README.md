@@ -1,6 +1,6 @@
-# T-HEAD Android
+# XuanTie Android
 
-This repository is maintained by T-Head Semiconductor for the support of the Android Open Source Project (AOSP) on XuanTie CPU based development boards. It mainly includes BSP configuration, peripheral HAL layer, kernel, u-boot, and pre-compiled component support for the development boards. Other components can be directly pulled from the upstream AOSP repository. Currently, the repository maintains the relevant support for BeagleV Ahead and Lichee Pi 4A development boards based on the [TH1520](https://xrvm.com/soc-details?id=4095189586886594560) SoC prototype.
+This repository is maintained by Damo Academy Xuantie Team for the support of the Android Open Source Project (AOSP) on XuanTie CPU based development boards. It mainly includes BSP configuration, peripheral HAL layer, kernel, u-boot, and pre-compiled component support for the development boards. Other components can be directly pulled from the upstream AOSP repository. Currently, the repository maintains the relevant support for BeagleV Ahead and Lichee Pi 4A development boards based on the [TH1520](https://xrvm.com/soc-details?id=4095189586886594560) SoC prototype.
 
 Chinese page:
 
@@ -8,7 +8,7 @@ https://gitee.com/thead-android/thead-android/blob/master/README.md
 
 The historical versions (RVB-ICE support) of this repository have been backed up to the branch:
 
-https://github.com/T-head-Semi/riscv-aosp/tree/back_up
+https://github.com/XUANTIE-RV/riscv-aosp/tree/back_up
 
 ## Development boards
 ### BeagleV Ahead
@@ -23,7 +23,7 @@ https://beaglev-ahead.beagleboard.io/docs/latest/boards/beaglev/ahead/index.html
 
 ### Lichee Pi 4A EVB
 Lichee Pi 4A is a development board product launched by Sipeed, which supports multiple operating systems such as Android, Debian, OpenWrt, etc. The development board integrates TH1520 SoC, which includes a quad-core Xuan Tie C910 processor running at 1.85G and an NPU with 4TOPS computing power. It has a built-in GPU that supports OpenGL ES, OpenCL, and Vulkan, and features various device interfaces such as USB, Wi-Fi/BT, Ethernet, HDMI, MIPI CSI/DSI, etc. It can be used in AI edge computing applications such as video conferencing all-in-one machines, face recognition attendance access control, medical imaging, etc.
-![licheepi4a](https://github.com/T-head-Semi/riscv-aosp/blob/main/resources/licheepi4a.png?raw=true)
+![licheepi4a](https://github.com/XUANTIE-RV/riscv-aosp/blob/main/resources/licheepi4a.png?raw=true)
 
 Figure 2. Lichee Pi 4A EVB
 
@@ -37,7 +37,7 @@ Download the Android Open Source Project (mainline version) and the development 
 ```
 mkdir riscv-android-src && cd riscv-android-src
 repo init -u https://android.googlesource.com/platform/manifest -b master
-git clone https://gitee.com/thead-android/local_manifests.git .repo/local_manifests -b thead-android_dev
+git clone https://gitee.com/XUANTIE-RV/local_manifests.git .repo/local_manifests -b thead-android_dev
 repo sync
 ```
 
@@ -66,7 +66,7 @@ $ cd out/target/product/beaglev_ahead/
 $ cp u-boot-with-spl.bin bootpart.ext4 boot.img super.img userdata.img vbmeta.img vbmeta_system.img vendor_boot.img ../../../../../fastboot/
 ```
 
-![beaglev_connect](https://github.com/T-head-Semi/riscv-aosp/blob/main/resources/beaglev_connect.png?raw=true)
+![beaglev_connect](https://github.com/XUANTIE-RV/riscv-aosp/blob/main/resources/beaglev_connect.png?raw=true)
 
 Figure 3. BeagleV Ahead Connection.
 
@@ -102,7 +102,7 @@ fastboot erase misc
 ```
 After writing, reset and power on the board to enter the system boot mode. You can access the system command line through the serial port/ADB and interact with the system image interface through the touch screen or external HDMI display.
 
-![beaglev_aosp](https://github.com/T-head-Semi/riscv-aosp/blob/main/resources/beaglev_aosp.png?raw=true)
+![beaglev_aosp](https://github.com/XUANTIE-RV/riscv-aosp/blob/main/resources/beaglev_aosp.png?raw=true)
 
 Figure 4. Running AOSP main branch on BeagleV Ahead.
 
@@ -132,7 +132,7 @@ $ mkdir fastboot
 $ cp bootpart.ext4 boot.img super.img userdata.img vbmeta.img vbmeta_system.img vendor_boot.img ../../../../../fastboot/
 ```
 
-![licheepi4a_connect](https://github.com/T-head-Semi/riscv-aosp/blob/main/resources/licheepi4a_connect.png?raw=true)
+![licheepi4a_connect](https://github.com/XUANTIE-RV/riscv-aosp/blob/main/resources/licheepi4a_connect.png?raw=true)
 
 Figure 5. Lichee Pi 4A EVB connect
 
@@ -169,7 +169,7 @@ fastboot erase misc
 ```
 After writing, reset and power on the board to enter the system boot mode. You can access the system command line through the serial port/ADB and interact with the system image interface through the touch screen or external HDMI display.
 
-![licheepi4a_aosp](https://github.com/T-head-Semi/riscv-aosp/blob/main/resources/licheepi4a_aosp.png?raw=true)
+![licheepi4a_aosp](https://github.com/XUANTIE-RV/riscv-aosp/blob/main/resources/licheepi4a_aosp.png?raw=true)
 
 Figure 6. Running AOSP Mainline on Lichee Pi 4A
 
@@ -206,13 +206,13 @@ https://gitee.com/thead-android/thead-android/issues
 
 Other open source software projects by Flathead Brother can be accessed through the following links:
 
-T-HEAD Yocto Linux: https://gitee.com/thead-yocto
+XuanTie Yocto Linux: https://gitee.com/thead-yocto
 
 YoC Open: https://gitee.com/yocop
 
 If you want to learn more about TH1520 and Wujian 600 platform, please visit:
 
-https://xuantie.t-head.cn/product/wujian/4080405462988689408
+https://www.xrvm.cn/product/wujian/600
 
 If you want to learn more about the dynamic support of RISC-V architecture on Android, you can subscribe to the RISC-V Android SIG mailing list and participate in community discussions:
 
@@ -230,7 +230,7 @@ We do not require any formal copyright assignment or contributor license agreeme
 This repository is maintained by Alibaba T-Head.
 
 If you need technical support, you can submit a work order through OCC: 
-https://occ.t-head.cn/people/workorder-submit. 
+https://www.xrvm.cn/people/workorder-submit
 
 You can also contact us through the following ways:
-E-mail: occ_thead@service.alibaba.com
+E-mail: xuantie@service.alibaba.com
