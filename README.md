@@ -234,3 +234,9 @@ https://www.xrvm.cn/people/workorder-submit
 
 You can also contact us through the following ways:
 E-mail: xuantie@service.alibaba.com
+
+## Documentation & Community
+
+Documentation and development resources for Android support on RISC-V platforms:
+
+* [XuanTie Android Resources](https://www.xrvm.cn/soft-tools/os/Android)
